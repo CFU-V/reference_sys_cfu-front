@@ -1,0 +1,15 @@
+# This is a test API call
+//
+POST http://127.0.0.1:7777/auth/login/ HTTP/1.1
+content-type: application/json
+
+{
+    "login": "admin",
+    "password": "admin"
+}
+
+###
+
+GET http://127.0.0.1:7777/user/user?pageSize=1&page=1&id=1
+Accept: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NiwibG9naW4iOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTU2Mzk2ODA4OCwiZXhwIjozMDY2Mjc0MDczfQ.543KhKvlx8Gu3x5YI5yAKh9STUunyjRjP97VRqC2T7E
