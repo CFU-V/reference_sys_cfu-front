@@ -2,7 +2,9 @@
   <div>
     <!-- Pre loader -->
     <page-loader></page-loader>
-    <!-- /Pre loader -->
+    <!-- Check login -->
+    <login-check :viewMW="true"></login-check>
+    <!-- /Check login -->
     <h2>Управление документами</h2>
     <form class="form-inline search-box">
       <div class="input-group">
@@ -380,6 +382,7 @@ import * as api from "../api";
 import Navigator from "../components/PageNavigator";
 import mnt from "moment";
 import Loader from "../components/PageLoader.vue";
+import LoginCheck from "../components/logincheck.vue";
 
 export default {
   data() {
@@ -431,6 +434,7 @@ export default {
   },
   components: {
     PageNav: Navigator,
+    LoginCheck,
     PageLoader: Loader
   },
   methods: {

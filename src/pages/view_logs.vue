@@ -2,7 +2,9 @@
   <div>
     <!-- Pre loader -->
     <page-loader></page-loader>
-    <!-- /Pre loader -->
+    <!-- Check login -->
+    <login-check :viewMW="true"></login-check>
+    <!-- /Check login -->
     <h2>Журнал событий (логи)</h2>
     <p class="table_caption">Список логов</p>
     <table class="table_blur">
@@ -58,6 +60,7 @@ import Navigator from "../components/PageNavigator";
 import * as api from "../api";
 import FileSaver from "file-saver";
 import Loader from "../components/PageLoader.vue";
+import LoginCheck from "../components/logincheck.vue";
 
 export default {
   data() {
@@ -74,7 +77,8 @@ export default {
   },
   components: {
     PageNav: Navigator,
-    PageLoader: Loader
+    PageLoader: Loader,
+    LoginCheck
   },
   methods: {
     convert(_date) {

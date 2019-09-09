@@ -1,5 +1,8 @@
 <template>
   <div>
+    	<!-- Check login -->
+    <login-check :viewMW="true"></login-check>
+    <!-- /Check login -->
     <h2>Ваш профиль</h2>
     <form class="form-table">
       <h2>Персональные настройки</h2>
@@ -82,6 +85,7 @@
 
 <script>
 import * as api from "../api";
+import LoginCheck from "../components/logincheck.vue";
 
 export default {
   data() {
@@ -95,6 +99,9 @@ export default {
       RespText: "",
       success: ""
     };
+  },
+  components: {
+    LoginCheck
   },
   computed: {
     SetValueBut() {

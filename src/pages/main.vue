@@ -2,6 +2,8 @@
   <div>
     <!-- Pre loader -->
     <page-loader></page-loader>
+    	<!-- Check login -->
+    <login-check :viewMW="true"></login-check>
     <!-- Header -->
     <page-header></page-header>
     <!-- Content -->
@@ -28,6 +30,7 @@ import Header from "./header.vue";
 import Footer from "./footer.vue";
 import Loader from "../components/PageLoader.vue";
 import * as api from "../api";
+import LoginCheck from "../components/logincheck.vue";
 
 export default {
   data() {
@@ -38,6 +41,7 @@ export default {
   components: {
     PageHeader: Header,
     PageFooter: Footer,
+    LoginCheck,
     PageLoader: Loader
   },
   methods: {
@@ -75,7 +79,7 @@ export default {
   created() {
     document.title = this.$route.meta.title;
     this.GetNews();
-  }
+  },
 };
 </script>
 

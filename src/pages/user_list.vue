@@ -2,7 +2,9 @@
   <div>
     <!-- Pre loader -->
     <page-loader></page-loader>
-    <!-- /Pre loader -->
+    <!-- Check login -->
+    <login-check :viewMW="true"></login-check>
+    <!-- /Check login -->
     <h2>Управление пользователями</h2>
     <form class="form-inline search-box">
       <div class="input-group">
@@ -17,7 +19,6 @@
         </select>
       </div>
       <button type="submit" class="btn btn-info" @click.prevent="StartSearch">Поиск</button>
-
     </form>
     <button class="btn btn-success" style="margin-top: 50px" @click="StartInfo">Показать всех пользователей</button>
     <p class="table_caption">Список пользователей</p>
@@ -169,6 +170,7 @@
 import Loader from "../components/PageLoader.vue";
 import Navigator from "../components/PageNavigator";
 import * as api from "../api";
+import LoginCheck from "../components/logincheck.vue";
 
 export default {
   data() {
@@ -204,6 +206,7 @@ export default {
     this.GetStartInfo(this.PageNum);
   },
   components: {
+    LoginCheck,
     PageNav: Navigator,
      PageLoader: Loader
   },

@@ -2,7 +2,9 @@
   <div id="Fon">
     <!-- Pre loader -->
     <page-loader></page-loader>
-    <!-- /Pre loader -->
+    <!-- Check login -->
+    <login-check :viewMW="true"></login-check>
+    <!-- /Check login -->
     <div id="left-menu-fon"></div>
     <div id="left-menu-container">
       <ul class="Container left-menu-test">
@@ -104,6 +106,7 @@
 <script>
 import * as api from "../api";
 import Loader from "../components/PageLoader";
+import LoginCheck from "../components/logincheck.vue";
 
 export default {
   data() {
@@ -127,6 +130,7 @@ export default {
     }
   },
   components: {
+    LoginCheck,
     PageLoader: Loader
   },
   methods: {

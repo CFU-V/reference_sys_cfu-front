@@ -2,6 +2,8 @@
   <div>
     <!-- Pre loader -->
     <page-loader></page-loader>
+    	<!-- Check login -->
+    <login-check :viewMW="true"></login-check>
     <!-- Header -->
     <header class="container-image-fon">
       <div class="image-fon"></div>
@@ -10,7 +12,7 @@
           <p>Сегодня: {{ GetNowDate }}</p>
           <div class="btn-group">
             <div v-if="IsLogged" class="btn notifications-box">
-              <div class="notifications-number">2</div>
+              <div class="notifications-number">3</div>
               <router-link class="notifications-bell" to="/console/messages/"></router-link>
             </div>
             <button type="button" class="btn btn-outline-primary"
@@ -276,6 +278,7 @@
 import Loader from "../components/PageLoader";
 import * as api from "../api";
 import mnt from "moment";
+import LoginCheck from "../components/logincheck.vue";
 
 export default {
   data() {
@@ -308,6 +311,7 @@ export default {
     };
   },
   components: {
+    LoginCheck,
     PageLoader: Loader
   },
   computed: {

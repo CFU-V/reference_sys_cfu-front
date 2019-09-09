@@ -1,5 +1,8 @@
 <template>
   <div>
+    <!-- Check login -->
+    <login-check :viewMW="true"></login-check>
+    <!-- /Check login -->
     <h2>Добавить документ</h2>
     <form enctype="multipart/form-data" class="form-table">
       <table>
@@ -160,6 +163,7 @@
 
 <script>
 import * as api from "../api";
+import LoginCheck from "../components/logincheck.vue";
 
 export default {
   data() {
@@ -182,6 +186,9 @@ export default {
       success: "",
       ResponseSQ: []
     };
+  },
+  components: {
+    LoginCheck,
   },
   created() {
     document.title = this.$route.meta.title;

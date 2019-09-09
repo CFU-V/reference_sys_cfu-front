@@ -1,5 +1,8 @@
 <template>
   <div>
+    <!-- Check login -->
+    <login-check :viewMW="true"></login-check>
+    <!-- /Check login -->
     <h2>Ваши уведомления</h2>
     <p class="table_caption">Список ваших уведомлений</p>
     <table class="table_blur">
@@ -70,6 +73,7 @@
 import moment from "moment";
 import * as api from "../api";
 import Navigator from "../components/PageNavigator";
+import LoginCheck from "../components/logincheck.vue";
 
 export default {
   data() {
@@ -120,6 +124,7 @@ export default {
     };
   },
   components: {
+    LoginCheck,
     PageNav: Navigator
   },
   methods: {

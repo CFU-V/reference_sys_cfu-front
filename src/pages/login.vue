@@ -48,6 +48,7 @@ export default {
           localStorage.setItem("jwt", res.token);
           if (localStorage.getItem("jwt") != null) {
             this.$router.push("/");
+            localStorage.setItem("_date", new Date().getTime());
           } else {
             this.RespText = "Ошибка во время авторизации!";
             this.success = "alert-danger";

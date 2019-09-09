@@ -2,7 +2,9 @@
   <div>
     <!-- Pre loader -->
     <page-loader></page-loader>
-    <!-- /Pre loader -->
+    	<!-- Check login -->
+    <login-check :viewMW="true"></login-check>
+    <!-- /Check login -->
     <h2>Закладки</h2>
     <p class="table_caption">Список ваших закладок</p>
     <table class="table_blur">
@@ -72,6 +74,7 @@
 import * as api from "../api";
 import Navigator from "../components/PageNavigator";
 import Loader from "../components/PageLoader.vue";
+import LoginCheck from "../components/logincheck.vue";
 
 export default {
   data() {
@@ -91,7 +94,8 @@ export default {
   },
   components: {
     PageNav: Navigator,
-    PageLoader: Loader
+    PageLoader: Loader,
+    LoginCheck
   },
   methods: {
     AddOrDeleteControl(_id, _index, _control) {
