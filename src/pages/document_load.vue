@@ -2,7 +2,9 @@
   <div>
     <!-- Check login -->
     <login-check :viewMW="true"></login-check>
-    <!-- /Check login -->
+    <!-- Loading -->
+    <loading :IsLoading="IsLoadingFile"></loading>
+    <!-- /Loading -->
     <h2>Добавить документ</h2>
     <form enctype="multipart/form-data" class="form-table">
       <table>
@@ -16,7 +18,7 @@
                 :placeholder="'Ссылка на документ'" id="AddDocFromCPlus" v-model="doc.consultant_link" />
               <input type="button" class="btn btn-danger" value="Удалить" v-show="doc.consultant_link != ''"
                 @click="DeleteConsultant_linkInput" />
-              <input type="button" class="btn btn-success" value="Свойства" v-show="doc.consultant_link != '' " />
+              <!-- <input type="button" class="btn btn-success" value="Свойства" v-show="doc.consultant_link != '' " /> -->
             </td>
           </tr>
           <tr>
@@ -28,7 +30,7 @@
                 ref="DocFileInput" :disabled="doc.consultant_link != ''" />
               <input type="button" class="btn btn-danger" value="Удалить" v-show="doc.file != null"
                 @click="DeleteDocFileInput" />
-              <input type="button" class="btn btn-success" value="Свойства" v-show="doc.file != null" />
+              <!-- <input type="button" class="btn btn-success" value="Свойства" v-show="doc.file != null" /> -->
             </td>
           </tr>
           <tr>
@@ -164,10 +166,12 @@
 <script>
 import * as api from "../api";
 import LoginCheck from "../components/logincheck.vue";
+import Loading from "../components/loading.vue";
 
 export default {
   data() {
     return {
+      IsLoadingFile: false,
       selected_id: -1,
       selected_title: '',
       doc: {
@@ -189,6 +193,7 @@ export default {
   },
   components: {
     LoginCheck,
+    Loading
   },
   created() {
     document.title = this.$route.meta.title;
@@ -205,6 +210,7 @@ export default {
       this.$bvModal.show("modal-Replace");
     },
     async ChangeDoc(_id, _title, _deleteChild) {
+      this.IsLoadingFile = true;
       if(!(_id > -1)) {
         this.RespText = "Ошибка! Неверный ид документа";
         this.success = "alert-danger";
@@ -246,7 +252,7 @@ export default {
       this.doc.number = this.doc.number.replace(/\s+/g, '');
       try {
         this.doc.id = _id;
-        const res = api.ChangeParamDocument(this.doc, _deleteChild, this.doc.file);
+        const res = await api.ChangeParamDocument(this.doc, _deleteChild, this.doc.file);
         this.RespText = "Вы успешно заменили документ! " + this.doc.title;
         this.success = "alert-success";
         this.removeDoc();
@@ -258,8 +264,10 @@ export default {
         this.RespText = "Ошибка!";
         this.success = "alert-danger";
       }
+      this.IsLoadingFile = false;
     },
     async NewVersion(_id, _title) {
+      this.IsLoadingFile = true;
       if(!(_id > -1)) {
         this.RespText = "Ошибка! Неверный ид документа";
         this.success = "alert-danger";
@@ -310,6 +318,7 @@ export default {
         this.RespText = "Ошибка!";
         this.success = "alert-danger";
       }
+      this.IsLoadingFile = false;
     },
     removeSearchQuery() {
       this.doc.title = "";
@@ -347,15 +356,20 @@ export default {
       this.doc.file = files[0];
     },
     async AddDoc() {
+      this.IsLoadingFile = true;
       if (
         !(
           this.doc.title != "" &&
           this.doc.info != "" &&
           this.doc.categoryId > 0 &&
-          this.doc.file != "" &&
           this.doc.number != ""
         )
       ) {
+        this.RespText = "Ошибка! Вы не все поля заполнили";
+        this.success = "alert-danger";
+        return;
+      }
+      if((this.doc.file == null || this.doc.file == '') && (this.doc.consultant_link == '')) {
         this.RespText = "Ошибка! Вы не все поля заполнили";
         this.success = "alert-danger";
         return;
@@ -390,6 +404,7 @@ export default {
         this.success = "alert-danger";
         // console.log(error);
       }
+      this.IsLoadingFile = false;
     },
     DeleteDocFileInput() {
       this.doc.file = null;

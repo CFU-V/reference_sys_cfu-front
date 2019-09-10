@@ -46,7 +46,7 @@
         </h5>
       </template>
       <template slot="default">
-        <textarea name="view_content_file" id="view_content_file" cols="63" rows="20" :value="ContentFile"></textarea>
+        <textarea name="view_content_file" id="view_content_file" :value="ContentFile"></textarea>
       </template>
       <template slot="modal-footer" slot-scope="{ cancel }">
         <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
@@ -126,6 +126,10 @@ export default {
 </script>
 
 <style scoped>
+#view_content_file {
+  width:100%;
+  max-height: 600px;
+}
 /* Search */
 .search-box {
   margin-top: 50px;
@@ -156,6 +160,10 @@ export default {
   border-collapse: collapse;
   text-align: left;
   width: 100%;
+}
+
+.table_blur button {
+  margin: 3px;
 }
 
 .table_caption {
@@ -214,7 +222,7 @@ export default {
 }
 
 .table_blur td:last-child {
-  width: 260px;
+  width: 250px;
 }
 
 .table_blur th:last-child {

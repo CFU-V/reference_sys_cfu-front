@@ -2,7 +2,7 @@
   <div id="TheBodyTemplate">
     <div id="container">
       <div id="top-menu">
-        <h1 class="top-menu-title">Справочно-правовая система КФУ</h1>
+        <h1 @click="GoHome" class="top-menu-title">Справочно-правовая система КФУ</h1>
         <ul class="right-side">
           <li class="right-side">
             <button class="top-menu-item exit" @click="OnClickExit"></button>
@@ -84,6 +84,9 @@ export default {
       localStorage.removeItem("user");
       localStorage.removeItem("jwt");
       this.$router.push("/");
+    },
+    GoHome() {
+      this.$router.push("/");
     }
   },
   beforeMount() {
@@ -158,6 +161,7 @@ a:hover {
   color: white;
   text-align: center;
   line-height: 64px;
+  cursor: pointer;
 }
 
 .top-menu-item {

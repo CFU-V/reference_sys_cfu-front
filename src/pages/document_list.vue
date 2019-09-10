@@ -14,7 +14,6 @@
       <button type="submit" class="btn btn-info" @click.prevent="GetSimpleSearch">Поиск</button>
       <button class="btn btn-outline-primary" @click.prevent="OnClickButton_advSearch">Расширенный поиск</button>
     </form>
-    <button class="btn btn-success" style="margin-top: 50px" @click="GetViewAllDoc(PageNum)">Показать все документы</button>
     <form class="form-table" v-show="ViewAdvanceSearch">
       <h2>Расширенный поиск</h2>
       <table>
@@ -108,6 +107,7 @@
       <input class="btn btn-secondary" @click.prevent="GetAdvanceSearch" type="submit"
         value="Поиск документов" />
     </form>
+    <button v-show="IsSearch" class="btn btn-success" style="margin-top: 50px" @click="GetViewAllDoc(PageNum)">Показать все документы</button>
     <p class="table_caption">Таблица документов</p>
     <div class="table_scroll">
       <table class="table_blur">
@@ -221,9 +221,17 @@ export default {
     this.DocList(this.PageNum);
   },
   methods: {
+    ViewNotification(_title,_text,_type) {
+      this.$notify({
+        group: 'foo',
+        type: _type,
+        title: _title,
+        text: _text,
+      });
+    },
     ClickNext() {
       if (this.DataSearch.data == null) {
-        alert("Ошибка! Вы ничего не заполнили");
+        this.ViewNotification('Внимание','Ошибка! Вы ничего не заполнили','error');
         return;
       }
       this.PageNum += 1;
@@ -232,7 +240,7 @@ export default {
     },
     ClickBack() {
       if (this.DataSearch.data == null) {
-        alert("Ошибка! Вы ничего не заполнили");
+        this.ViewNotification('Внимание','Ошибка! Вы ничего не заполнили','error');
         return;
       }
       if (this.PageNum - 1 >= 1) {
@@ -309,6 +317,7 @@ export default {
     },
     async GetViewAllDoc(_page) {
       this.IsSearch = false;
+      this.ViewAdvanceSearch = false;
       try {
         const res = await this.$store.dispatch("SetDocuments", { page: _page-1, search: this.IsSearch });
       } catch (error) {
@@ -318,7 +327,7 @@ export default {
     async GetSearch(_page) {
       if (this.DataSearch.data == null || this.DataSearch.data == "" ) {
         if(!(this.DataSearch.type == 'advance' && (this.AdvanceDataSearch.category =='Все' || this.AdvanceDataSearch.active == 'Все'))) {
-          alert("Ошибка! Вы ничего не заполнили");
+          this.ViewNotification('Внимание','Ошибка! Вы ничего не заполнили','error');
           return;
         }
       }
@@ -520,9 +529,19 @@ span.description {
   width: 330px;
 }
 
+.input-group {
+  margin-right: 30px;
+}
+
 .search-box button {
   min-width: 160px;
-  margin-left: 30px;
+  margin-right: 10px;
+}
+
+.search-box input,
+.search-box select,
+.search-box button {
+  margin-top: 20px;
 }
 
 /* Table */

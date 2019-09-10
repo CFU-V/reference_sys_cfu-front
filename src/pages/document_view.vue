@@ -112,6 +112,7 @@ export default {
   data() {
     return {
       PageID: -1,
+      ViewerURL: 'https://view.officeapps.live.com/op/view.aspx?src=',
       FileURL:
         "https://view.officeapps.live.com/op/view.aspx?src=ejudge.cfuv.ru/problems/practice2.docx",
       RespText: "",
@@ -213,7 +214,7 @@ export default {
       try {
         const res = await api.GetDocument(_id);
         this.doc = res;
-        // this.FileURL = this.$store.getters.GetApiURL + "/public/documents/" + this.doc.fileName;
+        //this.FileURL = (this.ViewerURL + this.$store.getters.GetApiURL + "/documents/download/" + _id);
       } catch (error) {}
     }
   },

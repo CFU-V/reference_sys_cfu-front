@@ -1,7 +1,7 @@
 <template>
   <div>
     <transition name="fade">
-      <div v-if="isload" class="fon-preloader">
+      <div v-if="IsLoading" class="fon-preloader">
         <div class="loader"></div>
       </div>
     </transition>
@@ -10,16 +10,12 @@
 
 <script>
 export default {
+  props: {
+    IsLoading: false,
+  },
   data() {
     return {
-      isload: true
     };
-  },
-  beforeCreate() {
-    this.isload = true;
-  },
-  mounted() {
-    this.isload = false;
   }
 };
 </script>
@@ -93,7 +89,7 @@ export default {
   right: 0;
   bottom: 0;
   z-index: 100;
-  background: #191f26;
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
 .fade-enter-active,

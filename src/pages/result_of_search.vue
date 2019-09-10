@@ -346,7 +346,7 @@ export default {
     },
     ClickNext() {
       if (this.DataSearch.data == null) {
-        alert("Ошибка! Вы ничего не заполнили");
+        this.ViewNotification('Внимание','Ошибка! Вы ничего не заполнили','error');
         return;
       }
       this.PageNum += 1;
@@ -355,7 +355,7 @@ export default {
     },
     ClickBack() {
       if (this.DataSearch.data == null) {
-        alert("Ошибка! Вы ничего не заполнили");
+        this.ViewNotification('Внимание','Ошибка! Вы ничего не заполнили','error');
         return;
       }
       if (this.PageNum - 1 >= 1) {
@@ -481,10 +481,18 @@ export default {
       this.DataSearch.data = this.SimpleSearchText;
       this.GetSearch(this.PageNum);
     },
+    ViewNotification(_title,_text,_type) {
+      this.$notify({
+        group: 'foo',
+        type: _type,
+        title: _title,
+        text: _text,
+      });
+    },
     async GetSearch(_page) {
       if (this.DataSearch.data == null || this.DataSearch.data == "" ) {
         if(!(this.DataSearch.type == 'advance' && (this.AdvanceDataSearch.category =='Все' || this.AdvanceDataSearch.active == 'Все'))) {
-          alert("Ошибка! Вы ничего не заполнили");
+          this.ViewNotification('Внимание','Ошибка! Вы ничего не заполнили','error');
           return;
         }
       }

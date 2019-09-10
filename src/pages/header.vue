@@ -193,9 +193,17 @@ export default {
       localStorage.removeItem("jwt");
       this.IsLogged = null;
     },
+    ViewNotification(_title,_text,_type) {
+      this.$notify({
+        group: 'foo',
+        type: _type,
+        title: _title,
+        text: _text,
+      });
+    },
     enterClicked() {
       if(!(this.searchQuery.length > 0)) {
-        alert('Вы ничего не ввели!');
+        this.ViewNotification('Внимание','Ошибка! Вы ничего не ввели','error');
         return;
       }
       this.$router.push("/search/1/" + this.searchQuery);

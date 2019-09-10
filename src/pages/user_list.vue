@@ -20,7 +20,7 @@
       </div>
       <button type="submit" class="btn btn-info" @click.prevent="StartSearch">Поиск</button>
     </form>
-    <button class="btn btn-success" style="margin-top: 50px" @click="StartInfo">Показать всех пользователей</button>
+    <button v-show="IsSearch" class="btn btn-success" style="margin-top: 50px" @click="StartInfo">Показать всех пользователей</button>
     <p class="table_caption">Список пользователей</p>
     <table class="table_blur">
       <thead>
@@ -213,7 +213,7 @@ export default {
   methods: {
     StartSearch() {
       if(this.DataSearch.FIO == '') {
-        alert('Ошибка! Вы не ввели ФИО пользователя');
+        this.ViewNotification('Внимание','Ошибка! Вы не ввели ФИО пользователя','error');
         return;
       }
       this.IsSearch = true;
@@ -333,6 +333,14 @@ export default {
       this.TheUserIndex = index;
       this.$bvModal.show("modal-scoped");
     },
+    ViewNotification(_title,_text,_type) {
+      this.$notify({
+        group: 'foo',
+        type: _type,
+        title: _title,
+        text: _text,
+      });
+    },
     async ShowModalWindow_change(name, id, index) {
       try {
         const res = await this.$store.dispatch("GetUser", id);
@@ -350,7 +358,7 @@ export default {
         this.TheUserIndex = index;
         this.$bvModal.show("modal-prevent-closing");
       } catch (error) {
-        alert("Ошибка при получении информации о пользователе!");
+        this.ViewNotification('Внимание','Ошибка при получении информации о пользователе!','error');
         console.log(error);
       }
     },
@@ -401,9 +409,13 @@ export default {
   width: 210px;
 }
 
+.input-group {
+  margin-right: 30px;
+}
+
 .search-box button {
   width: 160px;
-  margin-left: 30px;
+  /* margin-left: 30px; */
 }
 
 .search-box input,
@@ -420,6 +432,10 @@ export default {
   width: 100%;
 }
 
+.table_blur button {
+  margin: 3px;
+}
+
 .table_caption {
   margin-top: 20px;
 }
@@ -434,7 +450,7 @@ export default {
 }
 
 .table_scroll {
-  overflow-y: scroll;
+  overflow: scroll;
   height: auto;
   max-height: 800px;
 }
@@ -472,11 +488,26 @@ export default {
   padding: 10px 15px;
   position: relative;
   transition: all 0.3s ease;
-  width: 450px;
+}
+
+.table_blur th {
+  width: 150px;
+}
+
+.table_blur td {
+  width: 150px;
+}
+
+.table_blur td:first-child {
+  width: 180px;
+}
+
+.table_blur th:first-child {
+  width: 180px;
 }
 
 .table_blur td:last-child {
-  width: 260px;
+  width: 200px;
 }
 
 .table_blur th:last-child {
