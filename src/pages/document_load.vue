@@ -210,7 +210,6 @@ export default {
       this.$bvModal.show("modal-Replace");
     },
     async ChangeDoc(_id, _title, _deleteChild) {
-      this.IsLoadingFile = true;
       if(!(_id > -1)) {
         this.RespText = "Ошибка! Неверный ид документа";
         this.success = "alert-danger";
@@ -249,6 +248,7 @@ export default {
         this.success = "alert-danger";
         return;
       }
+      this.IsLoadingFile = true;
       this.doc.number = this.doc.number.replace(/\s+/g, '');
       try {
         this.doc.id = _id;
@@ -267,7 +267,6 @@ export default {
       this.IsLoadingFile = false;
     },
     async NewVersion(_id, _title) {
-      this.IsLoadingFile = true;
       if(!(_id > -1)) {
         this.RespText = "Ошибка! Неверный ид документа";
         this.success = "alert-danger";
@@ -296,6 +295,7 @@ export default {
         this.success = "alert-danger";
         return;
       }
+      this.IsLoadingFile = true;
       this.doc.number = this.doc.number.replace(/\s+/g, '');
       this.doc.parentId = _id;
       try {
@@ -356,7 +356,6 @@ export default {
       this.doc.file = files[0];
     },
     async AddDoc() {
-      this.IsLoadingFile = true;
       if (
         !(
           this.doc.title != "" &&
@@ -383,6 +382,7 @@ export default {
           return;
         }
       }
+      this.IsLoadingFile = true;
       try {
         const res = await api.AddDocument(
           this.doc.title,

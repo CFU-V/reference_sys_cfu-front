@@ -722,6 +722,7 @@ header {
     0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
   box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14),
     0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
+  /* min-width: 800px; */
 }
 
 .section-news {
@@ -913,8 +914,19 @@ span.description {
 
 .search-box button {
   min-width: 160px;
-  margin-left: 20px;
+  margin-right: 20px;
 }
+
+.input-group {
+  margin-right: 30px;
+}
+
+.search-box input,
+.search-box select,
+.search-box button {
+  margin-top: 20px;
+}
+
 
 /* Table */
 .table_blur {

@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" style="min-width:720px;">
     <notifications group="foo" position="top center"/>
     <router-view />
   </div>
