@@ -49,6 +49,7 @@
         <p>Название: {{ Property.title }}</p>
         <p>Тема: {{ Property.subject }}</p>
         <p>Теги: {{ Property.keywords }}</p>
+        <p>Информация: {{ doc.info }}</p>
       </template>
       <template slot="modal-footer" slot-scope="{ cancel }">
         <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>

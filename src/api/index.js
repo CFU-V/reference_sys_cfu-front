@@ -375,10 +375,10 @@ export async function CreateUser(_login, _password, _roleId, _lastName, _firstNa
 export async function AddDocument(doc, _file) {
   try {
     const formData = new FormData();
-    formData.append("title", doc.title);
-    if (doc.parentId != null && doc.parentId >= 0) formData.append("parentId", doc.parentId);
+    formData.append("title", doc.title.trim());
+    if (doc.parentId != null && !isNaN(doc.parentId) && doc.parentId >= 0) formData.append("parentId", doc.parentId);
     if (doc.old_version != null && doc.old_version >= 0) formData.append("old_version", doc.old_version);
-    formData.append("info", doc.info);
+    formData.append("info", doc.info.trim());
     formData.append("number", doc.number);
     formData.append("categoryId", doc.categoryId);
     formData.append("active", doc.active);
@@ -410,9 +410,9 @@ export async function ChangeParamDocument(_data, _deleteChilds, _file) {
   try {
     const formData = new FormData();
     formData.append("id", _data.id);
-    formData.append("title", _data.title);
-    if (_data.parentId != null) formData.append("parentId", _data.parentId);
-    formData.append("info", _data.info);
+    formData.append("title", _data.title.trim());
+    if (_data.parentId != null && !isNaN(_data.parentId) && _data.parentId >= 0) formData.append("parentId", _data.parentId);
+    formData.append("info", _data.info.trim());
     formData.append("categoryId", _data.categoryId);
     formData.append("number", _data.number);
     formData.append("active", _data.active);

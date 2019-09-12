@@ -406,6 +406,9 @@ export default {
     PageLoader: Loader
   },
   computed: {
+    GetDocCategory() {
+      return this.$store.getters.GetDocCategory;
+    },
     GetNowDate() {
       return (
         this.$store.getters.GetWeekNames[this.NowDate.getDay()] +
@@ -624,13 +627,21 @@ export default {
     );
     document.title = this.$route.meta.title;
     if (this.$route.params.simple != null && this.$route.params.simple != "") {
-      try {
-        this.DataSearch.data = this.$route.params.simple;
-        this.SimpleSearchText = this.$route.params.simple;
+      //GetDocCategory
+      const text_ = this.$route.params.simple;
+      if(this.GetDocCategory.indexOf(text_) >= 0) {
+        this.GetViewOnlyCategory(text_);
         this.$router.push("/search/" + this.PageNum);
-        this.GetSearch(this.PageNum);
-      } catch (error) {
-        console.error("[created] - ERROR");
+      }
+      else {
+        try {
+          this.DataSearch.data = this.$route.params.simple;
+          this.SimpleSearchText = this.$route.params.simple;
+          this.$router.push("/search/" + this.PageNum);
+          this.GetSearch(this.PageNum);
+        } catch (error) {
+          console.error("[Simple search - created] - ERROR");
+        }
       }
     }
   }

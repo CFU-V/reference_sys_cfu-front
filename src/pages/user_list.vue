@@ -89,7 +89,7 @@
                 <label for="first-name">Имя</label>
               </th>
               <td>
-                <input required class="regular-text" type="text" id="first-name" placeholder="Игорь"
+                <input required class="regular-text" type="text" id="first-name" placeholder="Имя"
                   v-model="user.firstName" />
               </td>
             </tr>
@@ -98,7 +98,7 @@
                 <label for="second-name">Фамилия</label>
               </th>
               <td>
-                <input required class="regular-text" type="text" id="second-name" placeholder="Фортис"
+                <input required class="regular-text" type="text" id="second-name" placeholder="Фамилия"
                   v-model="user.lastName" />
               </td>
             </tr>
@@ -107,7 +107,7 @@
                 <label for="middle-name">Отчество</label>
               </th>
               <td>
-                <input class="regular-text" type="text" id="middle-name" placeholder="Сереевич"
+                <input class="regular-text" type="text" id="middle-name" placeholder="Отчество"
                   v-model="user.surName" />
               </td>
             </tr>

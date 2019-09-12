@@ -31,22 +31,22 @@
           <li>
             <router-link class="left-menu-item left-menu-name" to="/console/document-list/1">Список документов</router-link>
           </li>
-          <li>
+          <li v-if="WhoIs == 'admin' || WhoIs == 'manager'">
             <router-link class="left-menu-item left-menu-name" to="/console/document-management/1">Управление документами</router-link>
           </li>
-          <li>
+          <li v-if="WhoIs == 'admin' || WhoIs == 'manager'">
             <router-link class="left-menu-item left-menu-name" to="/console/document-load/">Добавить документ</router-link>
           </li>
-          <li>
+          <li v-if="WhoIs == 'admin'">
             <router-link disabled class="left-menu-item left-menu-name" to="/console/logs/1">Журнал событий</router-link>
           </li>
           <!-- <li>
             <router-link class="left-menu-item left-menu-name" to="#">Управление БД</router-link>
           </li> -->
-          <li>
+          <li v-if="WhoIs == 'admin'">
             <router-link class="left-menu-item left-menu-name" to="/console/add-user/">Добавить пользователя</router-link>
           </li>
-          <li>
+          <li v-if="WhoIs == 'admin'">
             <router-link class="left-menu-item left-menu-name" to="/console/user-list/1">Управление пользователями</router-link>
           </li>
           <li>
@@ -67,7 +67,8 @@
 export default {
   data() {
     return {
-      getname: null
+      getname: null,
+      WhoIs: '',
     };
   },
   created() {
@@ -90,7 +91,9 @@ export default {
     }
   },
   beforeMount() {
-    this.getname = JSON.parse(localStorage.getItem("user"));
+    const res = JSON.parse(localStorage.getItem("user"));
+    this.getname = res;
+    this.WhoIs = res['role'];
   }
 };
 </script>

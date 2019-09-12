@@ -59,24 +59,28 @@
           </tr>
           <tr v-show="doc.consultant_link == ''">
             <th>
-              <label for="DocLoad_ID">Введите имя главного документа</label>
+              <label for="DocLoad_ID">Введите имя/ID гл. Документа (далее выберите из списка документ)</label>
             </th>
             <td>
+
               <input
                 class="regular-text"
                 type="text"
                 id="DocLoad_ID"
-                v-model="Search_mainfile"
-                @keyup="submitSearch_parentId(Search_mainfile)"
+                v-model="doc.parentId"
+                @input="submitSearch_parentId(doc.parentId)"
+                list="dataList_maindoc"
+                :placeholder="'Введите имя/ID документа'"
               />
-              <p>далее выберите главный документ из данного списка:</p>
-              <select class="custom-select regular-text" id="DocLoad_ID" v-model="doc.parentId">
+
+              <datalist id="dataList_maindoc">
                 <option
                   :value="value['id']"
                   v-for="(value, index) in Response_parentId"
                   :key="index"
                 >{{ value['title'] }}</option>
-              </select>
+              </datalist>
+
             </td>
           </tr>
           <tr>
@@ -206,24 +210,16 @@
     </table>
     <!--  -->
     <!-- MW Replace doc -->
-    <b-modal id="modal-Replace" ref="modal_Replace">
+    <b-modal id="modal-Replace" ref="modal_Replace" @ok="OnClickOK_replace">
       <template slot="modal-header">
         <h5>Заменить документ</h5>
       </template>
       <template slot="default">
-        <p>Заменить документ с удалением приложений? (прикреплённые документы к главному документу)</p>
-        <br />
-        <button class="btn btn-outline-success" @click="ChangeDoc(selected_id,selected_title,true)">
-          Заменить с
-          удалением
-        </button>
-        <button class="btn btn-success" @click="ChangeDoc(selected_id,selected_title,false)">
-          Заменить без
-          удаления
-        </button>
+        <p>После замены все дочерние документы будут удалены.</p>
         <div class="alert" :class="success" role="alert">{{ RespText }}</div>
       </template>
-      <template slot="modal-footer" slot-scope="{ cancel }">
+      <template slot="modal-footer" slot-scope="{ ok, cancel }">
+        <b-button size="sm" variant="success" @click="ok()">Заменить</b-button>
         <b-button size="sm" variant="danger" @click="cancel()">Отмена</b-button>
       </template>
     </b-modal>
@@ -274,7 +270,12 @@ export default {
     }
   },
   methods: {
+    OnClickOK_replace() {
+      this.ChangeDoc(this.selected_id,this.selected_title,true);
+    },
     ShowModal_replace(_id, _title) {
+      this.RespText = "";
+      this.success = "";
       this.selected_id = _id;
       this.selected_title = _title;
       this.$bvModal.show("modal-Replace");
@@ -317,6 +318,22 @@ export default {
         this.success = "alert-danger";
         return;
       }
+      if(this.doc.parentId != null && this.doc.parentId != '') {
+        const res_cnvr = parseInt(this.doc.parentId);
+        if(isNaN(res_cnvr)) {
+          this.RespText = "Ошибка! Неверный ID гл. Документа!. ID Должен быть числового типа";
+          this.success = "alert-danger";
+          return;
+        }
+        else if(res_cnvr < 0) {
+          this.RespText = "Ошибка! Неверный ID гл. Документа!. Должен быть больше -1";
+          this.success = "alert-danger";
+          return;
+        }
+      }
+      this.$nextTick(() => {
+          this.$refs.modal_Replace.hide();
+        });
       this.IsLoadingFile = true;
       this.doc.number = this.doc.number.replace(/\s+/g, "");
       try {
@@ -331,9 +348,6 @@ export default {
         this.success = "alert-success";
         this.removeDoc();
         this.removeSearchQuery();
-        this.$nextTick(() => {
-          this.$refs.modal_Replace.hide();
-        });
       } catch (error) {
         this.RespText = "Ошибка!";
         this.success = "alert-danger";
@@ -341,6 +355,8 @@ export default {
       this.IsLoadingFile = false;
     },
     async NewVersion(_id, _title) {
+      this.RespText = "";
+      this.success = "";
       if (!(_id > -1)) {
         this.RespText = "Ошибка! Неверный ид документа";
         this.success = "alert-danger";
@@ -368,6 +384,19 @@ export default {
         this.success = "alert-danger";
         return;
       }
+      if(this.doc.parentId != null && this.doc.parentId != '') {
+        const res_cnvr = parseInt(this.doc.parentId);
+        if(isNaN(res_cnvr)) {
+          this.RespText = "Ошибка! Неверный ID гл. Документа!. ID Должен быть числового типа";
+          this.success = "alert-danger";
+          return;
+        }
+        else if(res_cnvr < 0) {
+          this.RespText = "Ошибка! Неверный ID гл. Документа!. Должен быть больше -1";
+          this.success = "alert-danger";
+          return;
+        }
+      }
       this.IsLoadingFile = true;
       this.doc.number = this.doc.number.replace(/\s+/g, "");
       this.doc.old_version = parseInt(_id);
@@ -378,6 +407,7 @@ export default {
           "Вы успешно добавили новую версию документа! " + this.doc.title;
         this.success = "alert-success";
         this.removeDoc();
+        this.removeSearchQuery();
       } catch (error) {
         this.RespText = "Ошибка!";
         this.success = "alert-danger";
@@ -402,6 +432,7 @@ export default {
       this.doc.visibility = false;
       this.doc.renew = false;
       this.doc.file = null;
+      this.doc.old_version = null;
       this.$refs.DocFileInput.value = "";
     },
     async submitSearch_title() {
@@ -417,9 +448,11 @@ export default {
     },
     async submitSearch_parentId(_text) {
       if (this.doc.consultant_link != "") return;
-      if (!(_text.length > 0)) {
-        this.removeSearchQuery_parentId();
-        return;
+      if(_text != null) {
+        if (!(_text.length > 0)) {
+          this.removeSearchQuery_parentId();
+          return;
+        }
       }
       try {
         const res = await api.GetDocumentList(0, true, _text);
@@ -465,6 +498,19 @@ export default {
           return;
         }
       }
+      if(this.doc.parentId != null && this.doc.parentId != '') {
+        const res_cnvr = parseInt(this.doc.parentId);
+        if(isNaN(res_cnvr)) {
+          this.RespText = "Ошибка! Неверный ID гл. Документа!. ID Должен быть числового типа";
+          this.success = "alert-danger";
+          return;
+        }
+        else if(res_cnvr < 0) {
+          this.RespText = "Ошибка! Неверный ID гл. Документа!. Должен быть больше -1";
+          this.success = "alert-danger";
+          return;
+        }
+      }
       this.IsLoadingFile = true;
       try {
         this.doc.active = true;
@@ -472,6 +518,7 @@ export default {
         this.RespText = "Вы успешно добавили документ! " + this.doc.title;
         this.success = "alert-success";
         this.removeDoc();
+        this.removeSearchQuery();
       } catch (error) {
         this.RespText = "Ошибка!";
         this.success = "alert-danger";
