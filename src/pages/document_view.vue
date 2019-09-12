@@ -55,15 +55,17 @@
       </template>
     </b-modal>
     <!-- Modal Window BookMark -->
-    <b-modal id="modal-bookmark" ref="modal_addbookmark">
+    <b-modal id="modal-bookmark" ref="modal_addbookmark" @ok="OnClickOk_addBookMark">
       <template slot="modal-header">
         <h5>Добавить закладку</h5>
       </template>
       <template slot="default">
-        <button class="btn btn-success" @click="AddBookMark(false)">Добавить закладку без контроля</button>
-        <button class="btn btn-outline-success" @click="AddBookMark(true)">Добавить с контролем</button>
+        <input type="checkbox" name="isControl" id="isControl" v-model="IsControl" >
+        <label for="isControl">Уведомлять об изменениях в документе?</label>
+        <loadingsmall :IsLoading="IsLoading" :center="true"></loadingsmall>
       </template>
-      <template slot="modal-footer" slot-scope="{ cancel }">
+      <template slot="modal-footer" slot-scope="{ ok, cancel }">
+        <b-button size="sm" variant="success" @click="ok()">Добавить</b-button>
         <b-button size="sm" variant="danger" @click="cancel()">Отмена</b-button>
       </template>
     </b-modal>
@@ -84,7 +86,7 @@
             </tr>
             <tr>
               <th>
-                <label for="share-cnt">Контент</label>
+                <label for="share-cnt">Сообщение</label>
               </th>
               <td>
                 <textarea class="regular-text" type="text" id="share-cnt" placeholder="контент" v-model="share.content"
@@ -94,9 +96,10 @@
           </tbody>
         </table>
         <div class="alert" :class="success" role="alert">{{ RespText }}</div>
+        <loadingsmall :IsLoading="IsLoading" :center="true"></loadingsmall>
       </form>
       <template slot="modal-footer" slot-scope="{ ok, cancel }">
-        <b-button size="sm" variant="success" @click="ok()">Отправить</b-button>
+        <b-button :disabled="IsLoading" size="sm" variant="success" @click="ok()">Отправить</b-button>
         <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
       </template>
     </b-modal>
@@ -107,10 +110,13 @@
 import * as api from "../api";
 import Loader from "../components/PageLoader";
 import LoginCheck from "../components/logincheck.vue";
+import loadingsmall from "../components/loading_small.vue";
 
 export default {
   data() {
     return {
+      IsLoading: false,
+      IsControl: false,
       PageID: -1,
       ViewerURL: 'https://view.officeapps.live.com/op/view.aspx?src=',
       FileURL:
@@ -132,6 +138,7 @@ export default {
   },
   components: {
     LoginCheck,
+    loadingsmall,
     PageLoader: Loader
   },
   methods: {
@@ -151,7 +158,11 @@ export default {
         this.Property = res;
       } catch (error) {}
     },
+    OnClickOk_addBookMark() {
+      this.AddBookMark(this.IsControl);
+    },
     async AddBookMark(_IsControl) {
+      this.IsLoading = true;
       try {
         const res = await api.AddBookMark(this.PageID, _IsControl);
         this.GetDocument(this.PageID);
@@ -161,6 +172,7 @@ export default {
       } catch (error) {
         console.log("[Add bookMark] - ERROR");
       }
+      this.IsLoading = false;
     },
     ShowModalProparty(_title, _id) {
       this.GetProps();
@@ -194,6 +206,7 @@ export default {
         this.success = "alert-danger";
         return;
       }
+      this.IsLoading = true;
       try {
         const res = await api.ShareDocument(
           this.PageID,
@@ -209,12 +222,13 @@ export default {
         this.RespText = "Ошибка при отправки сообщения!";
         this.success = "alert-danger";
       }
+      this.IsLoading = false;
     },
     async GetDocument(_id) {
       try {
         const res = await api.GetDocument(_id);
         this.doc = res;
-        //this.FileURL = (this.ViewerURL + this.$store.getters.GetApiURL + "/documents/download/" + _id);
+        this.FileURL = (this.ViewerURL + this.$store.getters.GetApiURL + "/document/download/" + _id);
       } catch (error) {}
     }
   },

@@ -80,16 +80,19 @@
       <button class="btn btn-outline-primary" type="submit" @click.prevent="OnClickButton">{{ SetValueBut }}</button>
     </form>
     <div class="alert" :class="success" role="alert">{{ RespText }}</div>
+    <loadingsmall :IsLoading="IsLoading" :center="false"></loadingsmall>
   </div>
 </template>
 
 <script>
 import * as api from "../api";
 import LoginCheck from "../components/logincheck.vue";
+import loadingsmall from "../components/loading_small.vue";
 
 export default {
   data() {
     return {
+      IsLoading: false,
       user: [],
       pass: {
         PastPass: "",
@@ -101,7 +104,8 @@ export default {
     };
   },
   components: {
-    LoginCheck
+    LoginCheck,
+    loadingsmall
   },
   computed: {
     SetValueBut() {
@@ -149,7 +153,7 @@ export default {
             return;
           }
         }
-
+        this.IsLoading = true;
         try {
           const res = await api.UpdateMyUserInfo(
             this.pass.NewPass,
@@ -169,6 +173,7 @@ export default {
         }
         this.pass.NewPass = "";
         this.pass.PastPass = "";
+        this.IsLoading = false;
       } else {
         this.state_of_but = false;
       }

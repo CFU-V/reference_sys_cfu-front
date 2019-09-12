@@ -70,6 +70,7 @@
           <b>{{ TheUser }}</b>?
         </p>
         <div class="alert" :class="success" role="alert">{{ RespText }}</div>
+        <loadingsmall :IsLoading="IsLoading" :center="true"></loadingsmall>
       </template>
       <template slot="modal-footer" slot-scope="{ ok, cancel }">
         <b-button size="sm" variant="success" @click="ok()">Удалить</b-button>
@@ -157,9 +158,10 @@
           </tbody>
         </table>
         <div class="alert" :class="success" role="alert">{{ RespText }}</div>
+        <loadingsmall :IsLoading="IsLoading" :center="true"></loadingsmall>
       </form>
       <template slot="modal-footer" slot-scope="{ ok, cancel }">
-        <b-button size="sm" variant="success" @click="ok()">Редактировать (сохранить)</b-button>
+        <b-button :disabled="IsLoading" size="sm" variant="success" @click="ok()">Редактировать (сохранить)</b-button>
         <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
       </template>
     </b-modal>
@@ -171,10 +173,12 @@ import Loader from "../components/PageLoader.vue";
 import Navigator from "../components/PageNavigator";
 import * as api from "../api";
 import LoginCheck from "../components/logincheck.vue";
+import loadingsmall from "../components/loading_small.vue";
 
 export default {
   data() {
     return {
+      IsLoading: false,
       IsSearch: false,
       Myuser: null,
       DataSearch: {
@@ -207,6 +211,7 @@ export default {
   },
   components: {
     LoginCheck,
+    loadingsmall,
     PageNav: Navigator,
      PageLoader: Loader
   },
@@ -277,7 +282,7 @@ export default {
           return;
         }
       }
-
+      this.IsLoading = true;
       try {
         const res = await api.ChangeUser(
           this.user.id,
@@ -303,6 +308,7 @@ export default {
         this.RespText = "Ошибка!";
         this.success = "alert-danger";
       }
+      this.IsLoading = false;
     },
     async handleOk(bvModalEvt) {
       bvModalEvt.preventDefault();
@@ -311,6 +317,7 @@ export default {
         this.success = "alert-danger";
         return;
       }
+      this.IsLoading = true;
       try {
         const res = await api.DeleteUser(this.TheUserID);
         this.TheUserID = "";
@@ -318,7 +325,7 @@ export default {
         this.TheUserIndex = "";
         this.RespText = "";
         this.success = "";
-        this.$store.dispatch("DeleteUserFromList", this.TheUserIndex);
+        await this.$store.dispatch("DeleteUserFromList", this.TheUserIndex);
         this.$nextTick(() => {
           this.$refs.modal_delete.hide();
         });
@@ -326,6 +333,7 @@ export default {
         this.RespText = "Ошибка при удалении пользователя!";
         this.success = "alert-danger";
       }
+      this.IsLoading = false;
     },
     ShowModalWindow_delete(name, id, index) {
       this.TheUserID = id;
@@ -398,7 +406,7 @@ export default {
 <style scoped>
 /* Search */
 .search-box {
-  margin-top: 50px;
+  margin-top: 20px;
 }
 
 .search-box input[type="search"] {
@@ -428,7 +436,7 @@ export default {
 .table_blur {
   background-color: #f5ffff;
   border-collapse: collapse;
-  text-align: left;
+  text-align: center;
   width: 100%;
 }
 

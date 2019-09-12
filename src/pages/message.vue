@@ -292,11 +292,11 @@ export default {
 }
 
 .table_blur td:last-child {
-  width: 160px;
+  width: 250px;
 }
 
 .table_blur th:last-child {
-  width: 160px;
+  width: 150px;
 }
 
 .table_blur td:first-child {
@@ -308,11 +308,11 @@ export default {
 }
 
 .table_blur th:nth-child(3) {
-  width: 160px;
+  width: 150px;
 }
 
 .table_blur td:nth-child(3) {
-  width: 160px;
+  width: 260px;
 }
 
 .table_blur tbody:hover tr:hover td {

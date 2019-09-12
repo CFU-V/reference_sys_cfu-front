@@ -98,14 +98,14 @@ export default {
     LoginCheck
   },
   methods: {
-    AddOrDeleteControl(_id, _index, _control) {
+    async AddOrDeleteControl(_id, _index, _control) {
       if (!(_id >= 0 && _index >= 0)) {
         this.RespText = "Ошибка! Неверный ID";
         this.success = "alert-danger";
         return;
       }
       try {
-        this.$store.dispatch("UpdateBookMarks", {id: _id, index: _index, control: _control});
+        await this.$store.dispatch("UpdateBookMarks", {id: _id, index: _index, control: _control});
       } catch (error) {
 
       }
@@ -137,7 +137,7 @@ export default {
         this.TheBookMarkIndex = "";
         this.RespText = "";
         this.success = "";
-        this.$store.dispatch("DeleteBookMarkFromList", this.TheBookMarkIndex);
+        await this.$store.dispatch("DeleteBookMarkFromList", this.TheBookMarkIndex);
         this.$nextTick(() => {
           this.$refs.modal.hide();
         });
@@ -184,7 +184,7 @@ export default {
 .table_blur {
   background-color: #f5ffff;
   border-collapse: collapse;
-  text-align: left;
+  text-align: center;
   width: 100%;
 }
 

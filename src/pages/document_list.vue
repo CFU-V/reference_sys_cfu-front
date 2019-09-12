@@ -2,17 +2,25 @@
   <div>
     <!-- Pre loader -->
     <page-loader></page-loader>
-    	<!-- Check login -->
+    <!-- Check login -->
     <login-check :viewMW="true"></login-check>
     <!-- /Check login -->
     <h2>Список документов</h2>
     <form class="form-inline search-box">
       <div class="input-group">
-        <input type="search" class="form-control" id="inlineFormInputName2" :placeholder="'Быстрый поиск документов'"
-          v-model="SimpleSearchText" />
+        <input
+          type="search"
+          class="form-control"
+          id="inlineFormInputName2"
+          :placeholder="'Быстрый поиск документов'"
+          v-model="SimpleSearchText"
+        />
       </div>
       <button type="submit" class="btn btn-info" @click.prevent="GetSimpleSearch">Поиск</button>
-      <button class="btn btn-outline-primary" @click.prevent="OnClickButton_advSearch">Расширенный поиск</button>
+      <button
+        class="btn btn-outline-primary"
+        @click.prevent="OnClickButton_advSearch"
+      >Расширенный поиск</button>
     </form>
     <form class="form-table" v-show="ViewAdvanceSearch">
       <h2>Расширенный поиск</h2>
@@ -31,7 +39,12 @@
               <label for="name-of-document">Название документа</label>
             </th>
             <td>
-              <input class="regular-text" type="text" id="name-of-document" v-model="AdvanceDataSearch.title" />
+              <input
+                class="regular-text"
+                type="text"
+                id="name-of-document"
+                v-model="AdvanceDataSearch.title"
+              />
             </td>
           </tr>
           <tr>
@@ -39,7 +52,12 @@
               <label for="number-of-document">Номер (приказа/документа и тд)</label>
             </th>
             <td>
-              <input class="regular-text" type="text" id="number-of-document" v-model="AdvanceDataSearch.number" />
+              <input
+                class="regular-text"
+                type="text"
+                id="number-of-document"
+                v-model="AdvanceDataSearch.number"
+              />
             </td>
           </tr>
           <tr>
@@ -47,7 +65,12 @@
               <label for="dateReg">Дата регистрации</label>
             </th>
             <td>
-              <input class="regular-text" type="date" id="dateReg" v-model="AdvanceDataSearch.dateReg" />
+              <input
+                class="regular-text"
+                type="date"
+                id="dateReg"
+                v-model="AdvanceDataSearch.dateReg"
+              />
             </td>
           </tr>
           <tr>
@@ -55,7 +78,12 @@
               <label for="dateAdd">Дата добавления</label>
             </th>
             <td>
-              <input class="regular-text" type="date" id="dateAdd" v-model="AdvanceDataSearch.dateAdd" />
+              <input
+                class="regular-text"
+                type="date"
+                id="dateAdd"
+                v-model="AdvanceDataSearch.dateAdd"
+              />
             </td>
           </tr>
           <tr>
@@ -63,7 +91,11 @@
               <label for="category-of-document">Вид документа</label>
             </th>
             <td>
-              <select class="custom-select" id="category-of-document" v-model="AdvanceDataSearch.category">
+              <select
+                class="custom-select"
+                id="category-of-document"
+                v-model="AdvanceDataSearch.category"
+              >
                 <option value disabled>Фильтр по классификации документа</option>
                 <option value="Все">Все</option>
                 <option value="Законодательство">Законодательство</option>
@@ -94,7 +126,11 @@
               <label for="status-of-document">Статус</label>
             </th>
             <td>
-              <select class="custom-select" id="status-of-document" v-model="AdvanceDataSearch.active">
+              <select
+                class="custom-select"
+                id="status-of-document"
+                v-model="AdvanceDataSearch.active"
+              >
                 <option value disabled>(Активный/Неактивный)</option>
                 <option value="Все">Все</option>
                 <option value="true">Активный</option>
@@ -104,10 +140,19 @@
           </tr>
         </tbody>
       </table>
-      <input class="btn btn-secondary" @click.prevent="GetAdvanceSearch" type="submit"
-        value="Поиск документов" />
+      <input
+        class="btn btn-success"
+        @click.prevent="GetAdvanceSearch"
+        type="submit"
+        value="Поиск документов"
+      />
     </form>
-    <button v-show="IsSearch" class="btn btn-success" style="margin-top: 50px" @click="GetViewAllDoc(PageNum)">Показать все документы</button>
+    <button
+      v-show="IsSearch"
+      class="btn btn-outline-primary"
+      style="margin-top: 50px"
+      @click="GetViewAllDoc(PageNum)"
+    >Показать все документы</button>
     <p class="table_caption">Таблица документов</p>
     <div class="table_scroll">
       <table class="table_blur">
@@ -135,7 +180,10 @@
             <td>{{ GetDocCategory[value['categoryId']-1] }}</td>
             <td>{{ IsSearch ? convert_unix(value['createdAt']) : convert(value['createdAt']) }}</td>
             <td>
-              <button class="btn btn-success" @click="ShowModalWindow(value['title'],value['id'])">Свойства</button>
+              <button
+                class="btn btn-success"
+                @click="ShowModalWindow(value['title'],value['id'], index)"
+              >Свойства</button>
             </td>
           </tr>
         </tbody>
@@ -149,11 +197,20 @@
       </tfoot>
     </table>
     <!-- PageNavigator -->
-    <page-nav v-if="IsSearch == false" @click="DocList" url='/console/document-list/' :maxPage='GetDocumentList.pages'
-      :Page="$route.params.page"></page-nav>
+    <page-nav
+      v-if="IsSearch == false"
+      @click="DocList"
+      url="/console/document-list/"
+      :maxPage="GetDocumentList.pages"
+      :Page="$route.params.page"
+    ></page-nav>
     <div v-else class="PageNavigator">
       <button @click="ClickBack">Назад</button>
-      <button @click="ClickNext">Далее</button>
+      <button
+        :style="GetDocumentList.total <= 0 ? 'opacity: 0.5;' : ''"
+        :disabled="GetDocumentList.total <= 0"
+        @click="ClickNext"
+      >Далее</button>
     </div>
     <!-- Modal Window -->
     <b-modal id="modal-scoped">
@@ -169,6 +226,7 @@
         <p>Название: {{ Property.title }}</p>
         <p>Тема: {{ Property.subject }}</p>
         <p>Теги: {{ Property.keywords }}</p>
+        <p>Информация: {{ Property.index >= 0 ? GetDocumentList.items[Property.index].info : '' }}</p>
       </template>
       <template slot="modal-footer" slot-scope="{ cancel }">
         <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
@@ -188,7 +246,7 @@ import LoginCheck from "../components/logincheck.vue";
 export default {
   data() {
     return {
-      TheTitleOfDoc: '',
+      TheTitleOfDoc: "",
       ViewAdvanceSearch: false,
       SimpleSearchText: "",
       PageNum: 1,
@@ -207,7 +265,7 @@ export default {
         dateAdd: "",
         category: "",
         active: ""
-      },
+      }
     };
   },
   components: {
@@ -217,21 +275,27 @@ export default {
   },
   created() {
     document.title = this.$route.meta.title;
-    this.PageNum = parseInt(this.$route.params.page == "undefined" ? 1 : this.$route.params.page);
+    this.PageNum = parseInt(
+      this.$route.params.page == "undefined" ? 1 : this.$route.params.page
+    );
     this.DocList(this.PageNum);
   },
   methods: {
-    ViewNotification(_title,_text,_type) {
+    ViewNotification(_title, _text, _type) {
       this.$notify({
-        group: 'foo',
+        group: "foo",
         type: _type,
         title: _title,
-        text: _text,
+        text: _text
       });
     },
     ClickNext() {
       if (this.DataSearch.data == null) {
-        this.ViewNotification('Внимание','Ошибка! Вы ничего не заполнили','error');
+        this.ViewNotification(
+          "Внимание",
+          "Ошибка! Вы ничего не заполнили",
+          "error"
+        );
         return;
       }
       this.PageNum += 1;
@@ -240,7 +304,11 @@ export default {
     },
     ClickBack() {
       if (this.DataSearch.data == null) {
-        this.ViewNotification('Внимание','Ошибка! Вы ничего не заполнили','error');
+        this.ViewNotification(
+          "Внимание",
+          "Ошибка! Вы ничего не заполнили",
+          "error"
+        );
         return;
       }
       if (this.PageNum - 1 >= 1) {
@@ -270,22 +338,20 @@ export default {
           });
         if (this.AdvanceDataSearch.dateAdd != "")
           this.DataSearch.data.push({
-            query:
-              (
-                new Date(
-                  mnt(this.AdvanceDataSearch.dateAdd).format("YYYY.MM.DD")
-                ).getTime()
-              ).toFixed(0),
+            query: new Date(
+              mnt(this.AdvanceDataSearch.dateAdd).format("YYYY.MM.DD")
+            )
+              .getTime()
+              .toFixed(0),
             field: "createdAt"
           });
         if (this.AdvanceDataSearch.dateReg != "")
           this.DataSearch.data.push({
-            query:
-              (
-                new Date(
-                  mnt(this.AdvanceDataSearch.dateReg).format("YYYY.MM.DD")
-                ).getTime()
-              ).toFixed(0),
+            query: new Date(
+              mnt(this.AdvanceDataSearch.dateReg).format("YYYY.MM.DD")
+            )
+              .getTime()
+              .toFixed(0),
             field: "registeredAt"
           });
         if (
@@ -316,18 +382,31 @@ export default {
       this.GetSearch(this.PageNum);
     },
     async GetViewAllDoc(_page) {
+      if (this.PageNum > 1) this.$router.push("/console/document-list/1");
+      this.PageNum = 1;
       this.IsSearch = false;
       this.ViewAdvanceSearch = false;
       try {
-        const res = await this.$store.dispatch("SetDocuments", { page: _page-1, search: this.IsSearch });
-      } catch (error) {
-
-      }
+        const res = await this.$store.dispatch("SetDocuments", {
+          page: 0,
+          search: this.IsSearch
+        });
+      } catch (error) {}
     },
     async GetSearch(_page) {
-      if (this.DataSearch.data == null || this.DataSearch.data == "" ) {
-        if(!(this.DataSearch.type == 'advance' && (this.AdvanceDataSearch.category =='Все' || this.AdvanceDataSearch.active == 'Все'))) {
-          this.ViewNotification('Внимание','Ошибка! Вы ничего не заполнили','error');
+      if (this.DataSearch.data == null || this.DataSearch.data == "") {
+        if (
+          !(
+            this.DataSearch.type == "advance" &&
+            (this.AdvanceDataSearch.category == "Все" ||
+              this.AdvanceDataSearch.active == "Все")
+          )
+        ) {
+          this.ViewNotification(
+            "Внимание",
+            "Ошибка! Вы ничего не заполнили",
+            "error"
+          );
           return;
         }
       }
@@ -344,17 +423,14 @@ export default {
           visibility: this.DataSearch.visibility,
           data: this.DataSearch.data
         });
-      } catch (error) {
-
-      }
+      } catch (error) {}
     },
-    async GetProps(_id) {
+    async GetProps(_id, _index) {
       try {
         const res = await api.GetProperty(_id);
         this.Property = res;
-      } catch (error) {
-
-      }
+        this.Property.index = _index;
+      } catch (error) {}
     },
     convert(_date) {
       var date = new Date(_date);
@@ -364,9 +440,9 @@ export default {
       const date = new Date(Math.floor(unixtimestamp));
       return date.toLocaleDateString();
     },
-    ShowModalWindow(_title_doc, _id) {
+    ShowModalWindow(_title_doc, _id, _index) {
       this.TheTitleOfDoc = _title_doc;
-      this.GetProps(_id);
+      this.GetProps(_id, _index);
       this.$bvModal.show("modal-scoped");
     },
     OnClickButton_advSearch() {
@@ -375,10 +451,11 @@ export default {
     async DocList(_page) {
       this.IsSearch = false;
       try {
-        const res = await this.$store.dispatch("SetDocuments", { page: _page-1, search: this.IsSearch });
-      } catch (error) {
-
-      }
+        const res = await this.$store.dispatch("SetDocuments", {
+          page: _page - 1,
+          search: this.IsSearch
+        });
+      } catch (error) {}
     }
   },
   computed: {
@@ -388,7 +465,7 @@ export default {
     GetDocCategory() {
       return this.$store.getters.GetDocCategory;
     }
-  },
+  }
 };
 </script>
 
@@ -518,7 +595,7 @@ span.description {
 
 /* Search */
 .search-box {
-  margin-top: 50px;
+  margin-top: 20px;
 }
 
 .search-box input[type="search"] {
@@ -548,7 +625,7 @@ span.description {
 .table_blur {
   background-color: #f5ffff;
   border-collapse: collapse;
-  text-align: left;
+  text-align: center;
   width: 100%;
 }
 

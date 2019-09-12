@@ -109,16 +109,19 @@
         пользователя</button>
     </form>
     <div class="alert" :class="success" role="alert">{{ RespText }}</div>
+    <loadingsmall :IsLoading="IsLoading" :center="false"></loadingsmall>
   </div>
 </template>
 
 <script>
 import * as api from "../api";
 import LoginCheck from "../components/logincheck.vue";
+import loadingsmall from "../components/loading_small.vue";
 
 export default {
   data() {
     return {
+      IsLoading: false,
       user: {
         email: "",
         login: "",
@@ -137,7 +140,8 @@ export default {
     };
   },
   components: {
-    LoginCheck
+    LoginCheck,
+    loadingsmall
   },
   methods: {
     async OnClickButton() {
@@ -186,7 +190,7 @@ export default {
         this.success = "alert-danger";
         return;
       }
-
+      this.IsLoading = true;
       try {
         const res = await api.CreateUser(
           this.user.login,
@@ -219,6 +223,7 @@ export default {
         this.success = "alert-danger";
         console.log(error);
       }
+      this.IsLoading = false;
     }
   },
   created() {

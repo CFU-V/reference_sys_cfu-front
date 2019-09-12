@@ -372,18 +372,19 @@ export async function CreateUser(_login, _password, _roleId, _lastName, _firstNa
  * @async
  * @version 0.0.0.1
  */
-export async function AddDocument(_title, _parentId, _info, _number, _categoryId, _active, _visibility, _consultant_link, _renew, _file) {
+export async function AddDocument(doc, _file) {
   try {
     const formData = new FormData();
-    formData.append("title", _title);
-    if (_parentId != null) formData.append("parentId", _parentId);
-    formData.append("info", _info);
-    formData.append("number", _number);
-    formData.append("categoryId", _categoryId);
-    formData.append("active", _active);
-    formData.append("visibility", _visibility);
-    formData.append("consultant_link", _consultant_link);
-    formData.append("renew", _renew);
+    formData.append("title", doc.title);
+    if (doc.parentId != null && doc.parentId >= 0) formData.append("parentId", doc.parentId);
+    if (doc.old_version != null && doc.old_version >= 0) formData.append("old_version", doc.old_version);
+    formData.append("info", doc.info);
+    formData.append("number", doc.number);
+    formData.append("categoryId", doc.categoryId);
+    formData.append("active", doc.active);
+    formData.append("visibility", doc.visibility);
+    formData.append("consultant_link", doc.consultant_link);
+    formData.append("renew", doc.renew);
     formData.append("file", _file);
     //-------------------
     const response = await axios.post(base_url + "document", formData, {
@@ -483,7 +484,7 @@ export async function DeleteDocument(_id) {
       headers: auth
     });
     //-------------------
-    return response.data;
+    return response;
   } catch (error) {
     console.log(`[API/DeleteDocument] - ${error}`);
     throw error;
@@ -543,6 +544,7 @@ export async function GetDocumentList(_page, _autocmpl, _s) {
       form.autocomplete = true;
       form.s = _s;
     }
+    // console.log(form);
     //-------------------
     const response = await axiosInstance({
       method: "GET",
@@ -846,6 +848,7 @@ export async function GetSearch(_content, _from, _to, _visibility, _search) {
       headers: auth
     });
     //-------------------
+    // console.log(response.data);
     return response.data;
   } catch (error) {
     console.log(`[API/GetSearch] - ${error}`);

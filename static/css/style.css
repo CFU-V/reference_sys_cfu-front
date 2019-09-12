@@ -31,3 +31,63 @@ li {
   font-size: 100%;
   vertical-align: baseline;
 }
+
+.btn:focus, .btn.focus {
+  outline: 0;
+  box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+  -webkit-box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+}
+
+.btn-success:focus, .btn-success.focus {
+  outline: 0;
+  box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+  -webkit-box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+}
+
+.btn-outline-success:focus, .btn-outline-success.focus {
+  outline: 0;
+  box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+  -webkit-box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+}
+
+.btn-danger:focus, .btn-danger.focus {
+  outline: 0;
+  box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+  -webkit-box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+}
+
+.btn-outline-danger:focus, .btn-outline-danger.focus {
+  outline: 0;
+  box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+  -webkit-box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+}
+
+.btn-outline-primary:focus, .btn-outline-primary.focus {
+  outline: 0;
+  box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+  -webkit-box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+}
+
+.btn-primary:focus, .btn-primary.focus {
+  outline: 0;
+  box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+  -webkit-box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+}
+
+.btn-info:focus, .btn-info.focus {
+  outline: 0;
+  box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+  -webkit-box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+}
+
+.btn-outline-info:focus, .btn-outline-info.focus {
+  outline: 0;
+  box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+  -webkit-box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+}
+
+/* button {
+  outline: 0;
+  box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+  -webkit-box-shadow: 0 0 0 0rem rgba(0, 0, 0, 0);
+} */

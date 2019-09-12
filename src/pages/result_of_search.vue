@@ -2,7 +2,7 @@
   <div>
     <!-- Pre loader -->
     <page-loader></page-loader>
-    	<!-- Check login -->
+    <!-- Check login -->
     <login-check :viewMW="true"></login-check>
     <!-- Header -->
     <header class="container-image-fon">
@@ -15,10 +15,19 @@
               <div class="notifications-number">3</div>
               <router-link class="notifications-bell" to="/console/messages/"></router-link>
             </div>
-            <button type="button" class="btn btn-outline-primary"
-              @click="OnClickConsole">{{ TheTitleBTConsole }}</button>
-            <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split"
-              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-if="IsLogged"></button>
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              @click="OnClickConsole"
+            >{{ TheTitleBTConsole }}</button>
+            <button
+              type="button"
+              class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+              v-if="IsLogged"
+            ></button>
             <ul class="dropdown-menu" v-if="IsLogged">
               <li>
                 <router-link class="dropdown-item" to="/console/account/">Ваш профиль</router-link>
@@ -52,47 +61,82 @@
               <a class="btn dropdown-toggle">Классификация документов</a>
               <ul class="dropdown-menu dropdown-menu-right">
                 <li>
-                  <button class="dropdown-item"
-                    @click="GetViewOnlyCategory('Законодательство')">Законодательство</button>
+                  <button
+                    class="dropdown-item"
+                    @click="GetViewOnlyCategory('Законодательство')"
+                  >Законодательство</button>
                 </li>
                 <li>
-                  <button class="dropdown-item" @click="GetViewOnlyCategory('Судебная практика')">Судебная
-                    практика</button>
+                  <button class="dropdown-item" @click="GetViewOnlyCategory('Судебная практика')">
+                    Судебная
+                    практика
+                  </button>
                 </li>
                 <li>
-                  <button class="dropdown-item"
-                    @click="GetViewOnlyCategory('Финансовые и кадровые консультации')">Финансовые и кадровые
-                    консультации</button>
+                  <button
+                    class="dropdown-item"
+                    @click="GetViewOnlyCategory('Финансовые и кадровые консультации')"
+                  >
+                    Финансовые и кадровые
+                    консультации
+                  </button>
                 </li>
                 <li>
-                  <button class="dropdown-item"
-                    @click="GetViewOnlyCategory('Консультации для бюджетных организаций')">Консультации для бюджетных
-                    организаций</button>
+                  <button
+                    class="dropdown-item"
+                    @click="GetViewOnlyCategory('Консультации для бюджетных организаций')"
+                  >
+                    Консультации для бюджетных
+                    организаций
+                  </button>
                 </li>
                 <li>
-                  <button class="dropdown-item" @click="GetViewOnlyCategory('Комментарии законодательства')">Комментарии
-                    законодательства</button>
+                  <button
+                    class="dropdown-item"
+                    @click="GetViewOnlyCategory('Комментарии законодательства')"
+                  >
+                    Комментарии
+                    законодательства
+                  </button>
                 </li>
                 <li>
-                  <button class="dropdown-item" @click="GetViewOnlyCategory('Формы документов')">Формы
-                    документов</button>
+                  <button class="dropdown-item" @click="GetViewOnlyCategory('Формы документов')">
+                    Формы
+                    документов
+                  </button>
                 </li>
                 <li>
-                  <button class="dropdown-item" @click="GetViewOnlyCategory('Технические нормы и правила')">Технические
-                    нормы и правила</button>
+                  <button
+                    class="dropdown-item"
+                    @click="GetViewOnlyCategory('Технические нормы и правила')"
+                  >
+                    Технические
+                    нормы и правила
+                  </button>
                 </li>
                 <li>
-                  <button class="dropdown-item" @click="GetViewOnlyCategory('Проекты правовых актов')">Проекты правовых
-                    актов</button>
+                  <button
+                    class="dropdown-item"
+                    @click="GetViewOnlyCategory('Проекты правовых актов')"
+                  >
+                    Проекты правовых
+                    актов
+                  </button>
                 </li>
                 <li>
-                  <button class="dropdown-item"
-                    @click="GetViewOnlyCategory('Международные правовые акты')">Международные правовые акты</button>
+                  <button
+                    class="dropdown-item"
+                    @click="GetViewOnlyCategory('Международные правовые акты')"
+                  >Международные правовые акты</button>
                 </li>
                 <li>
-                  <button class="dropdown-item"
-                    @click="GetViewOnlyCategory('Правовые акты по здравоохранению')">Правовые акты по
-                    здравоохранению</button>
+                  <button
+                    class="dropdown-item"
+                    @click="GetViewOnlyCategory('Правовые акты по здравоохранению')"
+                  >
+                    Правовые акты по
+                    здравоохранению
+                  </button>
                 </li>
               </ul>
             </li>
@@ -109,8 +153,13 @@
         <h2>Результат поиска</h2>
         <form class="form-inline search-box">
           <div class="input-group">
-            <input type="search" class="form-control" id="inlineFormInputName2" v-model="SimpleSearchText"
-              :placeholder="'Быстрый поиск документов'" />
+            <input
+              type="search"
+              class="form-control"
+              id="inlineFormInputName2"
+              v-model="SimpleSearchText"
+              :placeholder="'Быстрый поиск документов'"
+            />
           </div>
           <button type="submit" class="btn btn-info" @click.prevent="GetSimpleSearch">Поиск</button>
           <button class="btn btn-primary" @click.prevent="OnClickButton_advSearch">Расширенный поиск</button>
@@ -132,7 +181,12 @@
                   <label for="name-of-document">Название документа</label>
                 </th>
                 <td>
-                  <input class="regular-text" type="text" id="name-of-document" v-model="AdvanceDataSearch.title" />
+                  <input
+                    class="regular-text"
+                    type="text"
+                    id="name-of-document"
+                    v-model="AdvanceDataSearch.title"
+                  />
                 </td>
               </tr>
               <tr>
@@ -140,7 +194,12 @@
                   <label for="number-of-document">Номер (приказа/документа и тд)</label>
                 </th>
                 <td>
-                  <input class="regular-text" type="text" id="number-of-document" v-model="AdvanceDataSearch.number" />
+                  <input
+                    class="regular-text"
+                    type="text"
+                    id="number-of-document"
+                    v-model="AdvanceDataSearch.number"
+                  />
                 </td>
               </tr>
               <tr>
@@ -148,7 +207,12 @@
                   <label for="dateReg">Дата регистрации</label>
                 </th>
                 <td>
-                  <input class="regular-text" type="date" id="dateReg" v-model="AdvanceDataSearch.dateReg" />
+                  <input
+                    class="regular-text"
+                    type="date"
+                    id="dateReg"
+                    v-model="AdvanceDataSearch.dateReg"
+                  />
                 </td>
               </tr>
               <tr>
@@ -156,7 +220,12 @@
                   <label for="dateAdd">Дата добавления</label>
                 </th>
                 <td>
-                  <input class="regular-text" type="date" id="dateAdd" v-model="AdvanceDataSearch.dateAdd" />
+                  <input
+                    class="regular-text"
+                    type="date"
+                    id="dateAdd"
+                    v-model="AdvanceDataSearch.dateAdd"
+                  />
                 </td>
               </tr>
               <tr>
@@ -164,7 +233,11 @@
                   <label for="category-of-document">Вид документа</label>
                 </th>
                 <td>
-                  <select class="custom-select" id="category-of-document" v-model="AdvanceDataSearch.category">
+                  <select
+                    class="custom-select"
+                    id="category-of-document"
+                    v-model="AdvanceDataSearch.category"
+                  >
                     <option value disabled>Фильтр по классификации документа</option>
                     <option value="Все">Все</option>
                     <option value="Законодательство">Законодательство</option>
@@ -195,7 +268,11 @@
                   <label for="status-of-document">Статус</label>
                 </th>
                 <td>
-                  <select class="custom-select" id="status-of-document" v-model="AdvanceDataSearch.active">
+                  <select
+                    class="custom-select"
+                    id="status-of-document"
+                    v-model="AdvanceDataSearch.active"
+                  >
                     <option value disabled>(Активный/Неактивный)</option>
                     <option value="Все">Все</option>
                     <option value="true">Активный</option>
@@ -205,7 +282,12 @@
               </tr>
             </tbody>
           </table>
-          <input class="btn btn-secondary" @click.prevent="GetAdvanceSearch" type="submit" value="Поиск документов" />
+          <input
+            class="btn btn-success"
+            @click.prevent="GetAdvanceSearch"
+            type="submit"
+            value="Поиск документов"
+          />
         </form>
         <p class="table_caption">Таблица документов</p>
         <div class="table_scroll">
@@ -221,13 +303,17 @@
             <tbody>
               <tr v-for="(value, index) in GetSearchResultInfo" :key="index">
                 <td>
-                  <router-link :to="'/docview/' + value['_source']['id']">{{ value['_source']['title'] }}</router-link>
+                  <router-link
+                    :to="'/docview/' + value['_source']['id']"
+                  >{{ value['_source']['title'] }}</router-link>
                 </td>
                 <td>{{ value['_source']['category'] }}</td>
                 <td>{{ convert(value['_source']['registeredAt']) }}</td>
                 <td>
-                  <button class="btn btn-success"
-                    @click="ShowModal(value['_source']['title'], value['_source']['id'], index)">Свойства</button>
+                  <button
+                    class="btn btn-success"
+                    @click="ShowModal(value['_source']['title'], value['_source']['id'], index)"
+                  >Свойства</button>
                 </td>
               </tr>
             </tbody>
@@ -243,7 +329,11 @@
         <!-- PageNavigator -->
         <div class="PageNavigator">
           <button @click="ClickBack">Назад</button>
-          <button @click="ClickNext">Далее</button>
+          <button
+            :style="(GetSearchResultInfo.length == null ? -1 : GetSearchResultInfo.length) <= 0 ? 'opacity: 0.5;' : ''"
+            :disabled="(GetSearchResultInfo.length == null ? -1 : GetSearchResultInfo.length) <= 0"
+            @click="ClickNext"
+          >Далее</button>
         </div>
       </section>
     </div>
@@ -265,6 +355,7 @@
         <p>Название: {{ Property.title }}</p>
         <p>Тема: {{ Property.subject }}</p>
         <p>Теги: {{ Property.keywords }}</p>
+        <p>Информация: {{ Property.index >= 0 ? GetSearchResultInfo[Property.index]['_source']['info'] : '' }}</p>
       </template>
       <template slot="modal-footer" slot-scope="{ cancel }">
         <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
@@ -338,15 +429,20 @@ export default {
     }
   },
   methods: {
-    async GetProps(_id) {
+    async GetProps(_id, _index) {
       try {
         const res = await api.GetProperty(_id);
         this.Property = res;
+        this.Property.index = _index;
       } catch (error) {}
     },
     ClickNext() {
-      if (this.DataSearch.data == null) {
-        this.ViewNotification('Внимание','Ошибка! Вы ничего не заполнили','error');
+      if (this.DataSearch.data == null || this.DataSearch.data == "") {
+        this.ViewNotification(
+          "Внимание",
+          "Ошибка! Вы ничего не заполнили",
+          "error"
+        );
         return;
       }
       this.PageNum += 1;
@@ -354,8 +450,12 @@ export default {
       this.GetSearch(this.PageNum);
     },
     ClickBack() {
-      if (this.DataSearch.data == null) {
-        this.ViewNotification('Внимание','Ошибка! Вы ничего не заполнили','error');
+      if (this.DataSearch.data == null || this.DataSearch.data == "") {
+        this.ViewNotification(
+          "Внимание",
+          "Ошибка! Вы ничего не заполнили",
+          "error"
+        );
         return;
       }
       if (this.PageNum - 1 >= 1) {
@@ -368,7 +468,7 @@ export default {
       this.SelectDoc.title = _title;
       this.SelectDoc.index = _index;
       this.SelectDoc.id = _id;
-      this.GetProps(_id);
+      this.GetProps(_id, _index);
       this.$bvModal.show("modal-scoped");
     },
     convert(unixtimestamp) {
@@ -421,22 +521,20 @@ export default {
           });
         if (this.AdvanceDataSearch.dateAdd != "")
           this.DataSearch.data.push({
-            query:
-              (
-                new Date(
-                  mnt(this.AdvanceDataSearch.dateAdd).format("YYYY.MM.DD")
-                ).getTime()
-              ).toFixed(0),
+            query: new Date(
+              mnt(this.AdvanceDataSearch.dateAdd).format("YYYY.MM.DD")
+            )
+              .getTime()
+              .toFixed(0),
             field: "createdAt"
           });
         if (this.AdvanceDataSearch.dateReg != "")
           this.DataSearch.data.push({
-            query:
-              (
-                new Date(
-                  mnt(this.AdvanceDataSearch.dateReg).format("YYYY.MM.DD")
-                ).getTime()
-              ).toFixed(0),
+            query: new Date(
+              mnt(this.AdvanceDataSearch.dateReg).format("YYYY.MM.DD")
+            )
+              .getTime()
+              .toFixed(0),
             field: "registeredAt"
           });
         if (
@@ -462,7 +560,7 @@ export default {
       }
     },
     GetViewOnlyCategory(category) {
-      if(!(category != '')) return;
+      if (!(category != "")) return;
       try {
         this.DataSearch.data = [];
         this.DataSearch.type = "advance";
@@ -481,18 +579,28 @@ export default {
       this.DataSearch.data = this.SimpleSearchText;
       this.GetSearch(this.PageNum);
     },
-    ViewNotification(_title,_text,_type) {
+    ViewNotification(_title, _text, _type) {
       this.$notify({
-        group: 'foo',
+        group: "foo",
         type: _type,
         title: _title,
-        text: _text,
+        text: _text
       });
     },
     async GetSearch(_page) {
-      if (this.DataSearch.data == null || this.DataSearch.data == "" ) {
-        if(!(this.DataSearch.type == 'advance' && (this.AdvanceDataSearch.category =='Все' || this.AdvanceDataSearch.active == 'Все'))) {
-          this.ViewNotification('Внимание','Ошибка! Вы ничего не заполнили','error');
+      if (this.DataSearch.data == null || this.DataSearch.data == "") {
+        if (
+          !(
+            this.DataSearch.type == "advance" &&
+            (this.AdvanceDataSearch.category == "Все" ||
+              this.AdvanceDataSearch.active == "Все")
+          )
+        ) {
+          this.ViewNotification(
+            "Внимание",
+            "Ошибка! Вы ничего не заполнили",
+            "error"
+          );
           return;
         }
       }
@@ -596,7 +704,7 @@ export default {
   border: 0;
   background-position: center;
   background-size: cover;
-  min-height: 600px;
+  min-height: 750px;
 }
 
 .image-fon {
@@ -693,7 +801,7 @@ header {
 .container-search {
   width: 100%;
   text-align: center;
-  margin-top: 50px;
+  margin-top: 100px;
 }
 
 .has-search .form-control {
@@ -927,12 +1035,11 @@ span.description {
   margin-top: 20px;
 }
 
-
 /* Table */
 .table_blur {
   background-color: #f5ffff;
   border-collapse: collapse;
-  text-align: left;
+  text-align: center;
   width: 100%;
 }
 
