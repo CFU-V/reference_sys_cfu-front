@@ -1,7 +1,5 @@
 <template>
   <div>
-    <!-- Pre loader -->
-    <page-loader></page-loader>
     <!-- Header -->
     <page-header></page-header>
     <!-- Content -->
@@ -19,18 +17,17 @@
 <script>
 import Header from "./header.vue";
 import Footer from "./footer.vue";
-import Loader from "../components/PageLoader.vue";
 
 export default {
   components: {
     PageHeader: Header,
-    PageFooter: Footer,
-    PageLoader: Loader
+    PageFooter: Footer
   }
 };
 </script>
 
 <style scoped>
+
 /* Content */
 .content-wrapper {
   position: relative;

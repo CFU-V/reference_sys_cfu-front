@@ -1,29 +1,68 @@
 <template>
   <div>
-    	<!-- Check login -->
+    <!-- Check login -->
     <login-check :viewMW="true"></login-check>
     <!-- /Check login -->
     <h2>Ваш профиль</h2>
-    <form class="form-table">
+    <form class="form-table" @submit="OnClickButton">
       <h2>Персональные настройки</h2>
       <table>
         <tbody>
           <tr>
             <th>
-              <label for="first-name">Имя</label>
+              <label for="_login">
+                Логин
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
-              <input required class="regular-text" type="text" id="first-name" placeholder="Игорь"
-                :disabled="state_of_but" v-model="user.firstName" />
+              <input
+                required
+                class="regular-text"
+                type="text"
+                id="_login"
+                placeholder="login"
+                :disabled="state_of_but"
+                v-model="user.login"
+              />
             </td>
           </tr>
           <tr>
             <th>
-              <label for="second-name">Фамилия</label>
+              <label for="first-name">
+                Имя
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
-              <input required class="regular-text" type="text" id="second-name" placeholder="Фортис"
-                :disabled="state_of_but" v-model="user.lastName" />
+              <input
+                required
+                class="regular-text"
+                type="text"
+                id="first-name"
+                placeholder="Игорь"
+                :disabled="state_of_but"
+                v-model="user.firstName"
+              />
+            </td>
+          </tr>
+          <tr>
+            <th>
+              <label for="second-name">
+                Фамилия
+                <span style="color:red">*</span>
+              </label>
+            </th>
+            <td>
+              <input
+                required
+                class="regular-text"
+                type="text"
+                id="second-name"
+                placeholder="Фортис"
+                :disabled="state_of_but"
+                v-model="user.lastName"
+              />
             </td>
           </tr>
           <tr>
@@ -31,26 +70,53 @@
               <label for="middle-name">Отчество</label>
             </th>
             <td>
-              <input class="regular-text" type="text" id="middle-name" placeholder="Сереевич" :disabled="state_of_but"
-                v-model="user.surName" />
+              <input
+                class="regular-text"
+                type="text"
+                id="middle-name"
+                placeholder="Сереевич"
+                :disabled="state_of_but"
+                v-model="user.surName"
+              />
             </td>
           </tr>
           <tr>
             <th>
-              <label for="phone">Телефон</label>
+              <label for="phone">
+                Телефон
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
-              <input class="regular-text" type="tel" id="phone" placeholder="+7978 111-22-33"
-                pattern="\+\d\d{3} \d{3}-\d{2}-\d{2}" :disabled="state_of_but" v-model="user.phone" />
+              <input
+                required
+                class="regular-text"
+                type="tel"
+                id="phone"
+                placeholder="+7978 111-22-33"
+                pattern="\+\d\d{3} \d{3}-\d{2}-\d{2}"
+                :disabled="state_of_but"
+                v-model="user.phone"
+              />
             </td>
           </tr>
           <tr>
             <th>
-              <label for="status">Должность</label>
+              <label for="status">
+                Должность
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
-              <input class="regular-text" type="text" id="status" placeholder="Разработчик" :disabled="state_of_but"
-                v-model="user.position" />
+              <input
+                required
+                class="regular-text"
+                type="text"
+                id="status"
+                placeholder="Разработчик"
+                :disabled="state_of_but"
+                v-model="user.position"
+              />
             </td>
           </tr>
           <tr>
@@ -66,18 +132,34 @@
               <label for="pass">Пароль</label>
             </th>
             <td>
-              <input required class="regular-text" type="password" id="pass" autocomplete="off" :disabled="state_of_but"
-                v-model="pass.PastPass" />
+              <input
+                class="regular-text"
+                type="password"
+                id="pass"
+                autocomplete="off"
+                :disabled="state_of_but"
+                v-model="pass.PastPass"
+                placeholder="пароль (старый)"
+              />
               <span class="description">Старый пароль</span>
               <br />
-              <input required class="regular-text" type="password" autocomplete="off" :disabled="state_of_but"
-                v-model="pass.NewPass" />
+              <input
+                class="regular-text"
+                type="password"
+                autocomplete="off"
+                :disabled="state_of_but"
+                v-model="pass.NewPass"
+                placeholder="пароль (новый)"
+              />
               <span class="description">Новый пароль (минимум 8 символов)</span>
             </td>
           </tr>
         </tbody>
       </table>
-      <button class="btn btn-outline-primary" type="submit" @click.prevent="OnClickButton">{{ SetValueBut }}</button>
+      <button :disabled="IsLoading" class="btn btn-primary" type="submit">
+        <b-spinner v-if="IsLoading" small type="grow"></b-spinner>
+        {{ SetValueBut }}
+      </button>
     </form>
     <div class="alert" :class="success" role="alert">{{ RespText }}</div>
     <loadingsmall :IsLoading="IsLoading" :center="false"></loadingsmall>
@@ -93,7 +175,16 @@ export default {
   data() {
     return {
       IsLoading: false,
-      user: [],
+      StartLogin: "",
+      user: {
+        lastName: "",
+        surName: "",
+        firstName: "",
+        phone: "",
+        login: "",
+        position: "",
+        role: ""
+      },
       pass: {
         PastPass: "",
         NewPass: ""
@@ -115,14 +206,15 @@ export default {
     }
   },
   methods: {
-    async OnClickButton() {
-      if (this.state_of_but == false) {
+    async OnClickButton(e) {
+      e.preventDefault();
+      if (this.state_of_but === false) {
         if (
           !(
-            this.user.role != "" &&
             this.user.lastName != "" &&
             this.user.firstName != "" &&
             this.user.phone != "" &&
+            this.user.login != "" &&
             this.user.position != ""
           )
         ) {
@@ -155,18 +247,21 @@ export default {
         }
         this.IsLoading = true;
         try {
-          const res = await api.UpdateMyUserInfo(
-            this.pass.NewPass,
-            this.user.lastName,
-            this.user.firstName,
-            this.user.surName,
-            this.user.phone,
-            this.user.position
-          );
+          const res = await api.UpdateMyUserInfo(this.pass.NewPass, this.user);
           this.RespText = "Вы успешно обновили свою информацию о пользователе!";
           this.success = "alert-success";
           this.state_of_but = !this.state_of_but;
           localStorage.setItem("user", JSON.stringify(this.user));
+          if (this.StartLogin != this.user.login) {
+            this.ViewNotification(
+              "Внимание",
+              "Перейдите на страницу авторизации и авторизуйтесь по-новой.",
+              "error"
+            );
+            localStorage.removeItem("jwt");
+            localStorage.removeItem("_date");
+            localStorage.removeItem("user");
+          }
         } catch (error) {
           this.RespText = "Ошибка!";
           this.success = "alert-danger";
@@ -178,9 +273,20 @@ export default {
         this.state_of_but = false;
       }
     },
+    ViewNotification(_title, _text, _type) {
+      this.$notify({
+        group: "foo",
+        type: _type,
+        title: _title,
+        text: _text
+      });
+    }
   },
   beforeMount() {
-    this.user = JSON.parse(localStorage.getItem("user"));
+    if (api.CheckUserIsLoggin()) {
+      this.user = JSON.parse(localStorage.getItem("user"));
+      this.StartLogin = this.user.login;
+    }
   },
   created() {
     document.title = this.$route.meta.title;
@@ -193,7 +299,7 @@ export default {
   border-collapse: collapse;
   margin-top: 50px;
   width: 100%;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .form-table th {
@@ -212,7 +318,7 @@ export default {
 .form-table td,
 .form-table td p,
 .form-table th {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .form-table td {
@@ -282,7 +388,7 @@ textarea:focus {
 input:not([type="submit"]),
 select,
 textarea {
-  font-size: 14px;
+  font-size: 15px;
   padding: 3px 5px;
   border-radius: 0;
 }

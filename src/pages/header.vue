@@ -8,13 +8,22 @@
           <p>Сегодня: {{ GetNowDate }}</p>
           <div class="btn-group">
             <div v-if="IsLogged" class="btn notifications-box">
-              <div class="notifications-number">3</div>
+              <div v-show="Aletrs > 0" class="notifications-number">{{Aletrs}}</div>
               <router-link class="notifications-bell" to="/console/messages/"></router-link>
             </div>
-            <button type="button" class="btn btn-outline-primary"
-              @click="OnClickConsole">{{ TheTitleBTConsole }}</button>
-            <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split"
-              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-if="IsLogged"></button>
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              @click="OnClickConsole"
+            >{{ TheTitleBTConsole }}</button>
+            <button
+              type="button"
+              class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+              v-if="IsLogged"
+            ></button>
             <ul class="dropdown-menu" v-if="IsLogged">
               <li>
                 <router-link class="dropdown-item" to="/console/account/">Ваш профиль</router-link>
@@ -26,7 +35,7 @@
                 <router-link class="dropdown-item" to="/console/bookmark/">Закладки</router-link>
               </li>
               <li>
-                <router-link class="dropdown-item" to="/console/messages/">Сообщения</router-link>
+                <router-link class="dropdown-item" to="/console/messages/">Уведомления</router-link>
               </li>
               <li>
                 <div class="dropdown-divider"></div>
@@ -41,51 +50,14 @@
             <li>
               <router-link class="btn" to="/">Главная</router-link>
             </li>
-            <!-- <li>
-              <router-link class="btn" to="#">Новости</router-link>
-            </li>-->
             <li>
               <router-link class="btn" to="/search/1/">Расширенный поиск</router-link>
             </li>
             <li data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <router-link class="btn dropdown-toggle" to="">Класификация документов</router-link>
+              <router-link class="btn dropdown-toggle" to>Классификация документов</router-link>
               <ul class="dropdown-menu dropdown-menu-right">
-                <li>
-                  <router-link class="dropdown-item" to="/search/1/Законодательство">Законодательство</router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/search/1/Судебная практика">Судебная практика</router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/search/1/Финансовые и кадровые консультации">Финансовые и
-                    кадровые консультации</router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/search/1/Консультации для бюджетных организаций">Консультации
-                    для бюджетных организаций</router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/search/1/Комментарии законодательства">Комментарии
-                    законодательства</router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/search/1/Формы документов">Формы документов</router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/search/1/Технические нормы и правила">Технические нормы и
-                    правила</router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/search/1/Проекты правовых актов">Проекты правовых актов
-                  </router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/search/1/Международные правовые акты">Международные правовые
-                    акты</router-link>
-                </li>
-                <li>
-                  <router-link class="dropdown-item" to="/search/1/Правовые акты по здравоохранению">Правовые акты по
-                    здравоохранению</router-link>
+                <li v-for="(value, index) in GetDocCategory" :key="index">
+                  <router-link class="dropdown-item" :to="'/search/1/' + value">{{value}}</router-link>
                 </li>
               </ul>
             </li>
@@ -96,20 +68,40 @@
           <div class="search-box">
             <div class="form-group has-search">
               <span class="fa fa-search form-control-feedback"></span>
-              <span class="form-control-feedback-close" v-show="searchQuery" @click="removeSearchQuery">+</span>
-              <input @keyup.enter="enterClicked()" v-model="searchQuery" @keyup="submitSearch" type="text"
+              <span
+                class="form-control-feedback-close"
+                v-show="searchQuery"
+                @click="removeSearchQuery"
+              >+</span>
+              <input
+                @keyup.enter="enterClicked()"
+                v-model="searchQuery"
+                @keyup="submitSearch"
+                type="text"
                 class="form-control"
                 :class="ResponseSQ.length > 0 ? 'del-border-radius-bottom' : 'add-border-radius-bottom'"
-                :placeholder="'Быстрый поиск документов..'" />
-              <div v-show="ResponseSQ.length > 0 && ResponseSQ != ''" class="ResponseSQ add-border-radius-bottom">
-                <article @click="GoPush(value['id'])" v-for="(value, index) in ResponseSQ" :key="index">
+                :placeholder="'Быстрый поиск документов..'"
+              />
+              <div
+                v-show="ResponseSQ.length > 0 && ResponseSQ != ''"
+                class="ResponseSQ add-border-radius-bottom"
+              >
+                <article
+                  @click="GoPush(value['id'])"
+                  v-for="(value, index) in ResponseSQ"
+                  :key="index"
+                >
                   <span>
                     <h3>{{ value['title'] }}</h3>
-                    <p>Вид: {{ GetDocCategory[value['categoryId']-1] }} </p>
+                    <p>Вид: {{ GetDocCategory[value['categoryId']-1] }}</p>
                   </span>
                   <span>
                     <p>{{ convert(value['createdAt']) }}</p>
-                    <img v-show="value['consultant_link'] != null" src="../assets/img/KSPlust-icon.png" alt="">
+                    <img
+                      v-show="value.consultant_link !== null && value.consultant_link !== ''"
+                      src="../assets/img/KSPlust-icon.png"
+                      alt
+                    />
                   </span>
                 </article>
               </div>
@@ -129,8 +121,8 @@ export default {
   data() {
     return {
       NowDate: new Date(),
-      IsLogged: localStorage.getItem("jwt"),
       searchQuery: "",
+      IsLogin: false,
       ResponseSQ: []
     };
   },
@@ -150,17 +142,29 @@ export default {
       );
     },
     TheTitleBTConsole() {
-      return this.IsLogged != null ? "Личный кабинет" : "Войти";
+      return this.IsLogged ? "Личный кабинет" : "Войти";
+    },
+    Aletrs() {
+      return this.IsLogged ? this.$store.getters.GetCountAlert : 0;
+    },
+    IsLogged() {
+      return this.IsLogin;
     }
   },
   methods: {
     convert(_date) {
       var date = new Date(_date);
-      return date.toLocaleDateString() + ' ' + date.getHours() + ":" + date.getMinutes();
+      return (
+        date.toLocaleDateString() +
+        " " +
+        date.getHours() +
+        ":" +
+        date.getMinutes()
+      );
     },
     GoPush(_id) {
-      if(!(_id != null && parseInt(_id) > -1)) {
-        console.log('[GoPush-HEADER] - Unknown ID');
+      if (!(_id != null && parseInt(_id) > -1)) {
+        console.log("[GoPush-HEADER] - Unknown ID");
         return;
       }
       this.$router.push("/docview/" + _id);
@@ -170,19 +174,17 @@ export default {
       this.ResponseSQ = [];
     },
     async submitSearch() {
-      if(!(this.searchQuery.length > 0)) {
+      if (!(this.searchQuery.length > 0)) {
         this.removeSearchQuery();
         return;
       }
       try {
-        const res = await api.GetDocumentList(0,true,this.searchQuery);
+        const res = await api.GetDocumentList(0, true, this.searchQuery);
         this.ResponseSQ = res.items;
-      } catch (error) {
-
-      }
+      } catch (error) {}
     },
     OnClickConsole() {
-      if (this.IsLogged != null) {
+      if (api.CheckUserIsLoggin()) {
         this.$router.push("/console/account/");
       } else {
         this.$router.push("/login/");
@@ -191,31 +193,49 @@ export default {
     OnClickExit() {
       localStorage.removeItem("user");
       localStorage.removeItem("jwt");
-      this.IsLogged = null;
+      localStorage.removeItem("_date");
+      this.IsLogin = false;
     },
-    ViewNotification(_title,_text,_type) {
+    ViewNotification(_title, _text, _type) {
       this.$notify({
-        group: 'foo',
+        group: "foo",
         type: _type,
         title: _title,
-        text: _text,
+        text: _text
       });
     },
     enterClicked() {
-      if(!(this.searchQuery.length > 0)) {
-        this.ViewNotification('Внимание','Ошибка! Вы ничего не ввели','error');
+      if (!(this.searchQuery.length > 0)) {
+        this.ViewNotification(
+          "Внимание",
+          "Ошибка! Вы ничего не ввели",
+          "error"
+        );
         return;
       }
       this.$router.push("/search/1/" + this.searchQuery);
     }
+  },
+  mounted() {
+    if (api.CheckUserIsLoggin()) {
+      this.$store.dispatch("SetCountOfAlerts");
+      this.IsLogin = true;
+    }
+    this.$store.dispatch("SetDocumentCategories");
   }
 };
 </script>
 
 <style scoped>
-* {
+a,
+li {
   text-decoration: none;
   list-style-type: none;
+}
+
+.btn:focus {
+  outline: 0;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0) !important;
 }
 
 .dropdown-menu {
@@ -387,20 +407,20 @@ header {
 }
 
 .form-control {
-  border-top-left-radius: 0.25rem;
-  border-top-right-radius: 0.25rem;
-  border-bottom-right-radius: 0.25rem;
-  border-bottom-left-radius: 0.25rem;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-bottom-left-radius: 2px;
 }
 
 .add-border-radius-bottom {
-  border-bottom-right-radius: 0.25rem;
-  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 2px;
+  border-bottom-left-radius: 2px;
 }
 
 .del-border-radius-bottom {
-  border-bottom-right-radius: 0rem;
-  border-bottom-left-radius: 0rem;
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
 }
 
 .ResponseSQ {
@@ -419,12 +439,12 @@ header {
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.13), 0 1px 5px 0 rgba(0, 0, 0, 0.08);
   padding: 1.6rem;
   margin-bottom: 0.8rem;
-  transition: .4s ease-out;
+  transition: 0.4s ease-out;
   display: flex;
 }
 
 .ResponseSQ article:hover {
-  background: lightgray;
+  background: rgba(0, 0, 0, 0.07);
   cursor: pointer;
 }
 

@@ -1,15 +1,16 @@
 <template>
   <div>
-    <!-- Pre loader -->
-    <page-loader></page-loader>
-    	<!-- Check login -->
+    <!-- Check login -->
     <login-check :viewMW="true"></login-check>
     <!-- Header -->
     <page-header></page-header>
     <!-- Content -->
     <div class="content-wrapper">
       <section class="container section-news" style="min-height: 500px;">
-        <h2>Новости <span>(показывает только добавленные и обновлённые документы)</span></h2>
+        <h2>
+          Новости
+          <span>(показывает только добавленные и обновлённые документы)</span>
+        </h2>
         <div class="news-text-box">
           <article class="news-text" v-for="(value, index) in news" :key="index">
             <h3>{{ convert(value['ctype'] == 'created' ? value['createdAt'] : value['updatedAt']) }}</h3>
@@ -28,9 +29,9 @@
 <script>
 import Header from "./header.vue";
 import Footer from "./footer.vue";
-import Loader from "../components/PageLoader.vue";
-import * as api from "../api";
 import LoginCheck from "../components/logincheck.vue";
+
+import * as api from "../api";
 
 export default {
   data() {
@@ -42,7 +43,6 @@ export default {
     PageHeader: Header,
     PageFooter: Footer,
     LoginCheck,
-    PageLoader: Loader
   },
   methods: {
     convert(_date) {
@@ -79,7 +79,7 @@ export default {
   created() {
     document.title = this.$route.meta.title;
     this.GetNews();
-  },
+  }
 };
 </script>
 

@@ -6,7 +6,7 @@
     <loading :IsLoading="IsLoadingFile"></loading>
     <!-- /Loading -->
     <h2>Добавить документ</h2>
-    <form enctype="multipart/form-data" class="form-table">
+    <form enctype="multipart/form-data" class="form-table" @submit="AddDoc">
       <table>
         <tbody>
           <tr>
@@ -17,7 +17,6 @@
               <input
                 :disabled="doc.file != null"
                 class="regular-text"
-                required
                 type="text"
                 :placeholder="'Ссылка на документ'"
                 id="AddDocFromCPlus"
@@ -30,7 +29,6 @@
                 v-show="doc.consultant_link != ''"
                 @click="DeleteConsultant_linkInput"
               />
-              <!-- <input type="button" class="btn btn-success" value="Свойства" v-show="doc.consultant_link != '' " /> -->
             </td>
           </tr>
           <tr>
@@ -54,74 +52,91 @@
                 v-show="doc.file != null"
                 @click="DeleteDocFileInput"
               />
-              <!-- <input type="button" class="btn btn-success" value="Свойства" v-show="doc.file != null" /> -->
             </td>
           </tr>
-          <tr v-show="doc.consultant_link == ''">
+          <tr>
             <th>
-              <label for="DocLoad_ID">Введите имя/ID гл. Документа (далее выберите из списка документ)</label>
+              <label for="DocLoad_ID">Введите имя гл. Документа</label>
             </th>
             <td>
-
               <input
+                :disabled="doc.consultant_link != ''"
                 class="regular-text"
-                type="text"
+                type="search"
                 id="DocLoad_ID"
                 v-model="doc.parentId"
                 @input="submitSearch_parentId(doc.parentId)"
                 list="dataList_maindoc"
                 :placeholder="'Введите имя/ID документа'"
+                autocomplete="off"
               />
-
               <datalist id="dataList_maindoc">
                 <option
-                  :value="value['id']"
                   v-for="(value, index) in Response_parentId"
+                  :value="value['id']"
                   :key="index"
-                >{{ value['title'] }}</option>
+                  :label="value['title']"
+                ></option>
               </datalist>
-
             </td>
           </tr>
           <tr>
             <th>
-              <label for="DocLoad_Title">Название</label>
+              <label for="DocLoad_Title">
+                Название документа
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
-              <input
+              <textarea
                 class="regular-text"
                 required
                 type="text"
                 id="DocLoad_Title"
                 v-model="doc.title"
                 @keyup="submitSearch_title"
+                placeholder="Проект приказа № 335 от 29.02.2016..."
+              ></textarea>
+            </td>
+          </tr>
+          <tr>
+            <th>
+              <label for="DocLoad_Info">
+                Информация
+                <span style="color:red">*</span>
+              </label>
+            </th>
+            <td>
+              <input
+                required
+                class="regular-text"
+                type="text"
+                id="DocLoad_Info"
+                v-model="doc.info"
+                placeholder="Информация о документе"
+                autocomplete="off"
               />
             </td>
           </tr>
           <tr>
             <th>
-              <label for="DocLoad_Info">Информация</label>
+              <label for="DocLoad_Number">
+                Номер
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
-              <input class="regular-text" type="text" id="DocLoad_Info" v-model="doc.info" />
+              <input
+                required
+                class="regular-text"
+                type="text"
+                id="DocLoad_Number"
+                v-model="doc.number"
+                placeholder="335"
+                autocomplete="off"
+              />
             </td>
           </tr>
-          <tr>
-            <th>
-              <label for="DocLoad_Number">Номер</label>
-            </th>
-            <td>
-              <input class="regular-text" type="text" id="DocLoad_Number" v-model="doc.number" />
-            </td>
-          </tr>
-          <!-- <tr>
-            <th>
-              <label for="DocLoad_Status">Статус документа (активный/неактивный)</label>
-            </th>
-            <td>
-              <input type="checkbox" id="DocLoad_Status" v-model="doc.active" />
-            </td>
-          </tr>-->
           <tr>
             <th>
               <label for="DocLoad_View">Видимость (видимый/невидимый)</label>
@@ -132,10 +147,14 @@
           </tr>
           <tr>
             <th>
-              <label for="DocLoad_Category">Выберите категорию</label>
+              <label for="DocLoad_Category">
+                Выберите категорию
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
               <select
+                required
                 class="custom-select regular-text"
                 id="DocLoad_Category"
                 v-model="doc.categoryId"
@@ -145,26 +164,47 @@
                   :value="index+1"
                   v-for="(value, index) in GetDocCategory"
                   :key="index"
-                >{{ value }}</option>
+                >{{value}}</option>
               </select>
             </td>
           </tr>
+
+          <tr>
+            <th>
+              <label for="DocLoad_Date">
+                Введите дату регистрации документа
+                <span style="color:red">*</span>
+              </label>
+            </th>
+            <td>
+              <input
+                  required
+                  class="regular-text"
+                  type="date"
+                  id="DocLoad_Date"
+                  placeholder="2019-12-04"
+                  autocomplete="off"
+                  v-model="doc.date"
+                />
+            </td>
+          </tr>
+
           <tr>
             <th>
               <label for="DocLoad_Renew">Обновляемость</label>
             </th>
             <td>
-              <input :disabled="doc.consultant_link == ''" type="checkbox" id="DocLoad_Renew" v-model="doc.renew" />
+              <input
+                :disabled="doc.consultant_link == ''"
+                type="checkbox"
+                id="DocLoad_Renew"
+                v-model="doc.renew"
+              />
             </td>
           </tr>
         </tbody>
       </table>
-      <input
-        class="btn btn-outline-primary"
-        type="submit"
-        value="Добавить документ"
-        @click.prevent="AddDoc"
-      />
+      <input class="btn btn-primary" type="submit" value="Добавить документ" />
     </form>
     <div class="alert" :class="success" role="alert">{{ RespText }}</div>
     <!--  -->
@@ -181,7 +221,7 @@
         <tbody v-show="(doc.consultant_link == '') || (ResponseSQ.length > 0 && ResponseSQ != '')">
           <tr v-for="(value, index) in ResponseSQ" :key="index">
             <td>
-              <router-link :to="'/docview/' + value['id']">{{ value['title'] }}</router-link>
+              <p @click="OnClickTitle(value['title'])" class="TitleOfTable">{{ value['title'] }}</p>
             </td>
             <td>
               <button
@@ -210,7 +250,7 @@
     </table>
     <!--  -->
     <!-- MW Replace doc -->
-    <b-modal id="modal-Replace" ref="modal_Replace" @ok="OnClickOK_replace">
+    <b-modal size="lg" id="modal-Replace" ref="modal_Replace" @ok="OnClickOK_replace">
       <template slot="modal-header">
         <h5>Заменить документ</h5>
       </template>
@@ -219,8 +259,8 @@
         <div class="alert" :class="success" role="alert">{{ RespText }}</div>
       </template>
       <template slot="modal-footer" slot-scope="{ ok, cancel }">
-        <b-button size="sm" variant="success" @click="ok()">Заменить</b-button>
-        <b-button size="sm" variant="danger" @click="cancel()">Отмена</b-button>
+        <b-button size="md" variant="success" @click="ok()">Заменить</b-button>
+        <b-button size="md" variant="danger" @click="cancel()">Отмена</b-button>
       </template>
     </b-modal>
   </div>
@@ -230,6 +270,7 @@
 import * as api from "../api";
 import LoginCheck from "../components/logincheck.vue";
 import Loading from "../components/loading_overflow.vue";
+import mnt from "moment";
 
 export default {
   data() {
@@ -243,12 +284,13 @@ export default {
         parentId: null,
         old_version: null,
         info: "",
-        categoryId: 0,
+        categoryId: "",
         active: false,
         number: "",
         visibility: false,
         consultant_link: "",
         renew: false,
+        date: mnt(new Date()).format("YYYY-MM-DD"),
         file: null
       },
       RespText: "",
@@ -270,8 +312,11 @@ export default {
     }
   },
   methods: {
+    OnClickTitle(title) {
+      this.doc.title = title;
+    },
     OnClickOK_replace() {
-      this.ChangeDoc(this.selected_id,this.selected_title,true);
+      this.ChangeDoc(this.selected_id, this.selected_title, true);
     },
     ShowModal_replace(_id, _title) {
       this.RespText = "";
@@ -279,6 +324,40 @@ export default {
       this.selected_id = _id;
       this.selected_title = _title;
       this.$bvModal.show("modal-Replace");
+    },
+    removeSearchQuery() {
+      this.doc.title = "";
+      this.ResponseSQ = [];
+    },
+    removeSearchQuery_parentId() {
+      this.doc.parentId = null;
+      this.Response_parentId = [];
+    },
+    removeDoc() {
+      this.doc.title = "";
+      this.doc.parentId = null;
+      this.doc.info = "";
+      this.doc.categoryId = 0;
+      this.doc.active = false;
+      this.doc.number = "";
+      this.doc.visibility = false;
+      this.doc.renew = false;
+      this.doc.date = mnt(new Date()).format("YYYY-MM-DD");
+      this.doc.file = null;
+      this.doc.old_version = null;
+      this.$refs.DocFileInput.value = "";
+    },
+    DeleteConsultant_linkInput() {
+      this.doc.consultant_link = "";
+    },
+    filesChange(e) {
+      var files = e.target.files || e.dataTransfer.files;
+      if (!files.length) return;
+      this.doc.file = files[0];
+    },
+    DeleteDocFileInput() {
+      this.doc.file = null;
+      this.$refs.DocFileInput.value = "";
     },
     async ChangeDoc(_id, _title, _deleteChild) {
       if (!(_id > -1)) {
@@ -311,34 +390,38 @@ export default {
           this.doc.title != "" &&
           this.doc.categoryId > 0 &&
           this.doc.file != "" &&
+          this.doc.date != "" &&
           this.doc.number != ""
         )
       ) {
-        this.RespText = "Ошибка! Вы не все поля заполнили";
+        this.RespText =
+          "Ошибка! Вы не все поля заполнили (возможно вы не добавили документ/ссылку)";
         this.success = "alert-danger";
         return;
       }
-      if(this.doc.parentId != null && this.doc.parentId != '') {
+      if (this.doc.parentId != null && this.doc.parentId != "") {
         const res_cnvr = parseInt(this.doc.parentId);
-        if(isNaN(res_cnvr)) {
-          this.RespText = "Ошибка! Неверный ID гл. Документа!. ID Должен быть числового типа";
+        if (isNaN(res_cnvr)) {
+          this.RespText =
+            "Ошибка! Неверный ID гл. Документа!. ID Должен быть числового типа";
           this.success = "alert-danger";
           return;
-        }
-        else if(res_cnvr < 0) {
-          this.RespText = "Ошибка! Неверный ID гл. Документа!. Должен быть больше -1";
+        } else if (res_cnvr < 0) {
+          this.RespText =
+            "Ошибка! Неверный ID гл. Документа!. Должен быть больше -1";
           this.success = "alert-danger";
           return;
         }
       }
       this.$nextTick(() => {
-          this.$refs.modal_Replace.hide();
-        });
+        this.$refs.modal_Replace.hide();
+      });
       this.IsLoadingFile = true;
       this.doc.number = this.doc.number.replace(/\s+/g, "");
       try {
         this.doc.id = _id;
         this.doc.active = true;
+        this.doc.date = mnt(this.doc.date).format("YYYY-MM-DD");
         const res = await api.ChangeParamDocument(
           this.doc,
           _deleteChild,
@@ -377,22 +460,25 @@ export default {
           this.doc.title != "" &&
           this.doc.categoryId > 0 &&
           this.doc.file != "" &&
+          this.doc.date != "" &&
           this.doc.number != ""
         )
       ) {
-        this.RespText = "Ошибка! Вы не все поля заполнили";
+        this.RespText =
+          "Ошибка! Вы не все поля заполнили (возможно вы не добавили документ/ссылку)";
         this.success = "alert-danger";
         return;
       }
-      if(this.doc.parentId != null && this.doc.parentId != '') {
+      if (this.doc.parentId != null && this.doc.parentId != "") {
         const res_cnvr = parseInt(this.doc.parentId);
-        if(isNaN(res_cnvr)) {
-          this.RespText = "Ошибка! Неверный ID гл. Документа!. ID Должен быть числового типа";
+        if (isNaN(res_cnvr)) {
+          this.RespText =
+            "Ошибка! Неверный ID гл. Документа!. ID Должен быть числового типа";
           this.success = "alert-danger";
           return;
-        }
-        else if(res_cnvr < 0) {
-          this.RespText = "Ошибка! Неверный ID гл. Документа!. Должен быть больше -1";
+        } else if (res_cnvr < 0) {
+          this.RespText =
+            "Ошибка! Неверный ID гл. Документа!. Должен быть больше -1";
           this.success = "alert-danger";
           return;
         }
@@ -402,6 +488,7 @@ export default {
       this.doc.old_version = parseInt(_id);
       try {
         this.doc.active = true;
+        this.doc.date = mnt(this.doc.date).format("YYYY-MM-DD");
         const res = await api.AddDocument(this.doc, this.doc.file);
         this.RespText =
           "Вы успешно добавили новую версию документа! " + this.doc.title;
@@ -413,27 +500,6 @@ export default {
         this.success = "alert-danger";
       }
       this.IsLoadingFile = false;
-    },
-    removeSearchQuery() {
-      this.doc.title = "";
-      this.ResponseSQ = [];
-    },
-    removeSearchQuery_parentId() {
-      this.doc.parentId = null;
-      this.Response_parentId = [];
-    },
-    removeDoc() {
-      this.doc.title = "";
-      this.doc.parentId = null;
-      this.doc.info = "";
-      this.doc.categoryId = 0;
-      this.doc.active = false;
-      this.doc.number = "";
-      this.doc.visibility = false;
-      this.doc.renew = false;
-      this.doc.file = null;
-      this.doc.old_version = null;
-      this.$refs.DocFileInput.value = "";
     },
     async submitSearch_title() {
       if (this.doc.consultant_link != "") return;
@@ -448,7 +514,7 @@ export default {
     },
     async submitSearch_parentId(_text) {
       if (this.doc.consultant_link != "") return;
-      if(_text != null) {
+      if (_text != null) {
         if (!(_text.length > 0)) {
           this.removeSearchQuery_parentId();
           return;
@@ -459,19 +525,13 @@ export default {
         this.Response_parentId = res.items;
       } catch (error) {}
     },
-    DeleteConsultant_linkInput() {
-      this.doc.consultant_link = "";
-    },
-    filesChange(e) {
-      var files = e.target.files || e.dataTransfer.files;
-      if (!files.length) return;
-      this.doc.file = files[0];
-    },
-    async AddDoc() {
+    async AddDoc(e) {
+      e.preventDefault();
       if (
         !(
           this.doc.title != "" &&
           this.doc.categoryId > 0 &&
+          this.doc.date != "" &&
           this.doc.number != ""
         )
       ) {
@@ -483,7 +543,8 @@ export default {
         (this.doc.file == null || this.doc.file == "") &&
         this.doc.consultant_link == ""
       ) {
-        this.RespText = "Ошибка! Вы не все поля заполнили";
+        this.RespText =
+          "Ошибка! Вы не все поля заполнили (Вы не добавили документ/ссылку)";
         this.success = "alert-danger";
         return;
       }
@@ -498,15 +559,16 @@ export default {
           return;
         }
       }
-      if(this.doc.parentId != null && this.doc.parentId != '') {
+      if (this.doc.parentId != null && this.doc.parentId != "") {
         const res_cnvr = parseInt(this.doc.parentId);
-        if(isNaN(res_cnvr)) {
-          this.RespText = "Ошибка! Неверный ID гл. Документа!. ID Должен быть числового типа";
+        if (isNaN(res_cnvr)) {
+          this.RespText =
+            "Ошибка! Неверный ID гл. Документа!. ID Должен быть числового типа";
           this.success = "alert-danger";
           return;
-        }
-        else if(res_cnvr < 0) {
-          this.RespText = "Ошибка! Неверный ID гл. Документа!. Должен быть больше -1";
+        } else if (res_cnvr < 0) {
+          this.RespText =
+            "Ошибка! Неверный ID гл. Документа!. Должен быть больше -1";
           this.success = "alert-danger";
           return;
         }
@@ -514,6 +576,7 @@ export default {
       this.IsLoadingFile = true;
       try {
         this.doc.active = true;
+        this.doc.date = mnt(this.doc.date).format("YYYY-MM-DD");
         const res = await api.AddDocument(this.doc, this.doc.file);
         this.RespText = "Вы успешно добавили документ! " + this.doc.title;
         this.success = "alert-success";
@@ -524,11 +587,10 @@ export default {
         this.success = "alert-danger";
       }
       this.IsLoadingFile = false;
-    },
-    DeleteDocFileInput() {
-      this.doc.file = null;
-      this.$refs.DocFileInput.value = "";
     }
+  },
+  beforeMount() {
+    this.$store.dispatch("SetDocumentCategories");
   }
 };
 </script>
@@ -541,7 +603,13 @@ export default {
   border-collapse: collapse;
   margin-top: 50px;
   width: 100%;
-  font-size: 14px;
+  font-size: 15px;
+  max-width: 800px;
+}
+
+.form-table > table {
+  position: relative;
+  width: 100%;
 }
 
 .form-table tr {
@@ -552,7 +620,7 @@ export default {
   vertical-align: top;
   text-align: left;
   padding: 20px 10px 20px 0;
-  width: 400px;
+  width: 270px;
   line-height: 1.3;
   font-weight: 600;
   color: #23282d;
@@ -564,7 +632,7 @@ export default {
 .form-table td,
 .form-table td p,
 .form-table th {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .form-table td {
@@ -649,7 +717,7 @@ input[type="url"],
 input[type="week"],
 select,
 textarea {
-  font-size: 14px;
+  font-size: 15px;
   padding: 3px 5px;
   border-radius: 0;
 }
@@ -661,17 +729,28 @@ span.description {
 }
 
 .regular-text {
-  width: 26em;
+  width: 100%;
   margin-bottom: 15px;
+  max-height: 300px;
+  min-height: 30px;
+}
+
+.regular-text textarea {
+  min-height: 80px;
 }
 
 /* Table */
+.TitleOfTable {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .table_blur {
   background-color: #f5ffff;
   border-collapse: collapse;
   text-align: left;
   width: 100%;
-  max-width: 1000px;
 }
 
 .table_caption {
@@ -691,7 +770,7 @@ span.description {
   overflow-y: scroll;
   height: auto;
   max-height: 800px;
-  max-width: 1000px;
+  width: 100%;
 }
 
 .table_blur th:after {

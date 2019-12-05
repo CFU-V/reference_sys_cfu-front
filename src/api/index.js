@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const base_url = "http://127.0.0.1:7777/";
+const base_url = process.env.BASE_URL_API;
 
 const axiosInstance = axios.create({
   baseURL: base_url,
@@ -36,20 +36,28 @@ const axiosInstance = axios.create({
  * * GetProperty() Получить свойства документа
  * * ShareDocument() Поделиться документом
  * * GetNewsDocument() Получить документы (created|updated) за 7 дней
+ * * GetCategories() Получить список категорий
  * !--------------[ BookMarks ]---------------
  * * AddBookMark() Добавить закладку
  * * ChangeBookMark() Редактировать закладку
  * * GetBookMark() Получить список закладок
  * * DeleteBookMark() Удалить закладку
  * !--------------[ Messages ]----------------
+ * * SendMessage() Send a message.
+ * * ReadMessage() Read a message.
+ * * GetMessages() Get messages of user.
+ * * DeleteMessage() Delete message
+ * * GetUnreadMessages() Get unread messages of user
  * !--------------[ Logs ]--------------------
  * * GetLogList() Получить список (файлов) логов
  * * GetContentFileLog() Скачать лог-файл
  * !--------------[ DB ]----------------------
  * !--------------[ Search ]------------------
- * * GetSearch() Быстрый поиск
- * * GetSearchByFiled() Расширенный поиск
- * * GetSearchUser() Поиск пользователей
+ * * GetSearch() Simple search of document
+ * * GetSearchByFiled() Advanced search of document
+ * * GetSearchUser() User search
+ * !--------------[ Others ]------------------
+ * * CheckUserIsLoggin() User authorization check
  */
 
 export async function Default() {
@@ -91,9 +99,9 @@ export async function GetUsers(_page) {
       method: "GET",
       url: "user",
       params: {
-        pageSize: "20",
+        pageSize: 20,
         page: _page,
-        id: "0"
+        id: 0
       },
       headers: auth
     });
@@ -166,25 +174,27 @@ export async function DeleteUser(_id) {
 /**
  * Редактировать пользователя
  * @async
+ * @param {{}} _user
  * @version 0.0.0.1
  */
-export async function ChangeUser(_id, _password, _roleId, _phone, _lastName, _firstName, _surName, _position) {
+export async function ChangeUser(_user) {
   try {
     const auth = {
       Authorization: `Bearer ${localStorage.getItem("jwt")}`
     };
 
     let form = {
-      id: _id,
-      roleId: _roleId,
-      phone: _phone,
-      lastName: _lastName,
-      firstName: _firstName,
-      surName: _surName,
-      position: _position
+      id: _user.id,
+      roleId: _user.roleId,
+      phone: _user.phone,
+      lastName: _user.lastName,
+      firstName: _user.firstName,
+      surName: _user.surName,
+      position: _user.position,
+      login: _user.login
     };
 
-    if (_password.length > 7) form.password = _password;
+    if (_user.password_2.length > 7) form.password = _user.password_2;
     //-------------------
     const response = await axiosInstance({
       method: "PUT",
@@ -231,14 +241,10 @@ export async function ComparePassword(_password) {
  * Обновить информацию о себе
  * @async
  * @param {string} pass Пароль
- * @param {string} lname Фамилия
- * @param {string} fname Имя
- * @param {string} sname Отчество
- * @param {string} ph Телефон
- * @param {string} pos Должность
+ * @param {{}} user
  * @version 0.0.0.1
  */
-export async function UpdateMyUserInfo(pass, lname, fname, sname, ph, pos) {
+export async function UpdateMyUserInfo(pass, user) {
   try {
 
     const auth = {
@@ -246,11 +252,12 @@ export async function UpdateMyUserInfo(pass, lname, fname, sname, ph, pos) {
     };
 
     let form = {
-      lastName: lname,
-      firstName: fname,
-      surName: sname,
-      phone: ph,
-      position: pos
+      lastName: user.lastName,
+      firstName: user.firstName,
+      surName: user.surName,
+      phone: user.phone,
+      position: user.position,
+      login: user.login
     };
 
     if (pass.length > 7) form.password = pass;
@@ -385,6 +392,7 @@ export async function AddDocument(doc, _file) {
     formData.append("visibility", doc.visibility);
     formData.append("consultant_link", doc.consultant_link);
     formData.append("renew", doc.renew);
+    formData.append("date", doc.date);
     formData.append("file", _file);
     //-------------------
     const response = await axios.post(base_url + "document", formData, {
@@ -418,10 +426,11 @@ export async function ChangeParamDocument(_data, _deleteChilds, _file) {
     formData.append("active", _data.active);
     formData.append("visibility", _data.visibility);
     formData.append("renew", _data.renew);
+    formData.append("date", _data.date);
     formData.append("deleteChilds", _deleteChilds);
     //formData.append("old_version", null);
     //formData.append("consultant_link", null);
-    if(_file != null) formData.append("file", _file);
+    if (_file != null) formData.append("file", _file);
     //-------------------
     const response = await axios.put(base_url + "document", formData, {
       headers: {
@@ -497,20 +506,22 @@ export async function DeleteDocument(_id) {
  * @version 0.0.0.1
  * @param {number} _id Ид документа
  */
-export async function GetDocument(_id) {
+export async function GetDocument(_data, check) {
   try {
     const auth = {
       Authorization: `Bearer ${localStorage.getItem("jwt")}`
     };
+    let data = {};
+    data.id = _data.id;
+    if (_data.date !== null && _data.date !== undefined && _data.date.length > 2) data.date = _data.date;
+    if(_data.type === 'true') data.source = 'true';
     //-------------------
     const response = await axiosInstance({
       method: "GET",
       url: "document",
-      params: {
-        id: _id
-      },
+      params: data,
       headers: auth
-	});
+    });
     //-------------------
     return response.data;
   } catch (error) {
@@ -540,7 +551,7 @@ export async function GetDocumentList(_page, _autocmpl, _s) {
       page: _page,
     };
 
-    if (_autocmpl != null && _autocmpl == true) {
+    if (_autocmpl !== null && _autocmpl === true) {
       form.autocomplete = true;
       form.s = _s;
     }
@@ -580,7 +591,7 @@ export async function GetProperty(_id) {
         id: _id
       },
       headers: auth
-	});
+    });
     //-------------------
     return response.data;
   } catch (error) {
@@ -612,7 +623,7 @@ export async function ShareDocument(_documentId, _recipientMail, _message) {
         message: _message
       },
       headers: auth
-	});
+    });
     //-------------------
     return response;
   } catch (error) {
@@ -635,13 +646,37 @@ export async function GetNewsDocument() {
     const response = await axiosInstance({
       method: "GET",
       url: "document/news",
-      data: {},
       headers: auth
-	});
+    });
     //-------------------
     return response.data;
   } catch (error) {
     console.log(`[API/GetNewsDocument] - ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Получить категории
+ * @async
+ * @version 0.0.0.1
+ * @returns {string[]}
+ */
+export async function GetCategories() {
+  try {
+    const auth = {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    };
+    //-------------------
+    const response = await axiosInstance({
+      method: "GET",
+      url: "document/categories",
+      headers: auth
+    });
+    //-------------------
+    return response.data;
+  } catch (error) {
+    console.log(`[API/GetCategories] - ${error}`);
     throw error;
   }
 }
@@ -719,7 +754,7 @@ export async function GetBookMark(_page) {
       method: "GET",
       url: "bookmarks",
       params: {
-        pageSize: "20",
+        pageSize: 20,
         page: _page
       },
       headers: auth
@@ -759,6 +794,173 @@ export async function DeleteBookMark(_docId) {
   }
 }
 
+// ------------------------------[ Messages ]-----------------------------------
+
+/**
+ * Send a message.
+ * @async
+ * @param {string} _text
+ * @param {[]} _recipients
+ * @version 0.0.0.1
+ */
+export async function SendMessage(_text, _recipients) {
+  try {
+    const auth = {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    };
+    //-------------------
+    const response = await axiosInstance({
+      method: "POST",
+      url: "message/send",
+      data: {
+        text: _text,
+        recipients: _recipients
+      },
+      headers: auth
+    });
+    //-------------------
+    return response.data;
+  } catch (error) {
+    console.log(`[API/SendMessage] - ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Read a message.
+ * @async
+ * @param {number} id
+ * @version 0.0.0.1
+ */
+export async function ReadMessage(id) {
+  try {
+    const auth = {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    };
+    //-------------------
+    const response = await axiosInstance({
+      method: "PUT",
+      url: "message/read",
+      params: {
+        messageId: id
+      },
+      headers: auth
+    });
+    //-------------------
+    return response;
+  } catch (error) {
+    console.log(`[API/ReadMessage] - ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Get messages of user.
+ * @async
+ * @param {number} _page
+ * @version 0.0.0.1
+ */
+export async function GetMessages(_page) {
+  try {
+    const auth = {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    };
+    //-------------------
+    const response = await axiosInstance({
+      method: "GET",
+      url: "message",
+      params: {
+        pageSize: 20,
+        page: _page
+      },
+      headers: auth
+    });
+    //-------------------
+    return response.data;
+  } catch (error) {
+    console.log(`[API/GetMessages] - ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Get unread messages of user
+ * @async
+ * @returns {number} alerts
+ * @version 0.0.0.1
+ */
+export async function GetUnreadMessages() {
+  try {
+    const auth = {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    };
+    let countAlerts = 0;
+    //-------------------
+    const response = await axiosInstance({
+      method: "GET",
+      url: "message",
+      params: {
+        pageSize: 50,
+        page: 0
+      },
+      headers: auth
+    });
+
+    for (const item of response.data.items) {
+      if (!item.isRead) countAlerts++;
+    }
+
+    if (response.data.pages > 1) {
+      for (let i = 0; i < response.data.pages; i++) {
+        const response = await axiosInstance({
+          method: "GET",
+          url: "message",
+          params: {
+            pageSize: 50,
+            page: i + 1
+          },
+          headers: auth
+        });
+        for (const item of response.data.items) {
+          if (!item.isRead) countAlerts++;
+        }
+      }
+    }
+    //-------------------
+    return countAlerts;
+  } catch (error) {
+    console.log(`[API/GetUnreadMessages] - ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Delete a message
+ * @async
+ * @param {number} id
+ * @version 0.0.0.1
+ */
+export async function DeleteMessage(id) {
+  try {
+    const auth = {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    };
+    //-------------------
+    const response = await axiosInstance({
+      method: "DELETE",
+      url: "message",
+      params: {
+        messageId: id,
+      },
+      headers: auth
+    });
+    //-------------------
+    return response.data;
+  } catch (error) {
+    console.log(`[API/DeleteMessage] - ${error}`);
+    throw error;
+  }
+}
 // ------------------------------[ Logs ]-----------------------------------
 
 /**
@@ -794,7 +996,7 @@ export async function GetLogList() {
  */
 export async function GetContentFileLog(_filename) {
   try {
-    if(!(_filename.length > 0)) {
+    if (!(_filename.length > 0)) {
       throw 'Unknown File name'
     }
     const auth = {
@@ -820,7 +1022,7 @@ export async function GetContentFileLog(_filename) {
 // ------------------------------[ Search ]-----------------------------------
 
 /**
- * Быстрый поиск
+ * Simple search of document
  * @async
  * @param {string} _content Область поиска
  * @param {number} _from Пагинация
@@ -829,26 +1031,24 @@ export async function GetContentFileLog(_filename) {
  * @param {string} _search Строка поиска
  * @version 0.0.0.1
  */
-export async function GetSearch(_content, _from, _to, _visibility, _search) {
+export async function GetSearch(_content, page, _search) {
   try {
     const auth = {
       Authorization: `Bearer ${localStorage.getItem("jwt")}`
     };
-    //-------------------
+
     const response = await axiosInstance({
       method: "GET",
       url: "search",
       params: {
         content: _content,
-        from: _from,
-        to: _to,
-        visibility: _visibility,
+        page: page,
+        pageSize: 20,
         search: _search
       },
       headers: auth
     });
-    //-------------------
-    // console.log(response.data);
+
     return response.data;
   } catch (error) {
     console.log(`[API/GetSearch] - ${error}`);
@@ -857,7 +1057,7 @@ export async function GetSearch(_content, _from, _to, _visibility, _search) {
 }
 
 /**
- * Расширенный поиск
+ * Advanced search of document
  * @async
  * @param {string} _content Область поиска
  * @param {number} _from Пагинация
@@ -865,25 +1065,23 @@ export async function GetSearch(_content, _from, _to, _visibility, _search) {
  * @param {[{query: string,field:string},{creategAt: number}]} _search Массив объектов (выборка)
  * @version 0.0.0.1
  */
-export async function GetSearchByFiled(_content, _from, _to, _search) {
+export async function GetSearchByFiled(_content, page, _search) {
   try {
     const auth = {
       Authorization: `Bearer ${localStorage.getItem("jwt")}`
     };
-    //-------------------
+
     const response = await axiosInstance({
       method: "POST",
       url: "search",
       data: {
         content: _content,
-        from: _from,
-        to: _to,
+        page: page,
+        pageSize: 20,
         fieldsQuery: _search
       },
       headers: auth
     });
-    //-------------------
-    // console.log(response.data);
     return response.data;
   } catch (error) {
     console.log(`[API/GetSearchByFiled] - ${error}`);
@@ -892,7 +1090,7 @@ export async function GetSearchByFiled(_content, _from, _to, _search) {
 }
 
 /**
- * Поиск пользователей
+ * User search
  * @async
  * @param {number} _page
  * @param {string} _fio
@@ -906,7 +1104,7 @@ export async function GetSearchUser(_page, _fio, _roleId) {
     const auth = {
       Authorization: `Bearer ${localStorage.getItem("jwt")}`
     };
-    _roleId = (_roleId == 0 ? -1 : _roleId);
+    _roleId = (_roleId === 0 ? -1 : _roleId);
     _page = (_page < 0 ? 0 : _page);
     let form = {
       pageSize: 20,
@@ -926,5 +1124,27 @@ export async function GetSearchUser(_page, _fio, _roleId) {
   } catch (error) {
     console.log(`[API/GetSearchUser] - ${error}`);
     throw error;
+  }
+}
+
+// !--------------[ Others ]------------------
+
+/**
+ * User authorization check
+ * @returns {boolean}
+ */
+export function CheckUserIsLoggin() {
+  try {
+    const unix_date_reg = parseInt(localStorage.getItem("_date"));
+    const jwt = localStorage.getItem("jwt");
+    if ((unix_date_reg !== null && unix_date_reg !== undefined) && (jwt !== null && jwt !== undefined)) {
+      const unix_date_now = new Date().getTime();
+      const TTL_Token_hour = 12 * 60 * 60 * 1000;
+      if (unix_date_now < (unix_date_reg + TTL_Token_hour)) return true;
+    }
+    return false;
+  } catch (error) {
+    console.log(`[CheckUserIsLoggin] - ${error}`);
+    return false;
   }
 }

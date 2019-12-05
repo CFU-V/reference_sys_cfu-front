@@ -1,19 +1,32 @@
 <template>
   <div>
-    <!-- Pre loader -->
-    <page-loader></page-loader>
     <!-- Login -->
     <div class="login">
       <h1>
-        <router-link to="/"></router-link>
-        Вход в систему для пользователей
+        <router-link to="/"></router-link>Вход в систему для пользователей
       </h1>
-      <form class="form-login">
+      <form class="form-login" @submit="OnClickLogin">
         <label for="user_login">Имя пользователя или e-mail</label>
-        <input required type="text" id="user_login" class="input" v-model="login" autocomplete="off" />
+        <input
+          required
+          type="text"
+          id="user_login"
+          class="input"
+          v-model="login"
+          autocomplete="on"
+          placeholder="login"
+        />
         <label for="user_pass">Пароль</label>
-        <input required type="password" id="user_pass" class="input" v-model="password" autocomplete="off" />
-        <button type="submit" class="btn btn-outline-primary" @click.prevent="OnClickLogin">Войти</button>
+        <input
+          required
+          type="password"
+          id="user_pass"
+          class="input"
+          v-model="password"
+          autocomplete="off"
+          placeholder="password"
+        />
+        <button type="sumbit" class="btn btn-outline-primary">Войти</button>
       </form>
       <div class="alert" :class="success" role="alert">{{ RespText }}</div>
     </div>
@@ -22,8 +35,6 @@
 </template>
 
 <script>
-import Loader from "../components/PageLoader.vue";
-
 import * as api from "../api";
 
 export default {
@@ -37,10 +48,11 @@ export default {
     };
   },
   components: {
-    PageLoader: Loader
+
   },
   methods: {
-    async OnClickLogin() {
+    async OnClickLogin(e) {
+      e.preventDefault();
       if (this.password.length > 0 && this.login.length > 0) {
         try {
           const res = await api.SetLogin(this.login, this.password);
@@ -49,13 +61,20 @@ export default {
           if (localStorage.getItem("jwt") != null) {
             this.$router.push("/");
             localStorage.setItem("_date", new Date().getTime());
+            this.$parent.$bvModal._vm.GetOnlineMessage();
           } else {
             this.RespText = "Ошибка во время авторизации!";
             this.success = "alert-danger";
           }
         } catch (error) {
-          this.RespText = "Неверный логин или пароль!";
-          this.success = "alert-danger";
+          console.log('Test: ' + error.message);
+          if (error == "Error: Request failed with status code 404") {
+            this.RespText = "Ошибка! Сервер авторизации временно недоступен.";
+            this.success = "alert-danger";
+          } else {
+            this.RespText = "Неверный логин или пароль!";
+            this.success = "alert-danger";
+          }
         }
       } else {
         this.RespText = "Вы не ввели логин или пароль!";
@@ -70,6 +89,11 @@ export default {
 </script>
 
 <style scoped>
+.alert {
+  border-top-right-radius: 0px;
+  border-top-left-radius: 0px;
+}
+/*  */
 .login {
   width: 320px;
   padding: 5% 0 0;
@@ -87,7 +111,7 @@ export default {
 }
 
 .login label {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .login form .input,

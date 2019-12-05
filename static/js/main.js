@@ -1,26 +1,22 @@
-// $(window).on('load', function () {
-//   $('#js-wrap-preloader').delay(100).fadeOut('slow');
-// });
+var MainSocket = null;
 
-// function tree_toggle(event) {
-//   event = event || window.event
-//   var clickedElem = event.target || event.srcElement
+window.onload = function () {
+  if (MainSocket === null) {
+    try {
+      MainSocket = io("https://doctracker.cfuv-it.ru/");
+    } catch (error) {}
+  }
+}
 
-//   if (!hasClass(clickedElem, 'Expand')) {
-//     return
-//   }
+window.onbeforeunload = function () {
+  const id = JSON.parse(localStorage.getItem('user')).id;
+  if (id !== null && id !== undefined && (MainSocket !== null && MainSocket !== undefined)) {
+    try {
+      MainSocket.emit('log_out', id);
+    } catch {}
+  }
+}
 
-//   var node = clickedElem.parentNode
-//   if (hasClass(node, 'ExpandLeaf')) {
-//     return
-//   }
-
-//   var newClass = hasClass(node, 'ExpandOpen') ? 'ExpandClosed' : 'ExpandOpen'
-
-//   var re = /(^|\s)(ExpandOpen|ExpandClosed)(\s|$)/
-//   node.className = node.className.replace(re, '$1' + newClass + '$3')
-// }
-
-// function hasClass(elem, className) {
-//   return new RegExp("(^|\\s)" + className + "(\\s|$)").test(elem.className)
-// }
+$(window).on('load', function () {
+  $('#js-wrap-preloader').delay(200).fadeOut('slow');
+});

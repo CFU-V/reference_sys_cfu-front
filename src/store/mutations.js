@@ -14,6 +14,7 @@
 // * SetDocList Заполнить список закладок
 // * ClearDocList Очистить список документов
 // * DeleteDocListItem Удалить документ из списка
+// * MSetDocumentCategories Заполнить список категорий
 // !--------------[ Search ]---------------
 // * SetSearchResult Заполнить результат поиска
 // * ClearSearchResult Очистить результат поиска
@@ -22,7 +23,12 @@
 // * SetLogsResult Заполнить результат Logs
 // * ClearLogsResult Очистить результат Logs
 // * DeleteLogsResult Удалить элемент из списка (Logs)
-//
+// !--------------[ Message ]---------------
+// !--------------[ Notifications ]---------------
+// * SetCountOfAlerts Заполнить перменную кол-во непрочитанных сообщений
+// * ClearCountOfAlerts Очистить перменную
+// * ChangeCountOfAlert Изменить кол-во непрочитанных сообщений
+
 
 
 // !--------------[ User ]---------------
@@ -97,6 +103,7 @@ export const ChangeUserInfo_m = (state, payload) => {
     else if (payload.user.roleId == 2) buff = "manager";
     else buff = "common";
     //
+    state.GetUsers_data.user[payload.index].login = payload.user.login;
     state.GetUsers_data.user[payload.index].phone = payload.user.phone;
     state.GetUsers_data.user[payload.index].lastName = payload.user.lastName;
     state.GetUsers_data.user[payload.index].firstName = payload.user.firstName;
@@ -104,6 +111,7 @@ export const ChangeUserInfo_m = (state, payload) => {
     state.GetUsers_data.user[payload.index].position = payload.user.position;
     state.GetUsers_data.user[payload.index].role = buff;
     //
+    state.GetUser_data.user[0].login = payload.user.login;
     state.GetUser_data.user[0].phone = payload.user.phone;
     state.GetUser_data.user[0].lastName = payload.user.lastName;
     state.GetUser_data.user[0].firstName = payload.user.firstName;
@@ -187,11 +195,28 @@ export const UpdateBookMark = (state, payload) => {
  */
 export const SetDocList = (state, payload) => {
   try {
-    state.DocList.items = payload.items;
-    state.DocList.total = payload.total;
-    state.DocList.page = payload.page;
-    state.DocList.pageSize = payload.pageSize;
-    state.DocList.pages = payload.pages;
+    if (payload.typeState.toLowerCase().trim() === 'simple') {
+      state.TheDocSimpleList.items = payload.items;
+      state.TheDocSimpleList.total = payload.total;
+      state.TheDocSimpleList.page = payload.page;
+      state.TheDocSimpleList.pageSize = payload.pageSize;
+      state.TheDocSimpleList.pages = payload.pages;
+    } else if (payload.typeState.toLowerCase().trim() === 'advanced') {
+      state.TheDocAdvancedList.items = payload.items;
+      state.TheDocAdvancedList.total = payload.total;
+      state.TheDocAdvancedList.page = payload.page;
+      state.TheDocAdvancedList.pageSize = payload.pageSize;
+      state.TheDocAdvancedList.pages = payload.pages;
+    } else if (payload.typeState.toLowerCase().trim() === 'search') {
+      state.TheDocSearchList.items = payload.items;
+      state.TheDocSearchList.total = payload.total;
+      state.TheDocSearchList.page = payload.page;
+      state.TheDocSearchList.pageSize = payload.pageSize;
+      state.TheDocSearchList.pages = payload.pages;
+    } else {
+      console.log(`[Mutation/SetDocList] - Unknown type state`);
+      throw 'Unknown type state';
+    }
   } catch (error) {
     console.log(`[Mutation/SetDocList] - ${error}`);
     throw error;
@@ -202,13 +227,30 @@ export const SetDocList = (state, payload) => {
  * Очистить список документов
  * @param {*} state
  */
-export const ClearDocList = (state) => {
+export const ClearDocList = (state, payload) => {
   try {
-    state.DocList.items = [];
-    state.DocList.total = "";
-    state.DocList.page = "";
-    state.DocList.pageSize = "";
-    state.DocList.pages = "";
+    if (payload.typeState.toLowerCase().trim() === 'simple') {
+      state.TheDocSimpleList.items = [];
+      state.TheDocSimpleList.total = 0;
+      state.TheDocSimpleList.page = 0;
+      state.TheDocSimpleList.pageSize = 0;
+      state.TheDocSimpleList.pages = 0;
+    } else if (payload.typeState.toLowerCase().trim() === 'advanced') {
+      state.TheDocAdvancedList.items = [];
+      state.TheDocAdvancedList.total = 0;
+      state.TheDocAdvancedList.page = 0;
+      state.TheDocAdvancedList.pageSize = 0;
+      state.TheDocAdvancedList.pages = 0;
+    } else if (payload.typeState.toLowerCase().trim() === 'search') {
+      state.TheDocSearchList.items = [];
+      state.TheDocSearchList.total = 0;
+      state.TheDocSearchList.page = 0;
+      state.TheDocSearchList.pageSize = 0;
+      state.TheDocSearchList.pages = 0;
+    } else {
+      console.log(`[Mutation/SetDocList] - Unknown type state`);
+      throw 'Unknown type state';
+    }
   } catch (error) {
     console.log(`[Mutation/ClearDocList] - ${error}`);
     throw error;
@@ -219,12 +261,42 @@ export const ClearDocList = (state) => {
  * Удалить документ из списка
  * @param {*} state
  */
-export const DeleteDocListItem = (state, index) => {
+export const DeleteDocListItem = (state, payload) => {
   try {
-    state.DocList.items.splice(index, 1);
-    state.DocList.total -= 1;
+    if (payload.typeState.toLowerCase().trim() === 'simple') {
+      state.TheDocSimpleList.items.splice(payload.index, 1);
+      state.TheDocSimpleList.total -= 1;
+      if(state.TheDocSimpleList.total < 0) state.TheDocSimpleList.total = 0;
+    } else if (payload.typeState.toLowerCase().trim() === 'advanced') {
+      state.TheDocAdvancedList.items.splice(payload.index, 1);
+      state.TheDocAdvancedList.total -= 1;
+      if(state.TheDocAdvancedList.total < 0) state.TheDocSimpleList.total = 0;
+    } else if (payload.typeState.toLowerCase().trim() === 'search') {
+      state.TheDocSearchList.items.splice(payload.index, 1);
+      state.TheDocSearchList.total -= 1;
+      if(state.TheDocSearchList.total < 0) state.TheDocSimpleList.total = 0;
+    } else {
+      console.log(`[Mutation/SetDocList] - Unknown type state`);
+      throw 'Unknown type state';
+    }
   } catch (error) {
     console.log(`[Mutation/DeleteDocListItem] - ${error}`);
+    throw error;
+  }
+};
+
+/**
+ * Заполнить список категорий
+ * @param {*} state
+ */
+export const MSetDocumentCategories = (state, _res) => {
+  try {
+    state.GetCategoryOfDoc = [];
+    _res.forEach(element => {
+      state.GetCategoryOfDoc.push(element.title);
+    });
+  } catch (error) {
+    console.log(`[Mutation/MSetDocumentCategories] - ${error}`);
     throw error;
   }
 };
@@ -307,6 +379,49 @@ export const DeleteLogsResult = (state, index) => {
     state.Logs.splice(index, 1);
   } catch (error) {
     console.log(`[Mutation/DeleteLogsResult] - ${error}`);
+    throw error;
+  }
+};
+
+// !--------------[ Message ]---------------
+
+// !--------------[ Notifications ]---------------
+/**
+ * Заполнить перменную кол-во непрочитанных сообщений
+ * @param {*} state
+ */
+export const SetCountOfAlerts = (state, payload) => {
+  try {
+    state.CountOfAlert = payload;
+  } catch (error) {
+    console.log(`[Mutation/SetCountOfAlerts] - ${error}`);
+    throw error;
+  }
+};
+
+/**
+ * Очистить перменную
+ * @param {*} state
+ */
+export const ClearCountOfAlerts = (state) => {
+  try {
+    state.CountOfAlert = 0;
+  } catch (error) {
+    console.log(`[Mutation/ClearCountOfAlerts] - ${error}`);
+    throw error;
+  }
+};
+
+/**
+ * Изменить кол-во непрочитанных сообщений
+ * @param {*} state
+ */
+export const ChangeCountOfAlert = (state, number) => {
+  try {
+    state.CountOfAlert = number;
+    if (state.CountOfAlert < 0) state.CountOfAlert = 0;
+  } catch (error) {
+    console.log(`[Mutation/ChangeCountOfAlert] - ${error}`);
     throw error;
   }
 };

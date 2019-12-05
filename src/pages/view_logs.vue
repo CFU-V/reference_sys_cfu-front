@@ -1,7 +1,5 @@
 <template>
   <div>
-    <!-- Pre loader -->
-    <page-loader></page-loader>
     <!-- Check login -->
     <login-check :viewMW="true"></login-check>
     <!-- /Check login -->
@@ -15,30 +13,24 @@
           <th>Действие</th>
         </tr>
       </thead>
-    </table>
-    <div class="table_scroll">
-      <table class="table_blur">
-        <tbody>
-          <tr v-for="(value, index) in Items" :key="index">
-            <td>{{ value }}</td>
-            <td>{{ convert((value.substring(5)).substring(0,10)) }}</td>
-            <td>
-              <button class="btn btn-success" @click="DownloadFile(value)">Скачать</button>
-              <button class="btn btn-outline-info" @click="ViewContent(value)">Просмотр</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <table class="table_blur">
+      <tbody>
+        <tr v-for="(value, index) in Items" :key="index">
+          <td>{{ value }}</td>
+          <td>{{ convert((value.substring(5)).substring(0,10)) }}</td>
+          <td>
+            <button class="btn btn-success" @click="DownloadFile(value)">Скачать</button>
+            <button class="btn btn-outline-info" @click="ViewContent(value)">Просмотр</button>
+          </td>
+        </tr>
+      </tbody>
       <tfoot>
         <tr>
-          <th>Всего логов: {{ Items.length }}</th>
+          <th colspan="3">Всего логов: {{ Items.length }}</th>
         </tr>
       </tfoot>
     </table>
     <!-- MW View content file -->
-    <b-modal id="modal-viewcontent">
+    <b-modal size="lg" id="modal-viewcontent" class="modal-lg">
       <template slot="modal-header">
         <h5>
           Просмотр файла
@@ -46,10 +38,15 @@
         </h5>
       </template>
       <template slot="default">
-        <textarea style="min-height: 75vh; max-height: 75vh;"  name="view_content_file" id="view_content_file" :value="ContentFile"></textarea>
+        <textarea
+          style="min-height: 75vh; max-height: 75vh;"
+          name="view_content_file"
+          id="view_content_file"
+          :value="ContentFile"
+        ></textarea>
       </template>
       <template slot="modal-footer" slot-scope="{ cancel }">
-        <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
+        <b-button size="md" variant="danger" @click="cancel()">Закрыть</b-button>
       </template>
     </b-modal>
   </div>
@@ -59,7 +56,6 @@
 import Navigator from "../components/PageNavigator";
 import * as api from "../api";
 import FileSaver from "file-saver";
-import Loader from "../components/PageLoader.vue";
 import LoginCheck from "../components/logincheck.vue";
 
 export default {
@@ -77,7 +73,6 @@ export default {
   },
   components: {
     PageNav: Navigator,
-    PageLoader: Loader,
     LoginCheck
   },
   methods: {
@@ -126,10 +121,11 @@ export default {
 </script>
 
 <style scoped>
+
 #view_content_file {
-  width:100%;
-  /* max-height: 600px; */
+  width: 100%;
 }
+
 /* Search */
 .search-box {
   margin-top: 50px;
@@ -193,10 +189,6 @@ export default {
   top: 25%;
   height: 25%;
   width: 100%;
-  /* background: linear-gradient(
-    rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 0.08)
-  ); */
 }
 
 .table_blur tr:nth-child(odd) {
@@ -234,7 +226,7 @@ export default {
   border-collapse: collapse;
   margin-top: 50px;
   width: 100%;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .form-table th {
@@ -253,7 +245,7 @@ export default {
 .form-table td,
 .form-table td p,
 .form-table th {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .form-table td {
@@ -324,7 +316,7 @@ export default {
 .form-table input:not([type="submit"]),
 .form-table select,
 .form-table textarea {
-  font-size: 14px;
+  font-size: 15px;
   padding: 3px 5px;
   border-radius: 0;
 }

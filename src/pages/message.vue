@@ -5,64 +5,87 @@
     <!-- /Check login -->
     <h2>Ваши уведомления</h2>
     <p class="table_caption">Список ваших уведомлений</p>
+
     <table class="table_blur">
       <thead>
         <tr>
           <th>Отправитель</th>
-          <th>Тема</th>
+          <th>Сообщение</th>
           <th>Дата</th>
           <th>Удалить уведомление</th>
         </tr>
       </thead>
-    </table>
-    <div class="table_scroll">
-      <table class="table_blur">
-        <tbody>
-          <tr v-for="(value, index) in messages.data" :key="index">
-            <td>{{ value['sender'] }}</td>
-            <td class="collapsible">
-              <div>
-                <h3>{{ value['title'] }} -</h3>
-                <p :class="value['IsView'] == true ? 'table_blur-content' : 'table_blur-content-pre'">
-                  {{ GetText(value['IsView'],value['text']) }}</p>
-              </div>
-              <button @click="IsDoubleClick(index)"
-                :class="value['IsView'] == true ? 'btn btn-open-close close-icon' : 'btn btn-open-close open-icon'"></button>
-            </td>
-            <td>{{ value['date'] }}</td>
-            <td>
-              <button class="btn btn-danger"
-                @click="ShowModalWindowDelete(value['title'],value['text'], value['id'], index)">Х</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <table class="table_blur">
+      <tbody>
+        <tr v-if="IsLoadingItems">
+          <td colspan="4">
+            <loadingsmall :IsLoading="IsLoadingItems" :center="true" style="width:100%"></loadingsmall>
+          </td>
+        </tr>
+        <tr v-else-if="messages.data.length <= 0 && IsLoadingItems == false">
+          <td colspan="4" style="text-align: center;">Уведомлений не найдено</td>
+        </tr>
+        <tr
+          v-else
+          v-for="(value, index) in messages.data"
+          :key="index"
+          :style="value.IsView || value.IsRead ? 'background-color: white;' : ''"
+        >
+          <td>{{ value['sender'] }}</td>
+          <td class="collapsible">
+            <div>
+              <p
+                :class="value['IsView'] == true ? 'table_blur-content' : 'table_blur-content-pre'"
+              >{{ GetText(value['IsView'], value['text']) }}</p>
+            </div>
+            <button
+              @click="IsDoubleClick(index, value['id'])"
+              :class="value['IsView'] == true ? 'btn btn-open-close close-icon' : 'btn btn-open-close open-icon'"
+            ></button>
+          </td>
+          <td>{{ value['date'] }}</td>
+          <td>
+            <button
+              class="btn btn-danger"
+              @click="ShowModalWindowDelete(value['text'], value['id'], index)"
+            >Х</button>
+          </td>
+        </tr>
+      </tbody>
       <tfoot>
         <tr>
-          <th>Всего уведомлений: {{ messages.total }}</th>
+          <th colspan="4">Показано {{ messages.data.length }} из {{ messages.total }} уведомлений</th>
         </tr>
       </tfoot>
     </table>
+
     <!-- PageNavigator -->
-    <page-nav @click="NextPageMessage" url='/console/messages/' :maxPage='messages.pages' :Page="$route.params.page">
-    </page-nav>
+    <page-nav
+      @click="GetMessages"
+      url="/console/messages/"
+      :maxPage="messages.pages"
+      :Page="$route.params.page"
+    ></page-nav>
     <!-- Modal Window -->
-    <b-modal ref="modal_delete" id="modal-prevent-delete" @hidden="ResetModal" @ok="handleOk_delete">
+    <b-modal
+      size="lg"
+      ref="modal_delete"
+      id="modal-prevent-delete"
+      @hidden="ResetModal"
+      @ok="handleOk_delete"
+    >
       <template slot="modal-header">
         <h5>Подтверждение</h5>
       </template>
       <template slot="default">
-        <b>{{ DelMessage_data.title }} -</b>
         <p>{{ DelMessage_data.text }}</p>
         <br />
         <p>Вы уверены, что хотите удалить это уведомление?</p>
         <div class="alert" :class="success" role="alert">{{ RespText }}</div>
+        <loadingsmall :IsLoading="IsLoading" :center="true"></loadingsmall>
       </template>
       <template slot="modal-footer" slot-scope="{ ok,cancel }">
-        <b-button size="sm" variant="success" @click="ok()">Удалить</b-button>
-        <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
+        <b-button :disabled="IsLoading" size="md" variant="success" @click="ok()">Удалить</b-button>
+        <b-button size="md" variant="danger" @click="cancel()">Закрыть</b-button>
       </template>
     </b-modal>
     <!-- /Modal Window -->
@@ -74,12 +97,13 @@ import moment from "moment";
 import * as api from "../api";
 import Navigator from "../components/PageNavigator";
 import LoginCheck from "../components/logincheck.vue";
+import loadingsmall from "../components/loading_small.vue";
 
 export default {
   data() {
     return {
+      PageNum: 0,
       DelMessage_data: {
-        title: "",
         text: "",
         index: "",
         id: -1
@@ -87,63 +111,36 @@ export default {
       RespText: "",
       success: "",
       messages: {
-        data: [
-          {
-            id: 0,
-            sender: "Система",
-            title: "(Редактирование)",
-            date: "11.08.2019 22:47",
-            text:
-              "Документ: Правовые акты, приказ №00625 - был изменён пользователем: Фортис И.С.",
-            IsView: false
-          },
-          {
-            id: 1,
-            sender: "Администратор",
-            title: "Важное сообщение",
-            date: "10.08.2019 20:12",
-            text:
-              "Региональный этап Всероссийской олимпиады профессионального мастерства обучающихся по УГС 18.00.00 Химические технологии по специальности 18.02.01 Аналитический контроль качества химических соединений (далее – региональный этап) проводится в целях выявления наиболее одарённых и талантливых студентов, повышения качества профессиональной подготовки",
-            IsView: false
-          },
-          {
-            id: 2,
-            sender: "Система",
-            title: "(Удалён документ)",
-            date: "10.08.2019 16:35",
-            text:
-              "Документ: Правовые акты, приказ №00132 - был удалён из системы пользователем: Фортис И.С.",
-            IsView: false
-          }
-        ],
-        total: 3,
-        page: 1,
+        data: [],
+        total: 0,
+        page: 0,
         pageSize: 20,
         pages: 1
-      }
+      },
+      IsLoading: false,
+      IsLoadingItems: false,
     };
   },
   components: {
     LoginCheck,
-    PageNav: Navigator
+    PageNav: Navigator,
+    loadingsmall
   },
   methods: {
     ResetModal() {
       this.RespText = "";
       this.success = "";
-      this.DelMessage_data.title = "";
       this.DelMessage_data.text = "";
       this.DelMessage_data.id = -1;
       this.DelMessage_data.index = -1;
     },
     handleOk_delete(bvModalEvt) {
       bvModalEvt.preventDefault();
+      this.IsLoading = true;
       try {
-        this.messages.data.splice(this.DelMessage_data.index,1);
-        console.log(this.messages.data);
+        this.DeleteMessage(this.DelMessage_data.id, this.DelMessage_data.index);
         this.RespText = "";
         this.success = "";
-        this.DelMessage_data.title = "";
         this.DelMessage_data.text = "";
         this.DelMessage_data.id = -1;
         this.DelMessage_data.index = -1;
@@ -154,34 +151,85 @@ export default {
         this.RespText = "Ошибка при удалении документа!";
         this.success = "alert-danger";
       }
+      this.IsLoading = false;
     },
-    ShowModalWindowDelete(_title, _text, _id, _index) {
-      this.DelMessage_data.title = _title;
-      this.DelMessage_data.text =
-        _text.substring(0, _text.length >= 120 ? 120 : _text.length).trim() +
-        "...";
+    ShowModalWindowDelete(_text, _id, _index) {
+      this.DelMessage_data.text = _text.length > 120 ? _text.substring(0, _text.length >= 120 ? 120 : _text.length).trim() +  "..." : _text;
       this.DelMessage_data.id = _id;
       this.DelMessage_data.index = _index;
       this.$bvModal.show("modal-prevent-delete");
     },
-    IsDoubleClick(_index) {
+    IsDoubleClick(_index, id) {
+      if (!this.messages.data[_index].IsRead) {
+        this.messages.data[_index].IsRead = true;
+        this.OnReadMessage(id);
+      }
       this.messages.data[_index].IsView = !this.messages.data[_index].IsView;
     },
-    NextPageMessage(_page) {},
     GetText(_view, _text) {
-      return _view
+      return _view || _text.length < 60
         ? _text.trim()
-        : _text.substring(0, _text.length >= 60 ? 60 : _text.length).trim() +
-            "...";
+        : _text.substring(0, _text.length >= 60 ? 60 : _text.length).trim() + "...";
+    },
+    async GetMessages(_page) {
+      //Временно
+      this.IsLoadingItems = true;
+      const res = await api.GetMessages(_page - 1);
+      this.messages.data = [];
+      for (const item of res.items) {
+        this.messages.data.push({
+          id: item.message.id,
+          IsRead: item.isRead,
+          sender: item.message.author.lastName,
+          date: this.convert(item.message.createdAt),
+          text: item.message.text,
+          IsView: false
+        });
+      }
+      this.messages.page = res.page;
+      this.messages.pageSize = res.pageSize;
+      this.messages.pages = res.pages;
+      this.messages.total = res.total;
+      this.IsLoadingItems = false;
+    },
+    convert(_date) {
+      return moment(_date).format("MM.DD.YYYY HH:mm");
+    },
+    async DeleteMessage(id, index) {
+      if (id === null || id === undefined || isNaN(id)) {
+        console.error(`[Message|DeleteMessage] - Неверный ID`);
+        return;
+      }
+      try {
+        if (!this.messages.data[index].IsRead) {
+          this.$store.dispatch(
+            "ChangeCountOfAlert",
+            this.$store.getters.GetCountAlert - 1
+          );
+        }
+        const response = await api.DeleteMessage(id);
+        this.messages.data.splice(index, 1);
+        this.messages.total -= 1;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async OnReadMessage(id) {
+      try {
+        const response = await api.ReadMessage(id);
+        this.$store.dispatch(
+          "ChangeCountOfAlert",
+          this.$store.getters.GetCountAlert - 1
+        );
+      } catch (error) {}
     }
   },
   created() {
     document.title = this.$route.meta.title;
-  },
-  filters: {
-    formDate(value) {
-      return moment(String(value)).format("MM/DD/YYYY hh:mm");
-    }
+    this.PageNum = parseInt(
+      this.$route.params.page === undefined ? 1 : this.$route.params.page
+    );
+    this.GetMessages(this.PageNum);
   }
 };
 </script>
@@ -234,10 +282,15 @@ export default {
 
 /* Table */
 .table_blur {
-  background-color: #f5ffff;
+  /* background-color: #f5ffff; */
+  background-color: #ebf3f9;
   border-collapse: collapse;
   text-align: left;
   width: 100%;
+}
+
+.table_blur tfoot > tr {
+  text-align: center;
 }
 
 .table_caption {
@@ -251,26 +304,6 @@ export default {
   color: white;
   padding: 10px 15px;
   position: relative;
-}
-
-.table_scroll {
-  overflow-y: scroll;
-  height: auto;
-  max-height: 800px;
-}
-
-.table_blur th:after {
-  content: "";
-  display: block;
-  position: absolute;
-  left: 0;
-  top: 25%;
-  height: 25%;
-  width: 100%;
-  /* background: linear-gradient(
-    rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 0.08)
-  ); */
 }
 
 .table_blur tr:nth-child(odd) {
@@ -291,14 +324,6 @@ export default {
   width: 450px;
 }
 
-.table_blur td:last-child {
-  width: 250px;
-}
-
-.table_blur th:last-child {
-  width: 150px;
-}
-
 .table_blur td:first-child {
   width: 160px;
 }
@@ -307,25 +332,36 @@ export default {
   width: 160px;
 }
 
+.table_blur td:last-child {
+  width: 100px;
+}
+
+.table_blur th:last-child {
+  width: 100px;
+}
+
 .table_blur th:nth-child(3) {
-  width: 150px;
+  width: 100px;
 }
 
 .table_blur td:nth-child(3) {
-  width: 260px;
+  width: 100px;
+}
+
+.table_blur tr:hover td {
+  box-shadow: 0px 4px 4px -2px rgba(0, 0, 0, 0.3);
 }
 
 .table_blur tbody:hover tr:hover td {
-  /* text-shadow: 0 5px 5px #a09f9d; */
   background-color: white;
   cursor: pointer;
+
 }
 
 .table_blur td {
   border: 1px solid #d1e6f7;
   padding: 10px 15px;
   position: relative;
-  /* width: 450px; */
 }
 
 .table_blur td div {
@@ -333,22 +369,18 @@ export default {
 }
 
 .table_blur td h3 {
-  /* margin-right: 10px; */
   line-height: 1.2;
   display: inline;
-  /* float: left; */
 }
 
 .table_blur-content-pre {
-  opacity: 0.4;
+  opacity: 0.8;
   line-height: 1.2;
   display: inline;
-  /* float: left; */
 }
 
 .table_blur-content {
   display: inline;
-  /* float: left; */
 }
 
 /* PageNavigator */

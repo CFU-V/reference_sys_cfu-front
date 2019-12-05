@@ -11,7 +11,7 @@
             <router-link class="top-menu-item home" to="/"></router-link>
           </li>
           <li class="right-side">
-            <div class="notifications">3</div>
+            <div v-show="Aletrs > 0" class="notifications">{{Aletrs}}</div>
             <router-link class="top-menu-item bell" to="/console/messages/1"></router-link>
           </li>
           <li class="right-side">
@@ -29,25 +29,44 @@
             <p class="left-menu-item left-menu-name left-menu-title">Личный кабинет</p>
           </li>
           <li>
-            <router-link class="left-menu-item left-menu-name" to="/console/document-list/1">Список документов</router-link>
+            <router-link
+              class="left-menu-item left-menu-name"
+              to="/console/document-list/1"
+            >Список документов</router-link>
           </li>
-          <li v-if="WhoIs == 'admin' || WhoIs == 'manager'">
-            <router-link class="left-menu-item left-menu-name" to="/console/document-management/1">Управление документами</router-link>
+          <li v-if="WhoIs === 'admin' || WhoIs === 'manager'">
+            <router-link
+              class="left-menu-item left-menu-name"
+              to="/console/document-management/1"
+            >Управление документами</router-link>
           </li>
-          <li v-if="WhoIs == 'admin' || WhoIs == 'manager'">
-            <router-link class="left-menu-item left-menu-name" to="/console/document-load/">Добавить документ</router-link>
+          <li v-if="WhoIs === 'admin' || WhoIs === 'manager'">
+            <router-link
+              class="left-menu-item left-menu-name"
+              to="/console/document-load/"
+            >Добавить документ</router-link>
           </li>
-          <li v-if="WhoIs == 'admin'">
-            <router-link disabled class="left-menu-item left-menu-name" to="/console/logs/1">Журнал событий</router-link>
+          <li v-if="WhoIs === 'admin'">
+            <router-link
+              disabled
+              class="left-menu-item left-menu-name"
+              to="/console/logs/1"
+            >Журнал событий</router-link>
           </li>
           <!-- <li>
             <router-link class="left-menu-item left-menu-name" to="#">Управление БД</router-link>
-          </li> -->
-          <li v-if="WhoIs == 'admin'">
-            <router-link class="left-menu-item left-menu-name" to="/console/add-user/">Добавить пользователя</router-link>
+          </li>-->
+          <li v-if="WhoIs === 'admin'">
+            <router-link
+              class="left-menu-item left-menu-name"
+              to="/console/add-user/"
+            >Добавить пользователя</router-link>
           </li>
-          <li v-if="WhoIs == 'admin'">
-            <router-link class="left-menu-item left-menu-name" to="/console/user-list/1">Управление пользователями</router-link>
+          <li v-if="WhoIs === 'admin'">
+            <router-link
+              class="left-menu-item left-menu-name"
+              to="/console/user-list/1"
+            >Управление пользователями</router-link>
           </li>
           <li>
             <router-link class="left-menu-item left-menu-name" to="/console/account/">Ваш профиль</router-link>
@@ -64,11 +83,13 @@
 </template>
 
 <script>
+import * as api from "../api";
+
 export default {
   data() {
     return {
       getname: null,
-      WhoIs: '',
+      WhoIs: ""
     };
   },
   created() {
@@ -76,14 +97,27 @@ export default {
   },
   computed: {
     MyName() {
-      this.getname != null ? this.getname : JSON.parse(localStorage.getItem("user"));
-      return this.getname != null ? this.getname.lastName + " " + this.getname.firstName[0] + "." + this.getname.surName[0] : ''
+      this.getname !== null
+        ? this.getname
+        : JSON.parse(localStorage.getItem("user"));
+      return this.getname !== null
+        ? (this.getname.lastName ? this.getname.lastName + " " : "") +
+            (this.getname.firstName[0] ? this.getname.firstName[0] + "." : "") +
+            (this.getname.surName[0] ? this.getname.surName[0] : "")
+        : "";
+    },
+    Aletrs() {
+      return api.CheckUserIsLoggin() ? this.$store.getters.GetCountAlert : 0;
+    },
+    IsLogged() {
+      return api.CheckUserIsLoggin();
     }
   },
   methods: {
     OnClickExit() {
       localStorage.removeItem("user");
       localStorage.removeItem("jwt");
+      localStorage.removeItem("_date");
       this.$router.push("/");
     },
     GoHome() {
@@ -91,9 +125,12 @@ export default {
     }
   },
   beforeMount() {
-    const res = JSON.parse(localStorage.getItem("user"));
-    this.getname = res;
-    this.WhoIs = res['role'];
+    if (api.CheckUserIsLoggin()) {
+      this.$store.dispatch("SetCountOfAlerts");
+      const res = JSON.parse(localStorage.getItem("user"));
+      this.getname = res;
+      this.WhoIs = res["role"];
+    }
   }
 };
 </script>
@@ -104,7 +141,7 @@ export default {
   min-width: 800px;
 }
 
-* {
+a, li {
   text-decoration: none;
   list-style: none;
 }
@@ -232,7 +269,7 @@ a:hover {
   line-height: 14px;
   position: absolute;
   border-radius: 14px;
-  font-size: 14px;
+  font-size: 15px;
   background-color: #fd5d47;
   color: #fff;
   padding: 2px 5px;

@@ -40,30 +40,32 @@ export default {
     list: [],
     total: 0,
     page: 0,
-    pageSize: 10,
+    pageSize: 20,
     pages: 0
   },
-  DocList: {
+  GetCategoryOfDoc: [],
+  ResultOfSearch_main: [],
+  Logs: [],
+  CountOfAlert: 0,
+  TheDocSimpleList: {
     items: [],
     total: 0,
     page: 0,
-    pageSize: 0,
+    pageSize: 20,
     pages: 0
   },
-  GetCategoryOfDoc: [
-    "Законодательство",
-    "Судебная практика",
-    "Финансовые и кадровые консультации",
-    "Консультации для бюджетных организаций",
-    "Комментарии законодательства",
-    "Формы документов",
-    "Технические нормы и правила",
-    "Проекты правовых актов",
-    "Международные правовые акты",
-    "Правовые акты по здравоохранению"
-  ],
-  ResultOfSearch_main: [],
-  sate_baseURL: 'http://127.0.0.1:8080',
-  sate_apiURL: 'http://127.0.0.1:7777',
-  Logs: []
+  TheDocAdvancedList: {
+    items: [],
+    total: 0,
+    page: 0,
+    pageSize: 20,
+    pages: 0
+  },
+  TheDocSearchList: {
+    items: [],
+    total: 0,
+    page: 0,
+    pageSize: 20,
+    pages: 0
+  },
 };

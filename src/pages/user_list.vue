@@ -1,15 +1,18 @@
 <template>
   <div>
-    <!-- Pre loader -->
-    <page-loader></page-loader>
     <!-- Check login -->
     <login-check :viewMW="true"></login-check>
     <!-- /Check login -->
     <h2>Управление пользователями</h2>
     <form class="form-inline search-box">
       <div class="input-group">
-        <input type="search" class="form-control" id="inlineFormInputName2" :placeholder="'ФИО пользователя'"
-          v-model="DataSearch.FIO" />
+        <input
+          type="search"
+          class="form-control"
+          id="inlineFormInputName2"
+          :placeholder="'ФИО пользователя'"
+          v-model="DataSearch.FIO"
+        />
         <select class="custom-select" v-model="DataSearch.roleId">
           <option value disabled>Фильтр по роли</option>
           <option value="0">Все</option>
@@ -18,49 +21,77 @@
           <option value="1">Администратор</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-info" @click.prevent="StartSearch">Поиск</button>
+      <button type="submit" class="btn btn-success" @click.prevent="StartSearch">Поиск</button>
     </form>
-    <button v-show="IsSearch" class="btn btn-success" style="margin-top: 50px" @click="StartInfo">Показать всех пользователей</button>
+    <button
+      v-show="IsSearch"
+      class="btn btn-outline-primary"
+      style="margin-top: 50px"
+      @click="StartInfo"
+    >Показать всех пользователей</button>
     <p class="table_caption">Список пользователей</p>
-    <table class="table_blur">
-      <thead>
-        <tr>
-          <th>Имя пользователя</th>
-          <th>Роль</th>
-          <th>Должность</th>
-          <th>Действие</th>
-        </tr>
-      </thead>
-    </table>
-    <div class="table_scroll">
+    <!-- Table of List user -->
+    <div class="OverflowY_scroll">
       <table class="table_blur">
-        <tbody>
-          <tr v-for="(value, index) in Items.user" :key="index">
-            <td>{{ value['lastName'] + ' ' + value['firstName'][0] + '.' + value['surName'][0] }}</td>
+        <thead>
+          <tr>
+            <th>Логин</th>
+            <th>Имя пользователя</th>
+            <th>Роль</th>
+            <th>Должность</th>
+            <th>Действие</th>
+          </tr>
+        </thead>
+        <transition-group name="Animation_ViewItems" tag="tbody">
+          <tr v-if="IsLoadingItems" :key="1">
+            <td colspan="5">
+              <loadingsmall :IsLoading="IsLoadingItems" :center="true" style="width:100%"></loadingsmall>
+            </td>
+          </tr>
+          <tr v-else-if="Items.user.length <= 0 && IsLoadingItems == false" :key="2">
+            <td colspan="5" style="text-align: center;">Пользователей не найдено</td>
+          </tr>
+          <tr v-else v-for="(value, index) in Items.user" :key="index + 2">
+            <td>{{ value['login'] }}</td>
+            <td>{{ (value['lastName'] ? value['lastName'] : '') + ' ' + (value['firstName'][0] ? value['firstName'][0] + '.' : '') + (value['surName'][0] ? value['surName'][0] : '') }}</td>
             <td>{{ value['role'] }}</td>
             <td>{{ value['position'] }}</td>
             <td>
-              <button class="btn btn-outline-success"
-                @click="ShowModalWindow_change(value['lastName'] + ' ' + value['firstName'][0] + '.' + value['surName'][0],value['id'],index)">Редактировать</button>
-              <button class="btn btn-outline-danger"
-                @click="ShowModalWindow_delete(value['lastName'] + ' ' + value['firstName'][0] + '.' + value['surName'][0],value['id'],index)">Удалить</button>
+              <button
+                :disabled="Myuser.id == value['id']"
+                class="btn btn-success"
+                @click="ShowModalWindow_change((value['lastName'] ? value['lastName'] : '') + ' ' + (value['firstName'][0] ? value['firstName'][0] + '.' : '') + (value['surName'][0] ? value['surName'][0] : ''),value['id'],index)"
+              >Редактировать</button>
+              <button
+                :disabled="Myuser.id == value['id']"
+                class="btn btn-outline-danger"
+                @click="ShowModalWindow_delete((value['lastName'] ? value['lastName'] : '') + ' ' + (value['firstName'][0] ? value['firstName'][0] + '.' : '') + (value['surName'][0] ? value['surName'][0] : ''),value['id'],index)"
+              >Удалить</button>
             </td>
           </tr>
-        </tbody>
+        </transition-group>
+        <tfoot>
+          <tr>
+            <th colspan="5">Показано {{ Items.user.length }} из {{ Items.total }} пользователей</th>
+          </tr>
+        </tfoot>
       </table>
     </div>
-    <table class="table_blur">
-      <tfoot>
-        <tr>
-          <th>Всего пользователей: {{ Items.total }}</th>
-        </tr>
-      </tfoot>
-    </table>
     <!-- PageNavigator -->
-    <page-nav @click="GetStartInfo" url="/console/user-list/" :maxPage="Items.pages" :Page="$route.params.page">
-    </page-nav>
+    <page-nav
+      @click="GetStartInfo"
+      url="/console/user-list/"
+      :maxPage="Items.pages"
+      :Page="$route.params.page"
+    ></page-nav>
     <!-- Modal Window Delete user -->
-    <b-modal ref="modal_delete" id="modal-scoped" @hidden="resetModal_change_user" @ok="handleOk">
+    <b-modal
+      size="lg"
+      ref="modal_delete"
+      id="modal-scoped"
+      @hidden="resetModal_change_user"
+      @ok="handleOk"
+    >
       <template slot="modal-header">
         <h5>Подтверждение</h5>
       </template>
@@ -73,33 +104,74 @@
         <loadingsmall :IsLoading="IsLoading" :center="true"></loadingsmall>
       </template>
       <template slot="modal-footer" slot-scope="{ ok, cancel }">
-        <b-button size="sm" variant="success" @click="ok()">Удалить</b-button>
-        <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
+        <b-button size="md" variant="success" @click="ok()">Удалить</b-button>
+        <b-button size="md" variant="danger" @click="cancel()">Закрыть</b-button>
       </template>
     </b-modal>
     <!-- Modal Window Change user -->
-    <b-modal id="modal-prevent-closing" title="Редактирование пользователя" @hidden="resetModal_change_user"
-      @ok="handleOk_change_user">
+    <b-modal
+      size="lg"
+      id="modal-prevent-closing"
+      :title="'Редактирование пользователя: ' + TheUser"
+      @hidden="resetModal_change_user"
+      @ok="handleOk_change_user"
+    >
       <form ref="form" class="form-table">
         <h2>Персональные настройки пользователя</h2>
         <table>
           <tbody>
             <tr>
               <th>
-                <label for="first-name">Имя</label>
+                <label for="_login">
+                  Логин
+                  <span style="color:red">*</span>
+                </label>
               </th>
               <td>
-                <input required class="regular-text" type="text" id="first-name" placeholder="Имя"
-                  v-model="user.firstName" />
+                <input
+                  required
+                  class="regular-text"
+                  type="text"
+                  id="_login"
+                  placeholder="Логин"
+                  v-model="user.login"
+                />
               </td>
             </tr>
             <tr>
               <th>
-                <label for="second-name">Фамилия</label>
+                <label for="first-name">
+                  Имя
+                  <span style="color:red">*</span>
+                </label>
               </th>
               <td>
-                <input required class="regular-text" type="text" id="second-name" placeholder="Фамилия"
-                  v-model="user.lastName" />
+                <input
+                  required
+                  class="regular-text"
+                  type="text"
+                  id="first-name"
+                  placeholder="Имя"
+                  v-model="user.firstName"
+                />
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <label for="second-name">
+                  Фамилия
+                  <span style="color:red">*</span>
+                </label>
+              </th>
+              <td>
+                <input
+                  required
+                  class="regular-text"
+                  type="text"
+                  id="second-name"
+                  placeholder="Фамилия"
+                  v-model="user.lastName"
+                />
               </td>
             </tr>
             <tr>
@@ -107,31 +179,58 @@
                 <label for="middle-name">Отчество</label>
               </th>
               <td>
-                <input class="regular-text" type="text" id="middle-name" placeholder="Отчество"
-                  v-model="user.surName" />
+                <input
+                  class="regular-text"
+                  type="text"
+                  id="middle-name"
+                  placeholder="Отчество"
+                  v-model="user.surName"
+                />
               </td>
             </tr>
             <tr>
               <th>
-                <label for="phone">Телефон</label>
+                <label for="phone">
+                  Телефон
+                  <span style="color:red">*</span>
+                </label>
               </th>
               <td>
-                <input required class="regular-text" type="tel" id="phone" placeholder="+7978 111-22-33"
-                  pattern="\+\d\d{3} \d{3}-\d{2}-\d{2}" v-model="user.phone" />
+                <input
+                  required
+                  class="regular-text"
+                  type="tel"
+                  id="phone"
+                  placeholder="+7978 111-22-33"
+                  pattern="\+\d\d{3} \d{3}-\d{2}-\d{2}"
+                  v-model="user.phone"
+                />
               </td>
             </tr>
             <tr>
               <th>
-                <label for="status">Должность</label>
+                <label for="status">
+                  Должность
+                  <span style="color:red">*</span>
+                </label>
               </th>
               <td>
-                <input required class="regular-text" type="text" id="status" placeholder="Разработчик"
-                  v-model="user.position" />
+                <input
+                  required
+                  class="regular-text"
+                  type="text"
+                  id="status"
+                  placeholder="Разработчик"
+                  v-model="user.position"
+                />
               </td>
             </tr>
             <tr>
               <th>
-                <label for="rule">Роль</label>
+                <label for="rule">
+                  Роль
+                  <span style="color:red">*</span>
+                </label>
               </th>
               <td>
                 <select id="rule" v-model="user.roleId">
@@ -147,12 +246,23 @@
                 <label for="pass">Пароль</label>
               </th>
               <td>
-                <input required class="regular-text" type="password" id="pass" autocomplete="off"
-                  v-model="user.password_1" />
+                <input
+                  class="regular-text"
+                  type="password"
+                  id="pass"
+                  autocomplete="off"
+                  v-model="user.password_1"
+                  placeholder="Пароль (новый)"
+                />
                 <span class="description">пароль (минимум 8 символов)</span>
                 <br />
-                <input required class="regular-text" type="password" autocomplete="off" v-model="user.password_2" />
-                <span class="description">повторите пароль</span>
+                <input
+                  class="regular-text"
+                  type="password"
+                  autocomplete="off"
+                  v-model="user.password_2"
+                  placeholder="Пароль (повторите)"
+                />
               </td>
             </tr>
           </tbody>
@@ -161,15 +271,19 @@
         <loadingsmall :IsLoading="IsLoading" :center="true"></loadingsmall>
       </form>
       <template slot="modal-footer" slot-scope="{ ok, cancel }">
-        <b-button :disabled="IsLoading" size="sm" variant="success" @click="ok()">Редактировать (сохранить)</b-button>
-        <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
+        <b-button
+          :disabled="IsLoading"
+          size="md"
+          variant="success"
+          @click="ok()"
+        >Редактировать (сохранить)</b-button>
+        <b-button size="md" variant="danger" @click="cancel()">Закрыть</b-button>
       </template>
     </b-modal>
   </div>
 </template>
 
 <script>
-import Loader from "../components/PageLoader.vue";
 import Navigator from "../components/PageNavigator";
 import * as api from "../api";
 import LoginCheck from "../components/logincheck.vue";
@@ -179,10 +293,11 @@ export default {
   data() {
     return {
       IsLoading: false,
+      IsLoadingItems: false,
       IsSearch: false,
       Myuser: null,
       DataSearch: {
-        FIO: '',
+        FIO: "",
         roleId: 0
       },
       PageNum: 1,
@@ -192,6 +307,7 @@ export default {
       RespText: "",
       success: "",
       user: {
+        login: "",
         id: "",
         roleId: "",
         phone: "",
@@ -206,29 +322,34 @@ export default {
   },
   created() {
     document.title = this.$route.meta.title;
-    this.PageNum = parseInt(this.$route.params.page == "undefined" ? 1 : this.$route.params.page);
+    this.PageNum = parseInt(
+      this.$route.params.page == "undefined" ? 1 : this.$route.params.page
+    );
     this.GetStartInfo(this.PageNum);
   },
   components: {
     LoginCheck,
     loadingsmall,
     PageNav: Navigator,
-     PageLoader: Loader
   },
   methods: {
     StartSearch() {
-      if(this.DataSearch.FIO == '') {
-        this.ViewNotification('Внимание','Ошибка! Вы не ввели ФИО пользователя','error');
+      if (this.DataSearch.FIO == "") {
+        this.ViewNotification(
+          "Внимание",
+          "Ошибка! Вы не ввели ФИО пользователя",
+          "error"
+        );
         return;
       }
       this.IsSearch = true;
-      if(this.PageNum > 1) this.$router.push("/console/user-list/1");
+      if (this.PageNum > 1) this.$router.push("/console/user-list/1");
       this.PageNum = 1;
       this.GetStartInfo(this.PageNum);
     },
     StartInfo() {
       this.IsSearch = false;
-      if(this.PageNum > 1) this.$router.push("/console/user-list/1");
+      if (this.PageNum > 1) this.$router.push("/console/user-list/1");
       this.PageNum = 1;
       this.GetStartInfo(this.PageNum);
     },
@@ -238,6 +359,7 @@ export default {
       this.TheUserIndex = "";
       this.RespText = "";
       this.success = "";
+      this.user.login = "";
       this.user.firstName = "";
       this.user.lastName = "";
       this.user.surName = "";
@@ -249,11 +371,19 @@ export default {
     },
     async handleOk_change_user(bvModalEvt) {
       bvModalEvt.preventDefault();
+      if (this.user.id == this.Myuser.id) {
+        this.RespText =
+          "Ошибка! Вы не можете редактировать свои данные на этой странице!";
+        this.success = "alert-danger";
+        return;
+      }
       if (
         !(
           this.user.firstName != "" &&
           this.user.lastName != "" &&
-          this.user.surName != "" &&
+          this.user.position != "" &&
+          this.user.phone != "" &&
+          this.user.login != "" &&
           this.user.roleId != ""
         )
       ) {
@@ -274,36 +404,24 @@ export default {
         return;
       }
 
-      if (this.user.phone.length > 0) {
-        var valide_ph = /^\+\d\d{3} \d{3}-\d{2}-\d{2}$/;
-        if (!this.user.phone.match(valide_ph)) {
-          this.RespText = "Ошибка! Вы не правильно заполнили телефон";
-          this.success = "alert-danger";
-          return;
-        }
+      var valide_ph = /^\+\d\d{3} \d{3}-\d{2}-\d{2}$/;
+      if (!this.user.phone.match(valide_ph)) {
+        this.RespText = "Ошибка! Вы не правильно заполнили телефон";
+        this.success = "alert-danger";
+        return;
       }
       this.IsLoading = true;
       try {
-        const res = await api.ChangeUser(
-          this.user.id,
-          this.user.password_1,
-          this.user.roleId,
-          this.user.phone,
-          this.user.lastName,
-          this.user.firstName,
-          this.user.surName,
-          this.user.position
-        );
         this.RespText = "Вы успешно обновили информацию о пользователе!";
         this.success = "alert-success";
-        const payload = {
+        await this.$store.dispatch("ChangeUserInfo", {
           user: this.user,
           index: this.TheUserIndex
-        };
-        await this.$store.dispatch("ChangeUserInfo", payload);
+        });
         this.user.password_1 = "";
         this.user.password_2 = "";
-        if(this.user.id == this.Myuser.id) this.ChangeLocalStorageUserInfo(this.user);
+        if (this.user.id == this.Myuser.id)
+          this.ChangeLocalStorageUserInfo(this.user); // Mb to delete this function because it is unusable
       } catch (error) {
         this.RespText = "Ошибка!";
         this.success = "alert-danger";
@@ -319,13 +437,15 @@ export default {
       }
       this.IsLoading = true;
       try {
-        const res = await api.DeleteUser(this.TheUserID);
+        await this.$store.dispatch("DeleteUserFromList", {
+          index: this.TheUserIndex,
+          id: this.TheUserID
+        });
         this.TheUserID = "";
         this.TheUser = "";
         this.TheUserIndex = "";
         this.RespText = "";
         this.success = "";
-        await this.$store.dispatch("DeleteUserFromList", this.TheUserIndex);
         this.$nextTick(() => {
           this.$refs.modal_delete.hide();
         });
@@ -336,26 +456,43 @@ export default {
       this.IsLoading = false;
     },
     ShowModalWindow_delete(name, id, index) {
+      if (this.user.id == this.Myuser.id) {
+        this.ViewNotification(
+          "Внимание",
+          "Вы не можете удалить свой аккаунт на данной странице!",
+          "error"
+        );
+        return;
+      }
       this.TheUserID = id;
       this.TheUser = name;
       this.TheUserIndex = index;
       this.$bvModal.show("modal-scoped");
     },
-    ViewNotification(_title,_text,_type) {
+    ViewNotification(_title, _text, _type) {
       this.$notify({
-        group: 'foo',
+        group: "foo",
         type: _type,
         title: _title,
-        text: _text,
+        text: _text
       });
     },
     async ShowModalWindow_change(name, id, index) {
+      if (this.user.id == this.Myuser.id) {
+        this.ViewNotification(
+          "Внимание",
+          "Вы не можете редактировать свои данные на данной странице!",
+          "error"
+        );
+        return;
+      }
       try {
         const res = await this.$store.dispatch("GetUser", id);
         if (res.items[0].role === "admin") this.user.roleId = 1;
         else if (res.items[0].role === "manager") this.user.roleId = 2;
         else this.user.roleId = 3;
         this.user.id = id;
+        this.user.login = res.items[0].login;
         this.user.phone = res.items[0].phone;
         this.user.lastName = res.items[0].lastName;
         this.user.firstName = res.items[0].firstName;
@@ -366,23 +503,34 @@ export default {
         this.TheUserIndex = index;
         this.$bvModal.show("modal-prevent-closing");
       } catch (error) {
-        this.ViewNotification('Внимание','Ошибка при получении информации о пользователе!','error');
+        this.ViewNotification(
+          "Внимание",
+          "Ошибка при получении информации о пользователе!",
+          "error"
+        );
         console.log(error);
       }
     },
     async GetStartInfo(page) {
+      this.IsLoadingItems = true;
       try {
-        const res = await this.$store.dispatch("GetUsers", {page: page - 1, search: this.IsSearch, dataSearch: this.DataSearch });
+        const res = await this.$store.dispatch("GetUsers", {
+          page: page - 1,
+          search: this.IsSearch,
+          dataSearch: this.DataSearch
+        });
       } catch (error) {
         console.log(error);
       }
+      this.IsLoadingItems = false;
     },
     ChangeLocalStorageUserInfo(_user) {
-      let new_role = '';
-      if(_user.roleId == 1) new_role = 'admin';
-      else if(_user.roleId == 2) new_role = 'manager';
-      else new_role = 'common';
-
+      let new_role = "";
+      if (_user.roleId == 1) new_role = "admin";
+      else if (_user.roleId == 2) new_role = "manager";
+      else new_role = "common";
+      const stLogin = this.Myuser.login;
+      this.Myuser.login = _user.login;
       this.Myuser.lastName = _user.lastName;
       this.Myuser.firstName = _user.firstName;
       this.Myuser.surName = _user.surName;
@@ -390,7 +538,17 @@ export default {
       this.Myuser.role = new_role;
       this.Myuser.position = _user.position;
       localStorage.setItem("user", JSON.stringify(this.Myuser));
-    },
+      if (stLogin != _user.login) {
+        this.ViewNotification(
+          "Внимание",
+          "Перейдите на страницу авторизации и авторизуйтесь по-новой.",
+          "error"
+        );
+        localStorage.removeItem("jwt");
+        localStorage.removeItem("_date");
+        localStorage.removeItem("user");
+      }
+    }
   },
   computed: {
     Items() {
@@ -399,11 +557,30 @@ export default {
   },
   beforeMount() {
     this.Myuser = JSON.parse(localStorage.getItem("user"));
-  },
+  }
 };
 </script>
 
 <style scoped>
+.OverflowY_scroll {
+  overflow-y: auto;
+}
+
+/* Animation_ViewItems */
+
+.Animation_ViewItems-enter-active {
+  transition: all 0.8s ease;
+}
+
+.Animation_ViewItems-leave-active {
+  transition: all 0.1s ease;
+}
+
+.Animation_ViewItems-enter,
+.Animation_ViewItems-leave-to {
+  opacity: 0;
+}
+
 /* Search */
 .search-box {
   margin-top: 20px;
@@ -457,26 +634,6 @@ export default {
   position: relative;
 }
 
-.table_scroll {
-  overflow: scroll;
-  height: auto;
-  max-height: 800px;
-}
-
-.table_blur th:after {
-  content: "";
-  display: block;
-  position: absolute;
-  left: 0;
-  top: 25%;
-  height: 25%;
-  width: 100%;
-  /* background: linear-gradient(
-    rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 0.08)
-  ); */
-}
-
 .table_blur tr:nth-child(odd) {
   background-color: #ebf3f9;
 }
@@ -527,7 +684,7 @@ export default {
   border-collapse: collapse;
   margin-top: 50px;
   width: 100%;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .form-table th {
@@ -546,7 +703,7 @@ export default {
 .form-table td,
 .form-table td p,
 .form-table th {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .form-table td {
@@ -617,7 +774,7 @@ export default {
 .form-table input:not([type="submit"]),
 .form-table select,
 .form-table textarea {
-  font-size: 14px;
+  font-size: 15px;
   padding: 3px 5px;
   border-radius: 0;
 }

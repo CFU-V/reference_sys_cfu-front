@@ -140,7 +140,7 @@ const router = new Router({
       }
     },
     {
-      path: "/docview/:id?",
+      path: "/docview/:id?/",
       name: "docview",
       component: Document_view,
       meta: {
@@ -162,7 +162,7 @@ const router = new Router({
 router.beforeEach((to, from, next) => {
   document.title = to.meta.title;
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (localStorage.getItem("jwt") == null) {
+    if (localStorage.getItem("jwt") === null || localStorage.getItem("jwt") === undefined) {
       next({
         path: "/login/",
         params: {

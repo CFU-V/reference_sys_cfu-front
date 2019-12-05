@@ -1,7 +1,5 @@
 <template>
   <div>
-    <!-- Pre loader -->
-    <page-loader></page-loader>
     <!-- Check login -->
     <login-check :viewMW="true"></login-check>
     <!-- Header -->
@@ -12,7 +10,7 @@
           <p>Сегодня: {{ GetNowDate }}</p>
           <div class="btn-group">
             <div v-if="IsLogged" class="btn notifications-box">
-              <div class="notifications-number">3</div>
+              <div v-show="Aletrs > 0" class="notifications-number">{{Aletrs}}</div>
               <router-link class="notifications-bell" to="/console/messages/"></router-link>
             </div>
             <button
@@ -39,7 +37,7 @@
                 <router-link class="dropdown-item" to="/console/bookmark/">Закладки</router-link>
               </li>
               <li>
-                <router-link class="dropdown-item" to="/console/messages/">Сообщения</router-link>
+                <router-link class="dropdown-item" to="/console/messages/">Уведомления</router-link>
               </li>
               <li>
                 <div class="dropdown-divider"></div>
@@ -60,83 +58,8 @@
             <li data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <a class="btn dropdown-toggle">Классификация документов</a>
               <ul class="dropdown-menu dropdown-menu-right">
-                <li>
-                  <button
-                    class="dropdown-item"
-                    @click="GetViewOnlyCategory('Законодательство')"
-                  >Законодательство</button>
-                </li>
-                <li>
-                  <button class="dropdown-item" @click="GetViewOnlyCategory('Судебная практика')">
-                    Судебная
-                    практика
-                  </button>
-                </li>
-                <li>
-                  <button
-                    class="dropdown-item"
-                    @click="GetViewOnlyCategory('Финансовые и кадровые консультации')"
-                  >
-                    Финансовые и кадровые
-                    консультации
-                  </button>
-                </li>
-                <li>
-                  <button
-                    class="dropdown-item"
-                    @click="GetViewOnlyCategory('Консультации для бюджетных организаций')"
-                  >
-                    Консультации для бюджетных
-                    организаций
-                  </button>
-                </li>
-                <li>
-                  <button
-                    class="dropdown-item"
-                    @click="GetViewOnlyCategory('Комментарии законодательства')"
-                  >
-                    Комментарии
-                    законодательства
-                  </button>
-                </li>
-                <li>
-                  <button class="dropdown-item" @click="GetViewOnlyCategory('Формы документов')">
-                    Формы
-                    документов
-                  </button>
-                </li>
-                <li>
-                  <button
-                    class="dropdown-item"
-                    @click="GetViewOnlyCategory('Технические нормы и правила')"
-                  >
-                    Технические
-                    нормы и правила
-                  </button>
-                </li>
-                <li>
-                  <button
-                    class="dropdown-item"
-                    @click="GetViewOnlyCategory('Проекты правовых актов')"
-                  >
-                    Проекты правовых
-                    актов
-                  </button>
-                </li>
-                <li>
-                  <button
-                    class="dropdown-item"
-                    @click="GetViewOnlyCategory('Международные правовые акты')"
-                  >Международные правовые акты</button>
-                </li>
-                <li>
-                  <button
-                    class="dropdown-item"
-                    @click="GetViewOnlyCategory('Правовые акты по здравоохранению')"
-                  >
-                    Правовые акты по
-                    здравоохранению
-                  </button>
+                <li v-for="(value, index) in GetDocCategory" :key="index">
+                  <button class="dropdown-item" @click="GetViewOnlyCategory(value)">{{value}}</button>
                 </li>
               </ul>
             </li>
@@ -151,190 +74,187 @@
     <div class="content-wrapper">
       <section class="container section-news">
         <h2>Результат поиска</h2>
-        <form class="form-inline search-box">
-          <div class="input-group">
-            <input
-              type="search"
-              class="form-control"
-              id="inlineFormInputName2"
-              v-model="SimpleSearchText"
-              :placeholder="'Быстрый поиск документов'"
-            />
-          </div>
-          <button type="submit" class="btn btn-info" @click.prevent="GetSimpleSearch">Поиск</button>
-          <button class="btn btn-primary" @click.prevent="OnClickButton_advSearch">Расширенный поиск</button>
-        </form>
-        <form class="form-table" v-show="ViewAdvanceSearch">
-          <h2>Расширенный поиск</h2>
-          <table>
-            <tbody>
-              <tr>
-                <th>
-                  <label for="text-of-document">Текст документа</label>
-                </th>
-                <td>
-                  <input class="regular-text" type="text" id="text-of-document" />
-                </td>
-              </tr>
-              <tr>
-                <th>
-                  <label for="name-of-document">Название документа</label>
-                </th>
-                <td>
-                  <input
-                    class="regular-text"
-                    type="text"
-                    id="name-of-document"
-                    v-model="AdvanceDataSearch.title"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <th>
-                  <label for="number-of-document">Номер (приказа/документа и тд)</label>
-                </th>
-                <td>
-                  <input
-                    class="regular-text"
-                    type="text"
-                    id="number-of-document"
-                    v-model="AdvanceDataSearch.number"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <th>
-                  <label for="dateReg">Дата регистрации</label>
-                </th>
-                <td>
-                  <input
-                    class="regular-text"
-                    type="date"
-                    id="dateReg"
-                    v-model="AdvanceDataSearch.dateReg"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <th>
-                  <label for="dateAdd">Дата добавления</label>
-                </th>
-                <td>
-                  <input
-                    class="regular-text"
-                    type="date"
-                    id="dateAdd"
-                    v-model="AdvanceDataSearch.dateAdd"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <th>
-                  <label for="category-of-document">Вид документа</label>
-                </th>
-                <td>
-                  <select
-                    class="custom-select"
-                    id="category-of-document"
-                    v-model="AdvanceDataSearch.category"
-                  >
-                    <option value disabled>Фильтр по классификации документа</option>
-                    <option value="Все">Все</option>
-                    <option value="Законодательство">Законодательство</option>
-                    <option value="Судебная практика">Судебная практика</option>
-                    <option value="Финансовые и кадровые консультации">
-                      Финансовые и кадровые
-                      консультации
-                    </option>
-                    <option value="Консультации для бюджетных организаций">
-                      Консультации для
-                      бюджетных
-                      организаций
-                    </option>
-                    <option value="Комментарии законодательства">Комментарии законодательства</option>
-                    <option value="Формы документов">Формы документов</option>
-                    <option value="Технические нормы и правила">Технические нормы и правила</option>
-                    <option value="Проекты правовых актов">Проекты правовых актов</option>
-                    <option value="Международные правовые акты">Международные правовые акты</option>
-                    <option value="Правовые акты по здравоохранению">
-                      Правовые акты по
-                      здравоохранению
-                    </option>
-                  </select>
-                </td>
-              </tr>
-              <tr>
-                <th>
-                  <label for="status-of-document">Статус</label>
-                </th>
-                <td>
-                  <select
-                    class="custom-select"
-                    id="status-of-document"
-                    v-model="AdvanceDataSearch.active"
-                  >
-                    <option value disabled>(Активный/Неактивный)</option>
-                    <option value="Все">Все</option>
-                    <option value="true">Активный</option>
-                    <option value="false">Неактивный</option>
-                  </select>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <input
-            class="btn btn-success"
-            @click.prevent="GetAdvanceSearch"
-            type="submit"
-            value="Поиск документов"
-          />
-        </form>
+        <switch-toggle
+          :checked="ViewAdvanceSearch"
+          first_text="Расширенный поиск"
+          last_text="Быстрый поиск"
+          @IsChanged="OnClickSwitchButton"
+        ></switch-toggle>
+        <transition name="Animation_SwitchSimpleSearch">
+          <form class="form-inline search-box" v-show="(ViewAdvanceSearch == false)">
+            <div class="input-group">
+              <input
+                type="search"
+                class="form-control"
+                id="inlineFormInputName2"
+                v-model="SimpleSearchText"
+                :placeholder="'Быстрый поиск документов'"
+              />
+            </div>
+            <button type="submit" class="btn btn-success" @click.prevent="GetSimpleSearch">Поиск</button>
+          </form>
+        </transition>
+        <transition name="Animation_SwitchAdvanceSearch">
+          <form class="form-table" v-show="ViewAdvanceSearch">
+            <h2>Расширенный поиск</h2>
+            <table>
+              <tbody>
+                <tr>
+                  <th>
+                    <label for="text-of-document">Текст документа</label>
+                  </th>
+                  <td>
+                    <input class="regular-text" type="text" id="text-of-document" />
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <label for="name-of-document">Название документа</label>
+                  </th>
+                  <td>
+                    <input
+                      class="regular-text"
+                      type="text"
+                      id="name-of-document"
+                      v-model="AdvanceDataSearch.title"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <label for="number-of-document">Номер (приказа/документа и тд)</label>
+                  </th>
+                  <td>
+                    <input
+                      class="regular-text"
+                      type="text"
+                      id="number-of-document"
+                      v-model="AdvanceDataSearch.number"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <label for="dateReg">Дата регистрации</label>
+                  </th>
+                  <td>
+                    <input
+                      class="regular-text"
+                      type="date"
+                      id="dateReg"
+                      v-model="AdvanceDataSearch.dateReg"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <label for="dateAdd">Дата добавления</label>
+                  </th>
+                  <td>
+                    <input
+                      class="regular-text"
+                      type="date"
+                      id="dateAdd"
+                      v-model="AdvanceDataSearch.dateAdd"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <label for="category-of-document">Вид документа</label>
+                  </th>
+                  <td>
+                    <select
+                      class="custom-select"
+                      id="category-of-document"
+                      v-model="AdvanceDataSearch.category"
+                    >
+                      <option value disabled>Фильтр по классификации документа</option>
+                      <option value="Все">Все</option>
+                      <option
+                        v-for="(value, index) in GetDocCategory"
+                        :key="index"
+                        :value="value"
+                      >{{value}}</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <label for="status-of-document">Статус</label>
+                  </th>
+                  <td>
+                    <select
+                      class="custom-select"
+                      id="status-of-document"
+                      v-model="AdvanceDataSearch.active"
+                    >
+                      <option value disabled>(Активный/Неактивный)</option>
+                      <option value="Все">Все</option>
+                      <option value="true">Активный</option>
+                      <option value="false">Неактивный</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <button type="submit" class="btn btn-success" @click.prevent="GetAdvanceSearch">Поиск</button>
+          </form>
+        </transition>
         <p class="table_caption">Таблица документов</p>
-        <div class="table_scroll">
-          <table class="table_blur">
-            <thead>
-              <tr>
-                <th>Название</th>
-                <th>Тип документа</th>
-                <th>Дата регистрации</th>
-                <th>Действие</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(value, index) in GetSearchResultInfo" :key="index">
-                <td>
-                  <router-link
-                    :to="'/docview/' + value['_source']['id']"
-                  >{{ value['_source']['title'] }}</router-link>
-                </td>
-                <td>{{ value['_source']['category'] }}</td>
-                <td>{{ convert(value['_source']['registeredAt']) }}</td>
-                <td>
-                  <button
-                    class="btn btn-success"
-                    @click="ShowModal(value['_source']['title'], value['_source']['id'], index)"
-                  >Свойства</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
         <table class="table_blur">
+          <thead>
+            <tr>
+              <th>Название</th>
+              <th>Тип документа</th>
+              <th>Дата регистрации</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <transition-group name="Animation_ViewItems" tag="tbody">
+            <tr v-if="IsLoadingItems" :key="1">
+              <td colspan="4">
+                <loadingsmall :IsLoading="IsLoadingItems" :center="true" style="width:100%"></loadingsmall>
+              </td>
+            </tr>
+            <tr v-else-if="GetDocumentList.items.length <= 0 && IsLoadingItems == false" :key="2">
+              <td colspan="4" style="text-align: center;">Документов не найдено</td>
+            </tr>
+            <tr v-else v-for="(value, index) in GetDocumentList.items" :key="index + 2">
+              <td>
+                <img
+                  v-show="value.consultant_link !== null && value.consultant_link !== ''"
+                  src="../assets/img/KSPlust-icon.png"
+                  alt
+                />
+                <router-link :to="'/docview/' + value.id">{{ value.title }}</router-link>
+              </td>
+              <td>{{ value.category }}</td>
+              <td>{{ convert(value.registeredAt) }}</td>
+              <td>
+                <button
+                  :disabled="!IsLogged || (value.consultant_link !== null && value.consultant_link !== '')"
+                  class="btn btn-success"
+                  @click="ShowModal(value.title, value.id, index)"
+                >Свойства</button>
+              </td>
+            </tr>
+          </transition-group>
           <tfoot>
             <tr>
-              <th>Найдено документов: {{ GetSearchResultInfo.length == null ? -1 : GetSearchResultInfo.length }}</th>
+              <th
+                colspan="4"
+              >Показано {{ GetDocumentList.items.length }} из {{ GetDocumentList.total }} документов</th>
             </tr>
           </tfoot>
         </table>
         <!-- PageNavigator -->
-        <div class="PageNavigator">
-          <button @click="ClickBack">Назад</button>
-          <button
-            :style="(GetSearchResultInfo.length == null ? -1 : GetSearchResultInfo.length) <= 0 ? 'opacity: 0.5;' : ''"
-            :disabled="(GetSearchResultInfo.length == null ? -1 : GetSearchResultInfo.length) <= 0"
-            @click="ClickNext"
-          >Далее</button>
-        </div>
+        <page-nav
+          @click="GetSearch"
+          url="/search/"
+          :maxPage="GetDocumentList.pages"
+          :Page="$route.params.page"
+        ></page-nav>
       </section>
     </div>
     <!-- Footer -->
@@ -342,11 +262,11 @@
       <h3>Справочно-правовая система КФУ 2019{{TheNextFooterYear}} (с)</h3>
     </footer>
     <!-- MW View prop -->
-    <b-modal id="modal-scoped">
+    <b-modal size="lg" id="modal-scoped">
       <template slot="modal-header">
-        <h5>Свойства документа: {{ SelectDoc.title }}</h5>
+        <h5>Свойства документа: {{ SelectDoc_title }}</h5>
       </template>
-      <template slot="default">
+      <template slot="default" v-if="Property != null">
         <p>Автор: {{ Property.creator }}</p>
         <p>Кем сохранен: {{ Property.lastModifiedBy }}</p>
         <p>Редакция: {{ Property.revision }}</p>
@@ -355,10 +275,13 @@
         <p>Название: {{ Property.title }}</p>
         <p>Тема: {{ Property.subject }}</p>
         <p>Теги: {{ Property.keywords }}</p>
-        <p>Информация: {{ Property.index >= 0 ? GetSearchResultInfo[Property.index]['_source']['info'] : '' }}</p>
+        <p>Информация: {{ GetInfoProp }}</p>
+      </template>
+      <template v-else>
+        <p>Свойства документа не обнаружены!</p>
       </template>
       <template slot="modal-footer" slot-scope="{ cancel }">
-        <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
+        <b-button size="md" variant="danger" @click="cancel()">Закрыть</b-button>
       </template>
     </b-modal>
     <!-- /MW View prop -->
@@ -366,29 +289,27 @@
 </template>
 
 <script>
-import Loader from "../components/PageLoader";
-import * as api from "../api";
-import mnt from "moment";
+import Navigator from "../components/PageNavigator";
 import LoginCheck from "../components/logincheck.vue";
+import switchToggle from "../components/switch_toggle";
+import loadingsmall from "../components/loading_small.vue";
+import * as api from "../api";
+import mnt, { isDate, invalid } from "moment";
 
 export default {
   data() {
     return {
       NowDate: new Date(),
-      IsLogged: localStorage.getItem("jwt"),
       ViewAdvanceSearch: false,
       SimpleSearchText: "",
       PageNum: 1,
-      SelectDoc: {
-        id: -1,
-        index: -1,
-        title: ""
-      },
+      SelectDoc_title: "",
       DataSearch: {
         type: "simple",
         visibility: true,
         data: null
       },
+      IsLogin: false,
       AdvanceDataSearch: {
         text: "",
         title: "",
@@ -398,14 +319,36 @@ export default {
         category: "",
         active: ""
       },
-      Property: {}
+      Property: null,
+      IsLoadingItems: false
     };
   },
   components: {
     LoginCheck,
-    PageLoader: Loader
+    switchToggle,
+    loadingsmall,
+    PageNav: Navigator
   },
   computed: {
+    Aletrs() {
+      return this.IsLogged ? this.$store.getters.GetCountAlert : 0;
+    },
+    TheTitleBTConsole() {
+      return this.IsLogged ? "Личный кабинет" : "Войти";
+    },
+    IsLogged() {
+      return this.IsLogin;
+    },
+    GetInfoProp() {
+      if (this.Property !== null && this.Property.index > -1) {
+        return this.ObjectHasKey(
+          this.GetDocumentList.items[this.Property.index],
+          "info"
+        )
+          ? this.GetDocumentList.items[this.Property.index].info
+          : "";
+      } else return "";
+    },
     GetDocCategory() {
       return this.$store.getters.GetDocCategory;
     },
@@ -420,76 +363,55 @@ export default {
         this.NowDate.getFullYear()
       );
     },
-    TheTitleBTConsole() {
-      return this.IsLogged != null ? "Личный кабинет" : "Войти";
-    },
     TheNextFooterYear() {
       const year = this.NowDate.getFullYear();
       return year > 2019 ? "-" + year : "";
     },
-    GetSearchResultInfo() {
-      return this.$store.getters.GetSearchResult;
+    GetDocumentList() {
+      return this.$store.getters.GetDocSearchList;
     }
   },
   methods: {
+    ObjectHasKey(object, key) {
+      return object ? hasOwnProperty.call(object, key) : false;
+    },
+    OnClickSwitchButton(e) {
+      this.ViewAdvanceSearch = e;
+    },
     async GetProps(_id, _index) {
       try {
         const res = await api.GetProperty(_id);
+        this.Property = {};
         this.Property = res;
         this.Property.index = _index;
-      } catch (error) {}
-    },
-    ClickNext() {
-      if (this.DataSearch.data == null || this.DataSearch.data == "") {
-        this.ViewNotification(
-          "Внимание",
-          "Ошибка! Вы ничего не заполнили",
-          "error"
-        );
-        return;
-      }
-      this.PageNum += 1;
-      this.$router.push("/search/" + this.PageNum);
-      this.GetSearch(this.PageNum);
-    },
-    ClickBack() {
-      if (this.DataSearch.data == null || this.DataSearch.data == "") {
-        this.ViewNotification(
-          "Внимание",
-          "Ошибка! Вы ничего не заполнили",
-          "error"
-        );
-        return;
-      }
-      if (this.PageNum - 1 >= 1) {
-        this.PageNum -= 1;
-        this.$router.push("/search/" + this.PageNum);
-        this.GetSearch(this.PageNum);
+      } catch (error) {
+        this.Property = null;
       }
     },
     ShowModal(_title, _id, _index) {
-      this.SelectDoc.title = _title;
-      this.SelectDoc.index = _index;
-      this.SelectDoc.id = _id;
+      this.SelectDoc_title = _title;
       this.GetProps(_id, _index);
       this.$bvModal.show("modal-scoped");
     },
     convert(unixtimestamp) {
       const date = new Date(Math.floor(unixtimestamp));
-      return date.toLocaleDateString();
+      const res = date.toLocaleDateString();
+      if (res != "Invalid Date NaN:NaN") return res;
+      else return "";
     },
     convert_date(_date) {
       var date = new Date(_date);
-      return (
+      const res =
         date.toLocaleDateString() +
         " " +
         date.getHours() +
         ":" +
-        date.getMinutes()
-      );
+        date.getMinutes();
+      if (res != "Invalid Date NaN:NaN") return res;
+      else return "";
     },
     OnClickConsole() {
-      if (this.IsLogged != null) {
+      if (this.IsLogged) {
         this.$router.push("/console/account/");
       } else {
         this.$router.push("/login/");
@@ -498,10 +420,8 @@ export default {
     OnClickExit() {
       localStorage.removeItem("user");
       localStorage.removeItem("jwt");
-      this.IsLogged = null;
-    },
-    OnClickButton_advSearch() {
-      this.ViewAdvanceSearch = !this.ViewAdvanceSearch;
+      localStorage.removeItem("_date");
+      this.IsLogin = false;
     },
     GetAdvanceSearch() {
       try {
@@ -526,18 +446,14 @@ export default {
           this.DataSearch.data.push({
             query: new Date(
               mnt(this.AdvanceDataSearch.dateAdd).format("YYYY.MM.DD")
-            )
-              .getTime()
-              .toFixed(0),
+            ).getTime(),
             field: "createdAt"
           });
         if (this.AdvanceDataSearch.dateReg != "")
           this.DataSearch.data.push({
             query: new Date(
               mnt(this.AdvanceDataSearch.dateReg).format("YYYY.MM.DD")
-            )
-              .getTime()
-              .toFixed(0),
+            ).getTime(),
             field: "registeredAt"
           });
         if (
@@ -556,14 +472,12 @@ export default {
             query: this.AdvanceDataSearch.active,
             field: "active"
           });
-
-        this.GetSearch(this.PageNum);
+        this.GetSearch(this.PageNum, true);
       } catch (error) {
         console.log("[AdvanceSearch] - ERROR!");
       }
     },
     GetViewOnlyCategory(category) {
-      if (!(category != "")) return;
       try {
         this.DataSearch.data = [];
         this.DataSearch.type = "advance";
@@ -572,7 +486,8 @@ export default {
           query: category,
           field: "category.keyword"
         });
-        this.GetSearch(this.PageNum);
+        this.ViewAdvanceSearch = true;
+        this.GetSearch(this.PageNum, true);
       } catch (error) {
         console.log("[AdvanceSearch|GetViewOnlyCategory] - ERROR!");
       }
@@ -580,7 +495,7 @@ export default {
     GetSimpleSearch() {
       this.DataSearch.type = "simple";
       this.DataSearch.data = this.SimpleSearchText;
-      this.GetSearch(this.PageNum);
+      this.GetSearch(this.PageNum, true);
     },
     ViewNotification(_title, _text, _type) {
       this.$notify({
@@ -591,12 +506,12 @@ export default {
       });
     },
     async GetSearch(_page) {
-      if (this.DataSearch.data == null || this.DataSearch.data == "") {
+      if (this.DataSearch.data === null || this.DataSearch.data === "") {
         if (
           !(
-            this.DataSearch.type == "advance" &&
-            (this.AdvanceDataSearch.category == "Все" ||
-              this.AdvanceDataSearch.active == "Все")
+            this.DataSearch.type === "advance" &&
+            (this.AdvanceDataSearch.category === "Все" ||
+              this.AdvanceDataSearch.active === "Все")
           )
         ) {
           this.ViewNotification(
@@ -607,51 +522,74 @@ export default {
           return;
         }
       }
-      _page -= 1;
-      _page *= 10;
+      this.IsLoadingItems = true;
       try {
-        const res = await this.$store.dispatch("SetSearchList", {
+        const res = await this.$store.dispatch("SetDocuments", {
+          search: true,
           type: this.DataSearch.type,
           content: "documents",
-          from: _page,
-          to: _page + 10,
-          visibility: this.DataSearch.visibility,
-          data: this.DataSearch.data
+          page: _page - 1,
+          data: this.DataSearch.data,
+          typeState: "search"
         });
       } catch (error) {}
+      this.IsLoadingItems = false;
     }
   },
   created() {
     this.PageNum = parseInt(
       this.$route.params.page != null ? this.$route.params.page : 1
     );
+    if (isNaN(this.PageNum)) this.PageNum = 1;
     document.title = this.$route.meta.title;
-    if (this.$route.params.simple != null && this.$route.params.simple != "") {
-      //GetDocCategory
-      const text_ = this.$route.params.simple;
-      if(this.GetDocCategory.indexOf(text_) >= 0) {
-        this.GetViewOnlyCategory(text_);
+    const text_ = this.$route.params.simple;
+    this.$store.dispatch("DeleteAllSearchList");
+    if (text_ !== null && text_ !== "" && text_ !== undefined) {
+      if (this.GetDocCategory.indexOf(text_) >= 0) {
         this.$router.push("/search/" + this.PageNum);
-      }
-      else {
+        this.GetViewOnlyCategory(text_);
+      } else {
         try {
-          this.DataSearch.data = this.$route.params.simple;
-          this.SimpleSearchText = this.$route.params.simple;
+          this.DataSearch.data = text_;
+          this.SimpleSearchText = text_;
           this.$router.push("/search/" + this.PageNum);
-          this.GetSearch(this.PageNum);
+          this.GetSearch(this.PageNum, true);
         } catch (error) {
           console.error("[Simple search - created] - ERROR");
         }
       }
     }
+  },
+  mounted() {
+    if (api.CheckUserIsLoggin()) {
+      this.$store.dispatch("SetCountOfAlerts");
+      this.IsLogin = true;
+    }
+    this.$store.dispatch("SetDocumentCategories");
   }
 };
 </script>
 
 <style scoped>
-* {
+a,
+li {
   text-decoration: none;
   list-style-type: none;
+}
+
+/* Animation_ViewItems */
+
+.Animation_ViewItems-enter-active {
+  transition: all 0.8s ease;
+}
+
+.Animation_ViewItems-leave-active {
+  transition: all 0.1s ease;
+}
+
+.Animation_ViewItems-enter,
+.Animation_ViewItems-leave-to {
+  opacity: 0;
 }
 
 .dropdown-menu {
@@ -815,22 +753,6 @@ header {
   margin-top: 100px;
 }
 
-.has-search .form-control {
-  padding-left: 2.375rem;
-}
-
-.has-search .form-control-feedback {
-  position: absolute;
-  z-index: 2;
-  display: block;
-  width: 2.375rem;
-  height: 2.375rem;
-  line-height: 2.375rem;
-  text-align: center;
-  pointer-events: none;
-  color: #aaa;
-}
-
 /* Content */
 .content-wrapper {
   position: relative;
@@ -841,7 +763,6 @@ header {
     0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
   box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14),
     0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2);
-  /* min-width: 800px; */
 }
 
 .section-news {
@@ -853,25 +774,6 @@ header {
   padding-bottom: 25px;
   margin-bottom: 50px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.5);
-}
-
-.news-text h3 {
-  display: inline;
-}
-
-.news-text p {
-  display: inline;
-  opacity: 0.4;
-}
-
-.news-text {
-  display: block;
-  margin-bottom: 15px;
-}
-
-.news-text-box {
-  width: 100%;
-  max-height: 200px;
 }
 
 /* Footer */
@@ -895,11 +797,42 @@ header {
 }
 
 /* Advance Search */
+.Animation_SwitchAdvanceSearch-enter-active {
+  transition: all 0.6s ease;
+}
+
+.Animation_SwitchAdvanceSearch-leave-active {
+  transition: all 0.4s ease;
+}
+
+.Animation_SwitchAdvanceSearch-enter,
+.Animation_SwitchAdvanceSearch-leave-to {
+  opacity: 0;
+}
+
+.Animation_SwitchSimpleSearch-enter-active {
+  transition: all 0.6s ease;
+}
+
+.Animation_SwitchSimpleSearch-leave-active {
+  transition: all 0.4s ease;
+}
+
+.Animation_SwitchSimpleSearch-enter,
+.Animation_SwitchSimpleSearch-leave-to {
+  opacity: 0;
+}
+
 .form-table {
   border-collapse: collapse;
   margin-top: 50px;
   width: 100%;
-  font-size: 14px;
+  font-size: 15px;
+}
+
+.form-table button {
+  min-width: 160px;
+  margin-right: 20px;
 }
 
 .form-table th {
@@ -918,7 +851,7 @@ header {
 .form-table td,
 .form-table td p,
 .form-table th {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .form-table td {
@@ -1001,7 +934,7 @@ input[type="time"],
 input[type="url"],
 input[type="week"],
 textarea {
-  font-size: 14px;
+  font-size: 15px;
   padding: 3px 5px;
   border-radius: 0;
 }
@@ -1067,12 +1000,6 @@ span.description {
   position: relative;
 }
 
-.table_scroll {
-  overflow: scroll;
-  height: auto;
-  max-height: 800px;
-}
-
 .table_blur th:after {
   content: "";
   display: block;
@@ -1081,10 +1008,6 @@ span.description {
   top: 25%;
   height: 25%;
   width: 100%;
-  /* background: linear-gradient(
-    rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 0.08)
-  ); */
 }
 
 .table_blur tr:nth-child(odd) {
@@ -1108,70 +1031,16 @@ span.description {
   transition: all 0.3s ease;
 }
 
-.table_blur th {
-  width: 150px;
-}
-
-.table_blur td {
-  width: 150px;
+.table_blur td > img {
+  width: 28px;
+  height: 28px;
 }
 
 .table_blur td:first-child {
-  width: 295px;
+  max-width: 400px;
 }
 
 .table_blur th:first-child {
-  width: 280px;
-}
-
-.table_blur td:last-child {
-  width: 130px;
-}
-
-.table_blur th:last-child {
-  width: 130px;
-}
-
-/* PageNav */
-
-.PageNavigator {
-  clear: both;
-  height: 130px;
-  border-top: 1px solid #cfcfcf;
-  padding-top: 50px;
-  margin-top: 40px;
-}
-
-.PageNavigator button {
-  background-color: white;
-  color: #333;
-  font-size: 18px;
-  border: 1px solid #cfcfcf;
-  float: left;
-  width: 150px;
-  height: 45px;
-}
-
-.PageNavigator button:first-child {
-  border-bottom-left-radius: 5px;
-  border-top-left-radius: 5px;
-}
-
-.PageNavigator button:last-child {
-  border-bottom-right-radius: 5px;
-  border-top-right-radius: 5px;
-}
-
-#current {
-  /* font-weight: 700; */
-  color: #fff;
-  background-color: #0073a2;
-  border: 1px solid #0073a2;
-}
-
-.PageNavigator button:hover {
-  background-color: #2ea1cd;
-  color: #fff;
-  border: 1px solid #0073a2;
+  max-width: 400px;
 }
 </style>

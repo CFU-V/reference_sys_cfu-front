@@ -4,13 +4,16 @@
     <login-check :viewMW="true"></login-check>
     <!-- /Check login -->
     <h2>Добавить пользователя</h2>
-    <form class="form-table">
+    <form class="form-table" @submit="OnClickButton">
       <h2>Персональные настройки</h2>
       <table>
         <tbody>
           <tr>
             <th>
-              <label for="email">Почта</label>
+              <label for="email">
+                Почта
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
               <input required class="regular-text" type="email" id="email" placeholder="test@gmail.com"
@@ -19,7 +22,10 @@
           </tr>
           <tr>
             <th>
-              <label for="login">Логин</label>
+              <label for="login">
+                Логин
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
               <input required class="regular-text" type="text" id="login" placeholder="test" v-model="user.login" />
@@ -27,7 +33,10 @@
           </tr>
           <tr>
             <th>
-              <label for="first-name">Имя</label>
+              <label for="first-name">
+                Имя
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
               <input required class="regular-text" type="text" id="first-name" placeholder="Имя"
@@ -36,7 +45,10 @@
           </tr>
           <tr>
             <th>
-              <label for="second-name">Фамилия</label>
+              <label for="second-name">
+                Фамилия
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
               <input required class="regular-text" type="text" id="second-name" placeholder="Фамилия"
@@ -53,7 +65,10 @@
           </tr>
           <tr>
             <th>
-              <label for="birth">Дата рождения</label>
+              <label for="birth">
+                Дата рождения
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
               <input required class="regular-text" type="date" id="birth" v-model="user.birth" />
@@ -61,7 +76,10 @@
           </tr>
           <tr>
             <th>
-              <label for="phone">Телефон</label>
+              <label for="phone">
+                Телефон
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
               <input required class="regular-text" type="tel" id="phone" placeholder="+7978 111-22-33"
@@ -70,7 +88,10 @@
           </tr>
           <tr>
             <th>
-              <label for="status">Должность</label>
+              <label for="status">
+                Должность
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
               <input required class="regular-text" type="text" id="status" placeholder="Разработчик"
@@ -79,10 +100,13 @@
           </tr>
           <tr>
             <th>
-              <label for="rule">Роль</label>
+              <label for="rule">
+                Роль
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
-              <select id="rule" required v-model="user.role">
+              <select required id="rule" v-model="user.role">
                 <option value disabled>Выберите роль</option>
                 <option value="3">Пользователь</option>
                 <option value="2">Менеджер</option>
@@ -92,7 +116,10 @@
           </tr>
           <tr>
             <th>
-              <label for="pass">Пароль</label>
+              <label for="pass">
+                Пароль
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
               <input required class="regular-text" type="password" id="pass" autocomplete="off"
@@ -105,8 +132,10 @@
           </tr>
         </tbody>
       </table>
-      <button class="btn btn-outline-primary" type="submit" @click.prevent="OnClickButton">Добавить
-        пользователя</button>
+      <button class="btn btn-primary" type="submit">
+        Добавить
+        пользователя
+      </button>
     </form>
     <div class="alert" :class="success" role="alert">{{ RespText }}</div>
     <loadingsmall :IsLoading="IsLoading" :center="false"></loadingsmall>
@@ -144,17 +173,17 @@ export default {
     loadingsmall
   },
   methods: {
-    async OnClickButton() {
+    async OnClickButton(e) {
+      e.preventDefault();
       if (
         !(
           this.user.email != "" &&
           this.user.login != "" &&
           this.user.firstName != "" &&
           this.user.lastName != "" &&
-          this.user.surName != "" &&
           this.user.birth != "" &&
           this.user.phone != "" &&
-          // this.user.position != '' &&
+          this.user.position != "" &&
           this.user.role != "" &&
           this.user.password_1 != "" &&
           this.user.password_2 != ""
@@ -206,7 +235,6 @@ export default {
         );
         this.RespText = "Вы успешно добавили пользователя!";
         this.success = "alert-success";
-
         this.user.email = "";
         this.user.login = "";
         this.user.firstName = "";
@@ -237,7 +265,7 @@ export default {
   border-collapse: collapse;
   margin-top: 50px;
   width: 100%;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .form-table th {
@@ -256,7 +284,7 @@ export default {
 .form-table td,
 .form-table td p,
 .form-table th {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .form-table td {
@@ -326,7 +354,7 @@ textarea:focus {
 input:not([type="submit"]),
 select,
 textarea {
-  font-size: 14px;
+  font-size: 15px;
   padding: 3px 5px;
   border-radius: 0;
 }

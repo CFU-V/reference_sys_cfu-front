@@ -12,16 +12,17 @@ import * as api from "../api";
 // !--------------[ Document ]---------------
 // * SetDocuments() Получить список документов и заполнить хранилище
 // * DeleteDocFromList() Удалить документ в хранилище
+// * SetDocumentCategories() Составить список категорий документа
 // !--------------[ Search ]---------------
 // * SetSearchList() Выполнить поиск
 // * DeleteSearchList() Удалить документ в хранилище
 // !--------------[ Logs ]---------------
 // * GetListLogs() Получить список логов
 // !--------------[ Others ]---------------
-//
-//
-
-
+// !--------------[ Message ]---------------
+// !--------------[ Notifications ]---------------
+// * SetCountOfAlerts() Установить кол-во непрочитанных сообщений
+// * ChangeCountOfAlert() Изменить кол-во непрочитанных сообщений
 
 // !--------------[ User ]---------------
 
@@ -51,9 +52,10 @@ export async function GetUsers({
  */
 export async function DeleteUserFromList({
   commit
-}, index) {
+}, payload) {
   try {
-    commit("UserListDeleteANUser", index);
+    await api.DeleteUser(payload.id);
+    commit("UserListDeleteANUser", payload.index);
   } catch (error) {
     console.log(`[Action/DeleteUserFromList] - ${error}`);
     throw error;
@@ -86,6 +88,7 @@ export async function ChangeUserInfo({
   commit
 }, payload) {
   try {
+    await api.ChangeUser(payload.user);
     commit("ChangeUserInfo_m", payload);
   } catch (error) {
     console.log(`[Action/ChangeUserInfo] - ${error}`);
@@ -120,7 +123,7 @@ export async function UpdateBookMarks({
   commit
 }, payload) {
   try {
-    const res = await api.ChangeBookMark(payload.id, payload.control);
+    await api.ChangeBookMark(payload.id, payload.control);
     commit("UpdateBookMark", payload);
   } catch (error) {
     console.log(`[Action/UpdateBookMarks] - ${error}`);
@@ -134,9 +137,10 @@ export async function UpdateBookMarks({
  */
 export async function DeleteBookMarkFromList({
   commit
-}, index) {
+}, payload) {
   try {
-    commit("DeleteBookMarkItem", index);
+    await api.DeleteBookMark(payload.TheBookMarkID);
+    commit("DeleteBookMarkItem", payload.index);
   } catch (error) {
     console.log(`[Action/DeleteUserFromList] - ${error}`);
     throw error;
@@ -148,39 +152,45 @@ export async function DeleteBookMarkFromList({
 /**
  * Получить список документов и заполнить хранилище
  * @param {*} commit
+ * @param {{}} payload
  */
 export async function SetDocuments({
   commit
 }, payload) {
   try {
     let res = null;
-    if(payload.search) {
+    if (payload.search) {
       let res_search = null;
-      if (payload.type.toLowerCase().trim() === 'simple') res_search = await api.GetSearch(payload.content, payload.from, payload.to, payload.visibility, payload.data);
-      else if (payload.type.toLowerCase().trim() === 'advance') res_search = await api.GetSearchByFiled(payload.content, payload.from, payload.to, payload.data);
+      if (payload.type.toLowerCase().trim() === 'simple') res_search = await api.GetSearch(payload.content, payload.page, payload.data);
+      else if (payload.type.toLowerCase().trim() === 'advance') res_search = await api.GetSearchByFiled(payload.content, payload.page, payload.data);
       else {
         console.log('[Action/SetDocuments] - Неверный тип поиска!');
         throw 'Неверный тип поиска!'
       }
-
       res = {};
-      res.total = res_search.length;
-      res.page = 0;
-      res.pages = 0;
-      res.pageSize = 10;
+
+      res.total = res_search.total;
+      res.page = res_search.page;
+      res.pages = res_search.pages;
+      res.pageSize = res_search.pageSize;
       res.items = [];
-      for(let i = 0; i < res_search.length; i++) {
-        res_search[i]['_source']['active'] = (String(res_search[i]['_source']['active']) == 'true' ? true : false);
-        res_search[i]['_source']['visibility'] = (String(res_search[i]['_source']['visibility']) == 'true' ? true : false);
-        res_search[i]['_source']['renew'] = (String(res_search[i]['_source']['renew']) == 'true' ? true : false);
-        res.items.push(res_search[i]['_source']);
+      for (let i = 0; i < res_search.items.length; i++) {
+        res_search.items[i]['_source']['active'] = Boolean(res_search.items[i]['_source']['active']);
+        res_search.items[i]['_source']['visibility'] = Boolean(res_search.items[i]['_source']['visibility']);
+        res_search.items[i]['_source']['renew'] = Boolean(res_search.items[i]['_source']['renew']);
+        res.items.push(res_search.items[i]['_source']);
       }
-    }
-    else {
+    } else {
       res = await api.GetDocumentList(payload.page);
     }
-    commit("ClearDocList");
-    commit("SetDocList", res);
+    if (res !== null && res !== undefined) {
+      res.typeState = payload.typeState;
+      commit("ClearDocList", { typeState: payload.typeState });
+      commit("SetDocList", res);
+    } else {
+      console.log(`[Action/SetDocuments] - Ошибка! res == null || undefined`);
+      throw 'Ошибка! res == null || undefined';
+    }
   } catch (error) {
     console.log(`[Action/SetDocuments] - ${error}`);
     throw error;
@@ -196,9 +206,25 @@ export async function DeleteDocFromList({
 }, payload) {
   try {
     await api.DeleteDocument(payload.id);
-    commit("DeleteDocListItem", payload.index);
+    commit("DeleteDocListItem", payload);
   } catch (error) {
     console.log(`[Action/DeleteDocFromList] - ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Составить список категорий документа
+ * @param {*} commit
+ */
+export async function SetDocumentCategories({
+  commit
+}) {
+  try {
+    const res = await api.GetCategories();
+    commit("MSetDocumentCategories", res);
+  } catch (error) {
+    console.log(`[Action/SetDocumentCategories] - ${error}`);
     throw error;
   }
 }
@@ -244,19 +270,71 @@ export async function DeleteSearchList({
   }
 }
 
+/**
+ * Очистить список
+ * @param {*} commit
+ */
+export function DeleteAllSearchList({
+  commit
+}) {
+  try {
+    commit("ClearSearchResult");
+  } catch (error) {
+    console.log(`[Action/DeleteAllSearchList] - ${error}`);
+    throw error;
+  }
+}
+
 // !--------------[ Logs ]---------------
 
 /**
  * Получить список логов
  * @param {*} commit
  */
-export async function GetListLogs({ commit }) {
+export async function GetListLogs({
+  commit
+}) {
   try {
     const res = await api.GetLogList();
     commit("ClearLogsResult");
     commit("SetLogsResult", res);
   } catch (error) {
     console.log(`[Action/GetListLogs] - ${error}`);
+    throw error;
+  }
+}
+
+
+// !--------------[ Message ]---------------
+// !--------------[ Notifications ]---------------
+/**
+ * Установить кол-во непрочитанных сообщений
+ * @param {*} commit
+ */
+export async function SetCountOfAlerts({
+  commit
+}, payload) {
+  try {
+    const res = await api.GetUnreadMessages();
+    commit("ClearCountOfAlerts");
+    commit("SetCountOfAlerts", res);
+  } catch (error) {
+    console.log(`[Action/SetCountOfAlerts] - ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Изменить кол-во непрочитанных сообщений
+ * @param {*} commit
+ */
+export function ChangeCountOfAlert({
+  commit
+}, payload) {
+  try {
+    commit("ChangeCountOfAlert", payload);
+  } catch (error) {
+    console.log(`[Action/ChangeCountOfAlert] - ${error}`);
     throw error;
   }
 }

@@ -1,7 +1,5 @@
 <template>
   <div id="Fon">
-    <!-- Pre loader -->
-    <page-loader></page-loader>
     <!-- Check login -->
     <login-check :viewMW="true"></login-check>
     <!-- /Check login -->
@@ -15,19 +13,28 @@
           <router-link class="left-menu-item left-menu-name home" to="/">На главную страницу</router-link>
         </li>
         <li class="hover-item">
-          <button v-show="IsLogin != null"
+          <button
+            v-show="IsLogin != null"
             :class="'left-menu-item left-menu-name bookmark ' + (doc.bookmarks != null ? 'bookmark-delete' : 'bookmark-add')"
-            @click="AddOrDeleteBookMark">{{ doc.bookmarks != null ? 'Удалить из закладок' : 'Добавить в закладки' }}</button>
+            @click="AddOrDeleteBookMark"
+          >{{ doc.bookmarks != null ? 'Удалить из закладок' : 'Добавить в закладки' }}</button>
         </li>
         <li class="hover-item">
-          <button class="left-menu-item left-menu-name info" @click="ShowModalProparty()">
+          <button
+            v-show="IsLogin != null"
+            class="left-menu-item left-menu-name info"
+            @click="ShowModalProparty()"
+          >
             Свойства
             документа
           </button>
         </li>
         <li class="hover-item">
-          <button v-show="IsLogin != null" class="left-menu-item left-menu-name shr"
-            @click="ShowModal">Поделиться</button>
+          <button
+            v-show="IsLogin != null"
+            class="left-menu-item left-menu-name shr"
+            @click="ShowModal"
+          >Поделиться</button>
         </li>
       </ul>
     </div>
@@ -36,11 +43,11 @@
       <iframe class="theFrameOfDoc" name="contentBlock" id="IFarmeTest" ref="TestF" :src="FileURL"></iframe>
     </div>
     <!-- Modal Window Proparty -->
-    <b-modal id="modal-scoped">
+    <b-modal size="lg" id="modal-scoped">
       <template slot="modal-header">
         <h5>Свойства документа</h5>
       </template>
-      <template slot="default">
+      <template slot="default" v-if="Property != null">
         <p>Автор: {{ Property.creator }}</p>
         <p>Кем сохранен: {{ Property.lastModifiedBy }}</p>
         <p>Редакция: {{ Property.revision }}</p>
@@ -49,30 +56,39 @@
         <p>Название: {{ Property.title }}</p>
         <p>Тема: {{ Property.subject }}</p>
         <p>Теги: {{ Property.keywords }}</p>
-        <p>Информация: {{ doc.info }}</p>
+        <p>Информация: {{ GetInfoProp }}</p>
+      </template>
+      <template v-else>
+        <p>Свойства документа не обнаружены!</p>
       </template>
       <template slot="modal-footer" slot-scope="{ cancel }">
-        <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
+        <b-button size="md" variant="danger" @click="cancel()">Закрыть</b-button>
       </template>
     </b-modal>
     <!-- Modal Window BookMark -->
-    <b-modal id="modal-bookmark" ref="modal_addbookmark" @ok="OnClickOk_addBookMark">
+    <b-modal size="lg" id="modal-bookmark" ref="modal_addbookmark" @ok="OnClickOk_addBookMark">
       <template slot="modal-header">
         <h5>Добавить закладку</h5>
       </template>
       <template slot="default">
-        <input type="checkbox" name="isControl" id="isControl" v-model="IsControl" >
+        <input type="checkbox" name="isControl" id="isControl" v-model="IsControl" />
         <label for="isControl">Уведомлять об изменениях в документе?</label>
         <loadingsmall :IsLoading="IsLoading" :center="true"></loadingsmall>
       </template>
       <template slot="modal-footer" slot-scope="{ ok, cancel }">
-        <b-button size="sm" variant="success" @click="ok()">Добавить</b-button>
-        <b-button size="sm" variant="danger" @click="cancel()">Отмена</b-button>
+        <b-button size="md" variant="success" @click="ok()">Добавить</b-button>
+        <b-button size="md" variant="danger" @click="cancel()">Отмена</b-button>
       </template>
     </b-modal>
     <!-- MW Change user -->
-    <b-modal ref="modal_share" id="modal-prevent-share" title="Отправить документ на почту" @hidden="resetModal"
-      @ok="handleOk_share">
+    <b-modal
+      size="lg"
+      ref="modal_share"
+      id="modal-prevent-share"
+      title="Отправить документ на почту"
+      @hidden="resetModal"
+      @ok="handleOk_share"
+    >
       <form ref="form" class="form-table">
         <table>
           <tbody>
@@ -81,8 +97,14 @@
                 <label for="share-em">Email получателя</label>
               </th>
               <td>
-                <input required class="regular-text" type="text" id="share-em" placeholder="test@test.com"
-                  v-model="share.email" />
+                <input
+                  required
+                  class="regular-text"
+                  type="text"
+                  id="share-em"
+                  placeholder="test@test.com"
+                  v-model="share.email"
+                />
               </td>
             </tr>
             <tr>
@@ -90,8 +112,15 @@
                 <label for="share-cnt">Сообщение</label>
               </th>
               <td>
-                <textarea class="regular-text" type="text" id="share-cnt" placeholder="контент" v-model="share.content"
-                  cols="30" rows="10"></textarea>
+                <textarea
+                  class="regular-text"
+                  type="text"
+                  id="share-cnt"
+                  placeholder="сообщение"
+                  v-model="share.content"
+                  cols="30"
+                  rows="10"
+                ></textarea>
               </td>
             </tr>
           </tbody>
@@ -100,8 +129,8 @@
         <loadingsmall :IsLoading="IsLoading" :center="true"></loadingsmall>
       </form>
       <template slot="modal-footer" slot-scope="{ ok, cancel }">
-        <b-button :disabled="IsLoading" size="sm" variant="success" @click="ok()">Отправить</b-button>
-        <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
+        <b-button :disabled="IsLoading" size="md" variant="success" @click="ok()">Отправить</b-button>
+        <b-button size="md" variant="danger" @click="cancel()">Закрыть</b-button>
       </template>
     </b-modal>
   </div>
@@ -109,7 +138,6 @@
 
 <script>
 import * as api from "../api";
-import Loader from "../components/PageLoader";
 import LoginCheck from "../components/logincheck.vue";
 import loadingsmall from "../components/loading_small.vue";
 
@@ -118,10 +146,10 @@ export default {
     return {
       IsLoading: false,
       IsControl: false,
+      TypeView: null,
       PageID: -1,
-      ViewerURL: 'https://view.officeapps.live.com/op/view.aspx?src=',
-      FileURL:
-        "https://view.officeapps.live.com/op/view.aspx?src=ejudge.cfuv.ru/problems/practice2.docx",
+      ViewerURL: "https://view.officeapps.live.com/op/view.aspx?src=",
+      FileURL: "",
       RespText: "",
       success: "",
       doc: {},
@@ -129,67 +157,43 @@ export default {
         email: "",
         content: ""
       },
-      Property: {}
+      docDate: null,
+      Property: null
     };
   },
   computed: {
     IsLogin() {
       return localStorage.getItem("jwt");
+    },
+    GetInfoProp() {
+      return this.ObjectHasKey(this.doc, "info") ? this.doc.info : "";
     }
   },
   components: {
     LoginCheck,
-    loadingsmall,
-    PageLoader: Loader
+    loadingsmall
   },
   methods: {
+    ObjectHasKey(object, key) {
+      return object ? hasOwnProperty.call(object, key) : false;
+    },
     convert(_date) {
       var date = new Date(_date);
-      return (
+      const res =
         date.toLocaleDateString() +
         " " +
         date.getHours() +
         ":" +
-        date.getMinutes()
-      );
-    },
-    async GetProps() {
-      try {
-        const res = await api.GetProperty(this.PageID);
-        this.Property = res;
-      } catch (error) {}
+        date.getMinutes();
+      if (res != "Invalid Date NaN:NaN") return res;
+      else return "";
     },
     OnClickOk_addBookMark() {
       this.AddBookMark(this.IsControl);
     },
-    async AddBookMark(_IsControl) {
-      this.IsLoading = true;
-      try {
-        const res = await api.AddBookMark(this.PageID, _IsControl);
-        this.GetDocument(this.PageID);
-        this.$nextTick(() => {
-          this.$refs.modal_addbookmark.hide();
-        });
-      } catch (error) {
-        console.log("[Add bookMark] - ERROR");
-      }
-      this.IsLoading = false;
-    },
     ShowModalProparty(_title, _id) {
       this.GetProps();
       if (this.Property != null) this.$bvModal.show("modal-scoped");
-    },
-    async AddOrDeleteBookMark() {
-      if (this.doc.bookmarks != null) {
-        try {
-          const res = await api.DeleteBookMark(this.doc.bookmarks.docId);
-          this.doc.bookmarks = null;
-        } catch (error) {
-          console.log("[Delete bookMark] - ERROR");
-        }
-      } else {
-        this.$bvModal.show("modal-bookmark");
-      }
     },
     ShowModal() {
       this.$bvModal.show("modal-prevent-share");
@@ -225,18 +229,70 @@ export default {
       }
       this.IsLoading = false;
     },
-    async GetDocument(_id) {
+    async AddOrDeleteBookMark() {
+      if (this.doc.bookmarks != null) {
+        try {
+          const res = await api.DeleteBookMark(this.doc.bookmarks.docId);
+          this.doc.bookmarks = null;
+        } catch (error) {
+          console.log("[Delete bookMark] - ERROR");
+        }
+      } else {
+        this.$bvModal.show("modal-bookmark");
+      }
+    },
+    async AddBookMark(_IsControl) {
+      this.IsLoading = true;
       try {
-        const res = await api.GetDocument(_id);
+        const res = await api.AddBookMark(this.PageID, _IsControl);
+        this.GetDocument(this.PageID);
+        this.$nextTick(() => {
+          this.$refs.modal_addbookmark.hide();
+        });
+      } catch (error) {
+        console.log("[Add bookMark] - ERROR");
+      }
+      this.IsLoading = false;
+    },
+    async GetProps() {
+      try {
+        const res = await api.GetProperty(this.PageID);
+        this.Property = {};
+        this.Property = res;
+      } catch (error) {
+        this.Property = null;
+      }
+    },
+    async GetDocument(_id, _date, _type) {
+      try {
+        const res = await api.GetDocument({id: _id, date: _date, type: _type});
+        this.doc = {};
         this.doc = res;
-        this.FileURL = (this.ViewerURL + this.$store.getters.GetApiURL + "/document/download/" + _id);
-      } catch (error) {}
+        //https://view.officeapps.live.com/op/view.aspx?src=
+        //https://view.officeapps.live.com/op/embed.aspx?src=
+        //https://docs.google.com/gview?url=
+        //if(this.doc.consultant_link !== null && this.doc.consultant_link !== '') this.ViewerURL = "https://docs.google.com/gview?url=";
+        //else this.ViewerURL = "https://view.officeapps.live.com/op/view.aspx?src=";
+        //this.FileURL = this.ViewerURL + process.env.BASE_URL_API + "document/download/" + _id;
+        if (_date === undefined || _date === null) this.FileURL = this.ViewerURL + process.env.BASE_URL_API + `document/download?id=${_id}`;
+        else this.FileURL = this.ViewerURL + process.env.BASE_URL_API + `document/download?id=${_id}&date='${_date}'`;
+      } catch (error) {
+        this.doc = null;
+      }
     }
   },
   created() {
     document.title = this.$route.meta.title;
+    this.docDate = this.$route.query.date;
     this.PageID = this.$route.params.id;
-    if (this.PageID != null && this.PageID > 0) this.GetDocument(this.PageID);
+    this.TypeView = this.$route.query.source;
+    if (this.PageID !== null && this.PageID > 0) {
+      try {
+        this.GetDocument(this.PageID, this.docDate,  this.TypeView);
+      } catch (error) {
+
+      }
+    }
   }
 };
 </script>
@@ -294,7 +350,7 @@ a:hover {
 .left-menu-item {
   color: #ffffff;
   position: relative;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 400;
   line-height: 1.3;
   padding: 0;
@@ -501,7 +557,18 @@ a:hover {
   border-collapse: collapse;
   margin-top: 50px;
   width: 100%;
-  font-size: 14px;
+  font-size: 15px;
+  max-width: 800px;
+}
+
+.form-table > table {
+  position: relative;
+  width: 100%;
+}
+
+.form-table button {
+  min-width: 160px;
+  margin-right: 20px;
 }
 
 .form-table th {
@@ -520,7 +587,7 @@ a:hover {
 .form-table td,
 .form-table td p,
 .form-table th {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .form-table td {
@@ -530,84 +597,92 @@ a:hover {
   vertical-align: middle;
 }
 
-.form-table input[type="checkbox"],
-.form-table input[type="color"],
-.form-table input[type="date"],
-.form-table input[type="datetime-local"],
-.form-table input[type="datetime"],
-.form-table input[type="email"],
-.form-table input[type="month"],
-.form-table input[type="number"],
-.form-table input[type="password"],
-.form-table input[type="radio"],
-.form-table input[type="search"],
-.form-table input[type="tel"],
-.form-table input[type="text"],
-.form-table input[type="time"],
-.form-table input[type="url"],
-.form-table input[type="week"],
-.form-table select,
-.form-table textarea {
+input[type="checkbox"],
+input[type="color"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="datetime"],
+input[type="email"],
+input[type="month"],
+input[type="number"],
+input[type="password"],
+input[type="radio"],
+input[type="search"],
+input[type="tel"],
+input[type="text"],
+input[type="time"],
+input[type="url"],
+input[type="week"],
+select,
+textarea {
   border: 1px solid #ddd;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.07);
   background-color: #fff;
   color: #32373c;
   outline: 0;
   transition: 50ms border-color ease-in-out;
-  margin-top: 0px;
 }
 
-.form-table input.disabled,
-.form-table input:disabled {
+input.disabled,
+input:disabled {
   background: rgba(255, 255, 255, 0.5);
   border-color: rgba(222, 222, 222, 0.75);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
   color: rgba(51, 51, 51, 0.5);
 }
 
-.form-table input[type="checkbox"]:focus,
-.form-table input[type="color"]:focus,
-.form-table input[type="date"]:focus,
-.form-table input[type="datetime-local"]:focus,
-.form-table input[type="datetime"]:focus,
-.form-table input[type="email"]:focus,
-.form-table input[type="month"]:focus,
-.form-table input[type="number"]:focus,
-.form-table input[type="password"]:focus,
-.form-table input[type="radio"]:focus,
-.form-table input[type="search"]:focus,
-.form-table input[type="tel"]:focus,
-.form-table input[type="text"]:focus,
-.form-table input[type="time"]:focus,
-.form-table input[type="url"]:focus,
-.form-table input[type="week"]:focus,
-.form-table select:focus,
-.form-table textarea:focus {
+input[type="checkbox"]:focus,
+input[type="color"]:focus,
+input[type="date"]:focus,
+input[type="datetime-local"]:focus,
+input[type="datetime"]:focus,
+input[type="email"]:focus,
+input[type="month"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus,
+input[type="radio"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="text"]:focus,
+input[type="time"]:focus,
+input[type="url"]:focus,
+input[type="week"]:focus,
+select:focus,
+textarea:focus {
   border-color: #5b9dd9;
   box-shadow: 0 0 2px rgba(30, 140, 190, 0.8);
   outline: 2px solid transparent;
 }
 
-.form-table input:not([type="submit"]),
-.form-table select,
-.form-table textarea {
-  font-size: 14px;
+input[type="checkbox"],
+input[type="color"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="datetime"],
+input[type="email"],
+input[type="month"],
+input[type="number"],
+input[type="password"],
+input[type="radio"],
+input[type="tel"],
+input[type="text"],
+input[type="time"],
+input[type="url"],
+input[type="week"],
+textarea {
+  font-size: 15px;
   padding: 3px 5px;
   border-radius: 0;
 }
 
-.form-table button {
-  margin-bottom: 50px;
-}
-
-.form-table p.description,
-.form-table span.description {
-  font-size: 13px;
-  font-style: italic;
-}
-
 .regular-text {
-  width: 25em;
+  width: 100%;
   margin-bottom: 15px;
+  max-height: 300px;
+  min-height: 30px;
+}
+
+.regular-text textarea {
+  min-height: 80px;
 }
 </style>

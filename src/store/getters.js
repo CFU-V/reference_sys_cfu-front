@@ -7,15 +7,20 @@
 // !--------------[ BookMarks ]---------------
 // * GetBookMarks Получить список закладок
 // !--------------[ Document ]---------------
-// * GetDocList Получить список документов
+// * GetDocSimpleList() Get doc simple list
+// * GetDocAdvancedList() Get doc advanced list
+// * GetDocSearchList() Get doc search list
 // * GetDocCategory Получить массив категорий документа (наименование)
 // !--------------[ Search ]---------------
 // * GetSearchResult Получить результат поиска (массив)
 // !--------------[ Other ]---------------
-// * GetBaseURL Получить base url
-// * GetApiURL Получить api url
 // !--------------[ Logs ]---------------
 // * GetLogs Получить Logs (массив)
+// !--------------[ Message ]---------------
+// !--------------[ Notifications ]---------------
+// * GetCountAlert Получить кол-во непрочитанных сообщений
+
+
 
 
 // !--------------[ User ]---------------
@@ -69,11 +74,27 @@ export const GetBookMarks = state => {
 // !--------------[ Document ]---------------
 
 /**
- * Получить список документов
+ * Get doc simple list
  * @param {*} state
  */
-export const GetDocList = state => {
-  return state.DocList;
+export const GetDocSimpleList = state => {
+  return state.TheDocSimpleList;
+};
+
+/**
+ * Get doc advanced list
+ * @param {*} state
+ */
+export const GetDocAdvancedList = state => {
+  return state.TheDocAdvancedList;
+};
+
+/**
+ * Get doc search list
+ * @param {*} state
+ */
+export const GetDocSearchList = state => {
+  return state.TheDocSearchList;
 };
 
 /**
@@ -96,19 +117,6 @@ export const GetSearchResult = state => {
 
 // !--------------[ Other ]---------------
 
-/**
- * Получить base url
- */
-export const GetBaseURL = state => {
-  return state.sate_baseURL;
-};
-
-/**
- * Получить api url
- */
-export const GetApiURL = state => {
-  return state.sate_apiURL;
-};
 
 // !--------------[ Logs ]---------------
 
@@ -117,4 +125,14 @@ export const GetApiURL = state => {
  */
 export const GetLogs = state => {
   return state.Logs;
+};
+
+// !--------------[ Message ]---------------
+
+// !--------------[ Notifications ]---------------
+/**
+ * Получить Count Of Alerts
+ */
+export const GetCountAlert = state => {
+  return state.CountOfAlert;
 };

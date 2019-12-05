@@ -1,152 +1,144 @@
 <template>
   <div>
-    <!-- Pre loader -->
-    <page-loader></page-loader>
     <!-- Check login -->
     <login-check :viewMW="true"></login-check>
     <!-- /Check login -->
     <h2>Управление документами</h2>
-    <form class="form-inline search-box">
-      <div class="input-group">
-        <input
-          type="search"
-          class="form-control"
-          id="inlineFormInputName2"
-          :placeholder="'Быстрый поиск документов'"
-          v-model="SimpleSearchText"
-        />
-      </div>
-      <button type="submit" class="btn btn-info" @click.prevent="GetSimpleSearch">Поиск</button>
-      <button
-        class="btn btn-outline-primary"
-        @click.prevent="OnClickButton_advSearch"
-      >Расширенный поиск</button>
-    </form>
-    <form class="form-table" v-show="ViewAdvanceSearch">
-      <h2>Расширенный поиск</h2>
-      <table>
-        <tbody>
-          <tr>
-            <th>
-              <label for="text-of-document">Текст документа</label>
-            </th>
-            <td>
-              <input class="regular-text" type="text" id="text-of-document" />
-            </td>
-          </tr>
-          <tr>
-            <th>
-              <label for="name-of-document">Название документа</label>
-            </th>
-            <td>
-              <input
-                class="regular-text"
-                type="text"
-                id="name-of-document"
-                v-model="AdvanceDataSearch.title"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>
-              <label for="number-of-document">Номер (приказа/документа и тд)</label>
-            </th>
-            <td>
-              <input
-                class="regular-text"
-                type="text"
-                id="number-of-document"
-                v-model="AdvanceDataSearch.number"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>
-              <label for="dateReg">Дата регистрации</label>
-            </th>
-            <td>
-              <input
-                class="regular-text"
-                type="date"
-                id="dateReg"
-                v-model="AdvanceDataSearch.dateReg"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>
-              <label for="dateAdd">Дата добавления</label>
-            </th>
-            <td>
-              <input
-                class="regular-text"
-                type="date"
-                id="dateAdd"
-                v-model="AdvanceDataSearch.dateAdd"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>
-              <label for="category-of-document">Вид документа</label>
-            </th>
-            <td>
-              <select
-                class="custom-select"
-                id="category-of-document"
-                v-model="AdvanceDataSearch.category"
-              >
-                <option value disabled>Фильтр по классификации документа</option>
-                <option value="Все">Все</option>
-                <option value="Законодательство">Законодательство</option>
-                <option value="Судебная практика">Судебная практика</option>
-                <option value="Финансовые и кадровые консультации">
-                  Финансовые и кадровые
-                  консультации
-                </option>
-                <option value="Консультации для бюджетных организаций">
-                  Консультации для
-                  бюджетных
-                  организаций
-                </option>
-                <option value="Комментарии законодательства">Комментарии законодательства</option>
-                <option value="Формы документов">Формы документов</option>
-                <option value="Технические нормы и правила">Технические нормы и правила</option>
-                <option value="Проекты правовых актов">Проекты правовых актов</option>
-                <option value="Международные правовые акты">Международные правовые акты</option>
-                <option value="Правовые акты по здравоохранению">
-                  Правовые акты по
-                  здравоохранению
-                </option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <th>
-              <label for="status-of-document">Статус</label>
-            </th>
-            <td>
-              <select
-                class="custom-select"
-                id="status-of-document"
-                v-model="AdvanceDataSearch.active"
-              >
-                <option value disabled>(Активный/Неактивный)</option>
-                <option value="Все">Все</option>
-                <option value="true">Активный</option>
-                <option value="false">Неактивный</option>
-              </select>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <input
-        class="btn btn-success"
-        @click.prevent="GetAdvanceSearch"
-        type="submit"
-        value="Поиск документов"
-      />
-    </form>
+    <switch-toggle
+      class="SwicthTG"
+      :checked="ViewAdvanceSearch"
+      first_text="Расширенный поиск"
+      last_text="Быстрый поиск"
+      @IsChanged="OnClickSwitchButton"
+    ></switch-toggle>
+    <transition name="Animation_SwitchSimpleSearch">
+      <form class="form-inline search-box" v-show="(ViewAdvanceSearch == false)">
+        <div class="input-group">
+          <input
+            type="search"
+            class="form-control"
+            id="inlineFormInputName2"
+            :placeholder="'Быстрый поиск документов'"
+            v-model="SimpleSearchText"
+          />
+        </div>
+        <button type="submit" class="btn btn-success" @click.prevent="GetSimpleSearch">Поиск</button>
+      </form>
+    </transition>
+    <transition name="Animation_SwitchAdvanceSearch">
+      <form class="form-table" v-show="ViewAdvanceSearch">
+        <h2>Расширенный поиск</h2>
+        <table>
+          <tbody>
+            <tr>
+              <th>
+                <label for="text-of-document">Текст документа</label>
+              </th>
+              <td>
+                <input
+                  class="regular-text"
+                  type="text"
+                  id="text-of-document"
+                  placeholder="контент документа"
+                />
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <label for="name-of-document">Название документа</label>
+              </th>
+              <td>
+                <textarea
+                  class="regular-text"
+                  type="text"
+                  id="name-of-document"
+                  v-model="AdvanceDataSearch.title"
+                  placeholder="Проект приказа № 335 от 29.02.2016..."
+                ></textarea>
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <label for="number-of-document">Номер (приказа/документа и тд)</label>
+              </th>
+              <td>
+                <input
+                  class="regular-text"
+                  type="text"
+                  id="number-of-document"
+                  v-model="AdvanceDataSearch.number"
+                  placeholder="335"
+                />
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <label for="dateReg">Дата регистрации</label>
+              </th>
+              <td>
+                <input
+                  class="regular-text"
+                  type="date"
+                  id="dateReg"
+                  v-model="AdvanceDataSearch.dateReg"
+                />
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <label for="dateAdd">Дата добавления</label>
+              </th>
+              <td>
+                <input
+                  class="regular-text"
+                  type="date"
+                  id="dateAdd"
+                  v-model="AdvanceDataSearch.dateAdd"
+                />
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <label for="category-of-document">Вид документа</label>
+              </th>
+              <td>
+                <select
+                  class="custom-select"
+                  id="category-of-document"
+                  v-model="AdvanceDataSearch.category"
+                >
+                  <option value disabled>Фильтр по классификации документа</option>
+                  <option value="Все">Все</option>
+                  <option
+                    v-for="(value, index) in GetDocCategory"
+                    :key="index"
+                    :value="value"
+                  >{{value}}</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <label for="status-of-document">Статус</label>
+              </th>
+              <td>
+                <select
+                  class="custom-select"
+                  id="status-of-document"
+                  v-model="AdvanceDataSearch.active"
+                >
+                  <option value disabled>(Активный/Неактивный)</option>
+                  <option value="Все">Все</option>
+                  <option value="true">Активный</option>
+                  <option value="false">Неактивный</option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button class="btn btn-success" @click.prevent="GetAdvanceSearch" type="submit">Поиск</button>
+      </form>
+    </transition>
     <button
       v-show="IsSearch"
       class="btn btn-outline-primary"
@@ -154,7 +146,7 @@
       @click="GetViewAllDoc(PageNum)"
     >Показать все документы</button>
     <p class="table_caption">Список документов</p>
-    <div class="table_scroll">
+    <div class="OverflowY_scroll">
       <table class="table_blur">
         <thead>
           <tr>
@@ -168,9 +160,22 @@
             <th>Действие</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="(value, index) in GetDocumentList.items" :key="index">
+        <transition-group name="Animation_ViewItems" tag="tbody">
+          <tr v-if="IsLoadingItems" :key="1">
+            <td colspan="8">
+              <loadingsmall :IsLoading="IsLoadingItems" :center="true" style="width:100%"></loadingsmall>
+            </td>
+          </tr>
+          <tr v-else-if="GetDocumentList.items.length <= 0 && IsLoadingItems == false" :key="2">
+            <td colspan="8" style="text-align: center;">Документов не найдено</td>
+          </tr>
+          <tr v-else v-for="(value, index) in GetDocumentList.items" :key="index + 2">
             <td>
+              <img
+                v-show="value.consultant_link !== null && value.consultant_link !== ''"
+                src="../assets/img/KSPlust-icon.png"
+                alt
+              />
               <router-link :to="'/docview/' + value['id']">{{ value['title'] }}</router-link>
             </td>
             <td>{{ String(value['active']) == 'true' ? 'Активный' : 'Неактивный' }}</td>
@@ -190,34 +195,26 @@
               >Удалить</button>
             </td>
           </tr>
-        </tbody>
+        </transition-group>
+        <tfoot>
+          <tr>
+            <th
+              colspan="8"
+            >Показано {{ GetDocumentList.items.length }} из {{ GetDocumentList.total }} документов</th>
+          </tr>
+        </tfoot>
       </table>
     </div>
-    <table class="table_blur">
-      <tfoot>
-        <tr>
-          <th>Найдено документов: {{ GetDocumentList.total }}</th>
-        </tr>
-      </tfoot>
-    </table>
     <!-- PageNavigator -->
     <page-nav
-      v-if="IsSearch == false"
       @click="DocList"
       url="/console/document-management/"
       :maxPage="GetDocumentList.pages"
       :Page="$route.params.page"
     ></page-nav>
-    <div v-else class="PageNavigator">
-      <button @click="ClickBack">Назад</button>
-      <button
-        :style="GetDocumentList.total <= 0 ? 'opacity: 0.5;' : ''"
-        :disabled="GetDocumentList.total <= 0"
-        @click="ClickNext"
-      >Далее</button>
-    </div>
     <!-- Modal Window Delete Doc -->
     <b-modal
+      size="lg"
       ref="modal_delete"
       id="modal-prevent-delete"
       @hidden="OnResetModal"
@@ -236,25 +233,35 @@
         <loadingsmall :IsLoading="IsLoading" :center="true"></loadingsmall>
       </template>
       <template slot="modal-footer" slot-scope="{ ok, cancel }">
-        <b-button :disabled="IsLoading" size="sm" variant="success" @click="ok()">Удалить</b-button>
-        <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
+        <b-button :disabled="IsLoading" size="md" variant="success" @click="ok()">Удалить</b-button>
+        <b-button size="md" variant="danger" @click="cancel()">Закрыть</b-button>
       </template>
     </b-modal>
     <!-- MW Show choose -->
-    <b-modal id="modal-choose" ref="modal_choose">
+    <b-modal size="lg" id="modal-choose" ref="modal_choose">
       <template slot="modal-header">
         <h5>Выберите, что редактировать</h5>
       </template>
       <template slot="default">
-        <button class="btn btn-success" @click="ShowMWProp()">Свойства</button>
-        <button class="btn btn-outline-success" @click="ShowMWParam()">Параметры документа</button>
+        <button
+          :disabled="doc.item.consultant_link !== null && doc.item.consultant_link !== ''"
+          style="width:50%"
+          class="btn btn-success"
+          @click="ShowMWProp()"
+        >Свойства</button>
+        <button
+          style="width:49%"
+          class="btn btn-outline-success"
+          @click="ShowMWParam()"
+        >Параметры документа</button>
       </template>
       <template slot="modal-footer" slot-scope="{ cancel }">
-        <b-button size="sm" variant="danger" @click="cancel()">Отмена</b-button>
+        <b-button size="md" variant="danger" @click="cancel()">Отмена</b-button>
       </template>
     </b-modal>
     <!-- MW Change Proparty -->
     <b-modal
+      size="lg"
       ref="modal_proparty"
       id="modal-prevent-proparty"
       @hidden="OnResetModal"
@@ -365,15 +372,16 @@
       <template slot="modal-footer" slot-scope="{ ok, cancel }">
         <b-button
           :disabled="IsLoading"
-          size="sm"
+          size="md"
           variant="success"
           @click="ok()"
         >Редактировать (сохранить)</b-button>
-        <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
+        <b-button size="md" variant="danger" @click="cancel()">Закрыть</b-button>
       </template>
     </b-modal>
     <!-- MW Change Doc parametres -->
     <b-modal
+      size="lg"
       ref="modal_parametres"
       id="modal-prevent-parametres"
       @hidden="OnResetModal"
@@ -391,10 +399,30 @@
           <tbody>
             <tr>
               <th>
+                <label for="param-consultant_link">Ссылка на "КонсультантПлюс"</label>
+              </th>
+              <td>
+                <input
+                  class="regular-text"
+                  type="text"
+                  id="param-consultant_link"
+                  :value="doc.item.consultant_link"
+                  disabled="true"
+                />
+              </td>
+            </tr>
+            <tr>
+              <th>
                 <label for="param-title">Название</label>
               </th>
               <td>
-                <input class="regular-text" type="text" id="param-title" v-model="doc.item.title" />
+                <textarea
+                  class="regular-text"
+                  type="text"
+                  id="param-title"
+                  v-model="doc.item.title"
+                  placeholder="Проект приказа № 335 от 29.02.2016..."
+                ></textarea>
               </td>
             </tr>
             <tr>
@@ -429,7 +457,7 @@
                     :value="index+1"
                     v-for="(value, index) in GetDocCategory"
                     :key="index"
-                  >{{ value }}</option>
+                  >{{value}}</option>
                 </select>
               </td>
             </tr>
@@ -439,6 +467,14 @@
               </th>
               <td>
                 <input class="regular-text" type="text" id="param-number" v-model="doc.item.number" />
+              </td>
+            </tr>
+            <tr>
+              <th>
+                <label for="param-date">Дата регистрации документа</label>
+              </th>
+              <td>
+                <input class="regular-text" type="date" id="param-date" v-model="doc.item.date" />
               </td>
             </tr>
             <tr>
@@ -483,8 +519,13 @@
         <loadingsmall :IsLoading="IsLoading" :center="true"></loadingsmall>
       </form>
       <template slot="modal-footer" slot-scope="{ ok, cancel }">
-        <b-button :disabled="IsLoading" size="sm" variant="success" @click="ok()">Редактировать (сохранить)</b-button>
-        <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
+        <b-button
+          :disabled="IsLoading"
+          size="md"
+          variant="success"
+          @click="ok()"
+        >Редактировать (сохранить)</b-button>
+        <b-button size="md" variant="danger" @click="cancel()">Закрыть</b-button>
       </template>
     </b-modal>
   </div>
@@ -494,14 +535,15 @@
 import * as api from "../api";
 import Navigator from "../components/PageNavigator";
 import mnt from "moment";
-import Loader from "../components/PageLoader.vue";
 import LoginCheck from "../components/logincheck.vue";
 import loadingsmall from "../components/loading_small.vue";
+import switchToggle from "../components/switch_toggle";
 
 export default {
   data() {
     return {
       IsLoading: false,
+      IsLoadingItems: false,
       ViewAdvanceSearch: false,
       deleteChilds: false,
       RespText: "",
@@ -553,9 +595,15 @@ export default {
     PageNav: Navigator,
     LoginCheck,
     loadingsmall,
-    PageLoader: Loader
+    switchToggle
   },
   methods: {
+    ObjectHasKey(object, key) {
+      return object ? hasOwnProperty.call(object, key) : false;
+    },
+    OnClickSwitchButton(e) {
+      this.ViewAdvanceSearch = e;
+    },
     ViewNotification(_title, _text, _type) {
       this.$notify({
         group: "foo",
@@ -563,34 +611,6 @@ export default {
         title: _title,
         text: _text
       });
-    },
-    ClickNext() {
-      if (this.DataSearch.data == null || this.DataSearch.data == "") {
-        this.ViewNotification(
-          "Внимание",
-          "Ошибка! Вы ничего не заполнили",
-          "error"
-        );
-        return;
-      }
-      this.PageNum += 1;
-      this.$router.push("/console/document-management/" + this.PageNum);
-      this.GetSearch(this.PageNum);
-    },
-    ClickBack() {
-      if (this.DataSearch.data == null || this.DataSearch.data == "") {
-        this.ViewNotification(
-          "Внимание",
-          "Ошибка! Вы ничего не заполнили",
-          "error"
-        );
-        return;
-      }
-      if (this.PageNum - 1 >= 1) {
-        this.PageNum -= 1;
-        this.$router.push("/console/document-management/" + this.PageNum);
-        this.GetSearch(this.PageNum);
-      }
     },
     GetAdvanceSearch() {
       try {
@@ -657,24 +677,26 @@ export default {
       this.GetSearch(this.PageNum);
     },
     async GetViewAllDoc(_page) {
+      this.IsLoadingItems = true;
       if (this.PageNum > 1) this.$router.push("/console/document-management/1");
       this.PageNum = 1;
       this.IsSearch = false;
-      this.ViewAdvanceSearch = false;
       try {
         const res = await this.$store.dispatch("SetDocuments", {
           page: 0,
-          search: this.IsSearch
+          search: this.IsSearch,
+          typeState: "advanced"
         });
       } catch (error) {}
+      this.IsLoadingItems = false;
     },
     async GetSearch(_page) {
-      if (this.DataSearch.data == null || this.DataSearch.data == "") {
+      if (this.DataSearch.data === null || this.DataSearch.data === "") {
         if (
           !(
-            this.DataSearch.type == "advance" &&
-            (this.AdvanceDataSearch.category == "Все" ||
-              this.AdvanceDataSearch.active == "Все")
+            this.DataSearch.type === "advance" &&
+            (this.AdvanceDataSearch.category === "Все" ||
+              this.AdvanceDataSearch.active === "Все")
           )
         ) {
           this.ViewNotification(
@@ -686,19 +708,18 @@ export default {
         }
       }
       this.IsSearch = true;
-      _page -= 1;
-      _page *= 10;
+      this.IsLoadingItems = true;
       try {
         const res = await this.$store.dispatch("SetDocuments", {
           search: this.IsSearch,
           type: this.DataSearch.type,
           content: "documents",
-          from: _page,
-          to: _page + 10,
-          visibility: this.DataSearch.visibility,
-          data: this.DataSearch.data
+          page: _page - 1,
+          data: this.DataSearch.data,
+          typeState: "advanced"
         });
       } catch (error) {}
+      this.IsLoadingItems = false;
     },
     async GetProps(_id) {
       try {
@@ -722,9 +743,6 @@ export default {
     convert_unix(unixtimestamp) {
       const date = new Date(Math.floor(unixtimestamp));
       return date.toLocaleDateString();
-    },
-    OnClickButton_advSearch() {
-      this.ViewAdvanceSearch = !this.ViewAdvanceSearch;
     },
     OnResetModal() {
       this.RespText = "";
@@ -756,7 +774,8 @@ export default {
       try {
         await this.$store.dispatch("DeleteDocFromList", {
           index: this.doc.index,
-          id: this.doc.id
+          id: this.doc.id,
+          typeState: "advanced"
         });
         if (this.DataSearch.data == null || this.DataSearch.data == "") {
           await this.DocList(this.PageNum);
@@ -807,12 +826,14 @@ export default {
       }
       this.IsLoading = true;
       try {
-        const res = await api.ChangeParamDocument(this.doc.item, false, null);
+        this.doc.item.date = mnt(this.doc.item.date).format("YYYY-MM-DD");
+        const res = await api.ChangeParamDocument(this.doc.item, this.deleteChilds, null);
         this.RespText = "Вы успешно обновили параметры документа!";
         this.success = "alert-success";
       } catch (error) {
-        this.RespText = "Ошибка!";
+        this.RespText = "Неизвестная ошибка!";
         this.success = "alert-danger";
+        console.log(error);
       }
       this.IsLoading = false;
     },
@@ -830,7 +851,6 @@ export default {
       });
     },
     ShowMWParam() {
-      this.doc.item = this.GetDocumentList.items[this.doc.index];
       this.$bvModal.show("modal-prevent-parametres");
       this.$nextTick(() => {
         this.$refs.modal_choose.hide();
@@ -840,35 +860,103 @@ export default {
       this.doc.title = _title;
       this.doc.id = _id;
       this.doc.index = _index;
+      this.doc.item = this.GetDocumentList.items[_index];
+      this.doc.item.date = mnt(this.doc.item.date).format("YYYY-MM-DD");
       this.$bvModal.show("modal-choose");
     },
     async DocList(_page) {
-      try {
-        const res = await this.$store.dispatch("SetDocuments", {
-          page: _page - 1,
-          search: this.IsSearch
-        });
-      } catch (error) {}
+      if (this.IsSearch === false) {
+        this.IsLoadingItems = true;
+        try {
+          const res = await this.$store.dispatch("SetDocuments", {
+            page: _page - 1,
+            search: false,
+            typeState: "advanced"
+          });
+        } catch (error) {}
+        this.IsLoadingItems = false;
+      } else {
+        await this.GetSearch(_page);
+      }
     }
   },
   computed: {
     GetDocumentList() {
-      return this.$store.getters.GetDocList;
+      return this.$store.getters.GetDocAdvancedList;
     },
     GetDocCategory() {
       return this.$store.getters.GetDocCategory;
     }
+  },
+  beforeMount() {
+    this.$store.dispatch("SetDocumentCategories");
   }
 };
 </script>
 
 <style scoped>
+.OverflowY_scroll {
+  overflow-y: auto;
+}
+
+/* Animation_ViewItems */
+
+.Animation_ViewItems-enter-active {
+  transition: all 0.8s ease;
+}
+
+.Animation_ViewItems-leave-active {
+  transition: all 0.1s ease;
+}
+
+.Animation_ViewItems-enter,
+.Animation_ViewItems-leave-to {
+  opacity: 0;
+}
+
 /* Advance Search */
+.Animation_SwitchAdvanceSearch-enter-active {
+  transition: all 0.6s ease;
+}
+
+.Animation_SwitchAdvanceSearch-leave-active {
+  transition: all 0.4s ease;
+}
+
+.Animation_SwitchAdvanceSearch-enter,
+.Animation_SwitchAdvanceSearch-leave-to {
+  opacity: 0;
+}
+
+.Animation_SwitchSimpleSearch-enter-active {
+  transition: all 0.6s ease;
+}
+
+.Animation_SwitchSimpleSearch-leave-active {
+  transition: all 0.4s ease;
+}
+
+.Animation_SwitchSimpleSearch-enter,
+.Animation_SwitchSimpleSearch-leave-to {
+  opacity: 0;
+}
+
 .form-table {
   border-collapse: collapse;
   margin-top: 50px;
   width: 100%;
-  font-size: 14px;
+  font-size: 15px;
+  max-width: 800px;
+}
+
+.form-table > table {
+  position: relative;
+  width: 100%;
+}
+
+.form-table button {
+  min-width: 160px;
+  margin-right: 20px;
 }
 
 .form-table th {
@@ -887,7 +975,7 @@ export default {
 .form-table td,
 .form-table td p,
 .form-table th {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .form-table td {
@@ -970,20 +1058,20 @@ input[type="time"],
 input[type="url"],
 input[type="week"],
 textarea {
-  font-size: 14px;
+  font-size: 15px;
   padding: 3px 5px;
   border-radius: 0;
 }
 
-p.description,
-span.description {
-  font-size: 13px;
-  font-style: italic;
+.regular-text {
+  width: 100%;
+  margin-bottom: 15px;
+  max-height: 300px;
+  min-height: 30px;
 }
 
-.regular-text {
-  width: 20em;
-  margin-bottom: 15px;
+.regular-text textarea {
+  min-height: 80px;
 }
 
 /* Search */
@@ -1080,70 +1168,22 @@ span.description {
   transition: all 0.3s ease;
 }
 
-.table_blur th {
-  width: 150px;
-}
-
-.table_blur td {
-  width: 150px;
+.table_blur td > img {
+  width: 28px;
+  height: 28px;
 }
 
 .table_blur td:first-child {
-  width: 295px;
+  max-width: 600px;
 }
 
 .table_blur th:first-child {
-  width: 280px;
+  max-width: 600px;
 }
 
-.table_blur td:last-child {
-  width: 230px;
-}
+/* SwitchToggle */
 
-.table_blur th:last-child {
-  width: 240px;
-}
-
-/* PageNav */
-
-.PageNavigator {
-  clear: both;
-  height: 130px;
-  border-top: 1px solid #cfcfcf;
-  padding-top: 50px;
-  margin-top: 40px;
-}
-
-.PageNavigator button {
-  background-color: white;
-  color: #333;
-  font-size: 18px;
-  border: 1px solid #cfcfcf;
-  float: left;
-  width: 150px;
-  height: 45px;
-}
-
-.PageNavigator button:first-child {
-  border-bottom-left-radius: 5px;
-  border-top-left-radius: 5px;
-}
-
-.PageNavigator button:last-child {
-  border-bottom-right-radius: 5px;
-  border-top-right-radius: 5px;
-}
-
-#current {
-  /* font-weight: 700; */
-  color: #fff;
-  background-color: #0073a2;
-  border: 1px solid #0073a2;
-}
-
-.PageNavigator button:hover {
-  background-color: #2ea1cd;
-  color: #fff;
-  border: 1px solid #0073a2;
+.SwicthTG {
+  margin-top: 20px;
 }
 </style>

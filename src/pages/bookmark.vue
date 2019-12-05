@@ -1,8 +1,6 @@
 <template>
   <div>
-    <!-- Pre loader -->
-    <page-loader></page-loader>
-    	<!-- Check login -->
+    <!-- Check login -->
     <login-check :viewMW="true"></login-check>
     <!-- /Check login -->
     <h2>Закладки</h2>
@@ -15,34 +13,36 @@
           <th>Удалить закладку</th>
         </tr>
       </thead>
-    </table>
-    <div class="table_scroll">
-      <table class="table_blur">
-        <tbody>
-          <tr v-for="(value, index) in Items.list" :key="index">
-            <td>
-              <router-link :to="'/docview/' + value['docId']">{{ value['document'].title }}</router-link>
-            </td>
-            <td>
-              <button
-                :class="value['control'] ? 'btn btn-danger' : 'btn btn-success'"
-                @click="AddOrDeleteControl(value['document'].id, index, !value['control'])"
-              >{{ value['control'] ? 'Удалить' : 'Добавить' }}</button>
-            </td>
-            <td>
-              <button
-                class="btn btn-danger"
-                @click="ShowModalWindow_delete(value['document'].title, value['document'].id, index)"
-              >X</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <table class="table_blur">
+      <tbody>
+        <tr v-if="IsLoadingItems">
+          <td colspan="3">
+            <loadingsmall :IsLoading="IsLoadingItems" :center="true" style="width:100%"></loadingsmall>
+          </td>
+        </tr>
+        <tr v-else-if="Items.list.length <= 0 && IsLoadingItems == false">
+          <td colspan="3" style="text-align: center;">Закладок не найдено</td>
+        </tr>
+        <tr v-else v-for="(value, index) in Items.list" :key="index">
+          <td>
+            <router-link :to="'/docview/' + value['docId']">{{ value['document'].title }}</router-link>
+          </td>
+          <td>
+            <button
+              :class="value['control'] ? 'btn btn-danger' : 'btn btn-success'"
+              @click="AddOrDeleteControl(value['document'].id, index, !value['control'])"
+            >{{ value['control'] ? 'Удалить' : 'Добавить' }}</button>
+          </td>
+          <td>
+            <button
+              class="btn btn-danger"
+              @click="ShowModalWindow_delete(value['document'].title, value['document'].id, index)"
+            >X</button>
+          </td>
+        </tr>
+      </tbody>
       <tfoot>
         <tr>
-          <th>Всего закладок: {{ Items.total }}</th>
+          <th colspan="3">Показано {{ Items.list.length }} из {{ Items.total }} закладок</th>
         </tr>
       </tfoot>
     </table>
@@ -54,17 +54,20 @@
       :Page="$route.params.page"
     ></page-nav>
     <!-- Modal Window Delete user -->
-    <b-modal id="modal-prevent-closing" @hidden="resetModal" @ok="handleOk" ref="modal">
+    <b-modal size="lg" id="modal-prevent-closing" @hidden="resetModal" @ok="handleOk" ref="modal">
       <template slot="modal-header">
         <h5>Подтверждение</h5>
       </template>
       <template slot="default">
-        <p>Вы уверены, что хотите удалить закладку <b>{{ TheBookMark }}</b>?</p>
+        <p>
+          Вы уверены, что хотите удалить закладку
+          <b>{{ TheBookMark }}</b>?
+        </p>
         <div class="alert" :class="success" role="alert">{{ RespText }}</div>
       </template>
       <template slot="modal-footer" slot-scope="{ ok, cancel }">
-        <b-button size="sm" variant="success" @click="ok()">Удалить</b-button>
-        <b-button size="sm" variant="danger" @click="cancel()">Закрыть</b-button>
+        <b-button size="md" variant="success" @click="ok()">Удалить</b-button>
+        <b-button size="md" variant="danger" @click="cancel()">Закрыть</b-button>
       </template>
     </b-modal>
   </div>
@@ -73,8 +76,8 @@
 <script>
 import * as api from "../api";
 import Navigator from "../components/PageNavigator";
-import Loader from "../components/PageLoader.vue";
 import LoginCheck from "../components/logincheck.vue";
+import loadingsmall from "../components/loading_small.vue";
 
 export default {
   data() {
@@ -83,19 +86,20 @@ export default {
       success: "",
       TheBookMarkID: "",
       TheBookMark: "",
-      TheBookMarkIndex: ""
+      TheBookMarkIndex: "",
+      IsLoadingItems: false
     };
   },
   created() {
     document.title = this.$route.meta.title;
     this.GetStartInfo(
-      this.$route.params.page == "undefined" ? 0 : this.$route.params.page - 1
+      this.$route.params.page === undefined ? 0 : this.$route.params.page - 1
     );
   },
   components: {
     PageNav: Navigator,
-    PageLoader: Loader,
-    LoginCheck
+    LoginCheck,
+    loadingsmall
   },
   methods: {
     async AddOrDeleteControl(_id, _index, _control) {
@@ -105,10 +109,12 @@ export default {
         return;
       }
       try {
-        await this.$store.dispatch("UpdateBookMarks", {id: _id, index: _index, control: _control});
-      } catch (error) {
-
-      }
+        await this.$store.dispatch("UpdateBookMarks", {
+          id: _id,
+          index: _index,
+          control: _control
+        });
+      } catch (error) {}
     },
     resetModal() {
       this.TheBookMarkID = "";
@@ -131,13 +137,12 @@ export default {
         return;
       }
       try {
-        const res = await api.DeleteBookMark(this.TheBookMarkID);
+        await this.$store.dispatch("DeleteBookMarkFromList",{ TheBookMarkID:this.TheBookMarkID, index: this.TheBookMarkIndex} );
         this.TheBookMarkID = "";
         this.TheBookMark = "";
         this.TheBookMarkIndex = "";
         this.RespText = "";
         this.success = "";
-        await this.$store.dispatch("DeleteBookMarkFromList", this.TheBookMarkIndex);
         this.$nextTick(() => {
           this.$refs.modal.hide();
         });
@@ -147,10 +152,11 @@ export default {
       }
     },
     async GetStartInfo(page) {
+      this.IsLoadingItems = true;
       try {
         const res = await this.$store.dispatch("SetBookMarks", page - 1);
-      } catch (error) {
-      }
+      } catch (error) {}
+      this.IsLoadingItems = false;
     }
   },
   computed: {

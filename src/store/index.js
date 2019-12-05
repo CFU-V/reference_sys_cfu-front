@@ -16,6 +16,6 @@ export default new Vuex.Store({
   actions,
   mutations,
   modules: {
-    auth
+    auth,
   }
 })
