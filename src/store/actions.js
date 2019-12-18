@@ -23,6 +23,15 @@ import * as api from "../api";
 // !--------------[ Notifications ]---------------
 // * SetCountOfAlerts() Установить кол-во непрочитанных сообщений
 // * ChangeCountOfAlert() Изменить кол-во непрочитанных сообщений
+// !--------------[ Category ]---------------
+// * SetCategoriesTotal() Составить список категорий
+
+
+
+
+
+
+
 
 // !--------------[ User ]---------------
 
@@ -168,7 +177,6 @@ export async function SetDocuments({
         throw 'Неверный тип поиска!'
       }
       res = {};
-
       res.total = res_search.total;
       res.page = res_search.page;
       res.pages = res_search.pages;
@@ -185,7 +193,9 @@ export async function SetDocuments({
     }
     if (res !== null && res !== undefined) {
       res.typeState = payload.typeState;
-      commit("ClearDocList", { typeState: payload.typeState });
+      commit("ClearDocList", {
+        typeState: payload.typeState
+      });
       commit("SetDocList", res);
     } else {
       console.log(`[Action/SetDocuments] - Ошибка! res == null || undefined`);
@@ -221,7 +231,7 @@ export async function SetDocumentCategories({
   commit
 }) {
   try {
-    const res = await api.GetCategories();
+    const res = await api.GetCategories(0, true);
     commit("MSetDocumentCategories", res);
   } catch (error) {
     console.log(`[Action/SetDocumentCategories] - ${error}`);
@@ -304,7 +314,6 @@ export async function GetListLogs({
   }
 }
 
-
 // !--------------[ Message ]---------------
 // !--------------[ Notifications ]---------------
 /**
@@ -336,5 +345,89 @@ export function ChangeCountOfAlert({
   } catch (error) {
     console.log(`[Action/ChangeCountOfAlert] - ${error}`);
     throw error;
+  }
+}
+
+// !--------------[ Category ]---------------
+
+/**
+ * Составить список категорий
+ * @param {*} commit
+ * @param {{}} payload
+ */
+export async function SetCategoriesTotal({
+  commit
+}, payload) {
+  try {
+    const res = await api.GetCategories(payload.page, false);
+    commit("SetCategoriesTotal", res);
+  } catch (error) {
+    console.log(`[Action/SetCategoriesTotal] - ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Удалить категорию из массива
+ * @param {*} commit
+ */
+export async function DeleteCategoriesTotal({
+  commit
+}, payload) {
+  try {
+    if (payload.index < 0) {
+      console.log(`[Action/DeleteCategoriesTotal] - index < 0`);
+      throw 'Ошибка! Неверный индекс';
+    }
+    await api.DeleteCategory(payload.id);
+    commit("DeleteCategoriesTotal", payload);
+  } catch (error) {
+    console.log(`[Action/DeleteCategoriesTotal] - ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Добавить категорию в список
+ * @param {*} commit
+ * @param {{}} payload
+ */
+export async function AddCategoriesTotal({
+  commit
+}, payload) {
+  if (payload.text === null || payload.text === undefined || payload.text === "") {
+    console.log(`[Action/AddCategoriesTotal] - undefined title`);
+    throw 'Ошибка! undefined title';
+  }
+  try {
+    await api.AddCategory(payload.text);
+  } catch (error) {
+    console.log(`[Action/AddCategoriesTotal] - ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Обновить категорию в списке
+ * @param {*} commit
+ * @param {{}} payload
+ */
+export async function UpdateCategoriesTotal({
+    commit
+  }, payload) {
+    if (payload.text === null || payload.text === undefined || payload.text === "") {
+      console.log(`[Action/UpdateCategoriesTotal] - undefined title`);
+      throw 'Ошибка! undefined title';
+    }
+    if (payload.text.length > 2) {
+      try {
+        commit("UpdateCategoriesTotal", payload);
+      } catch (error) {
+        console.log(`[Action/UpdateCategoriesTotal] - ${error}`);
+        throw error;
+      }
+    } else {
+      console.log(`[Action/UpdateCategoriesTotal] - len < 3`);
+      throw `[Action/UpdateCategoriesTotal] - len < 3`;
   }
 }

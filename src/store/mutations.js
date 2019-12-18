@@ -28,6 +28,12 @@
 // * SetCountOfAlerts Заполнить перменную кол-во непрочитанных сообщений
 // * ClearCountOfAlerts Очистить перменную
 // * ChangeCountOfAlert Изменить кол-во непрочитанных сообщений
+// !--------------[ Category ]---------------
+// * SetCategoriesTotal() Заполнить список категорий
+
+
+
+
 
 
 
@@ -266,15 +272,15 @@ export const DeleteDocListItem = (state, payload) => {
     if (payload.typeState.toLowerCase().trim() === 'simple') {
       state.TheDocSimpleList.items.splice(payload.index, 1);
       state.TheDocSimpleList.total -= 1;
-      if(state.TheDocSimpleList.total < 0) state.TheDocSimpleList.total = 0;
+      if (state.TheDocSimpleList.total < 0) state.TheDocSimpleList.total = 0;
     } else if (payload.typeState.toLowerCase().trim() === 'advanced') {
       state.TheDocAdvancedList.items.splice(payload.index, 1);
       state.TheDocAdvancedList.total -= 1;
-      if(state.TheDocAdvancedList.total < 0) state.TheDocSimpleList.total = 0;
+      if (state.TheDocAdvancedList.total < 0) state.TheDocSimpleList.total = 0;
     } else if (payload.typeState.toLowerCase().trim() === 'search') {
       state.TheDocSearchList.items.splice(payload.index, 1);
       state.TheDocSearchList.total -= 1;
-      if(state.TheDocSearchList.total < 0) state.TheDocSimpleList.total = 0;
+      if (state.TheDocSearchList.total < 0) state.TheDocSimpleList.total = 0;
     } else {
       console.log(`[Mutation/SetDocList] - Unknown type state`);
       throw 'Unknown type state';
@@ -422,6 +428,74 @@ export const ChangeCountOfAlert = (state, number) => {
     if (state.CountOfAlert < 0) state.CountOfAlert = 0;
   } catch (error) {
     console.log(`[Mutation/ChangeCountOfAlert] - ${error}`);
+    throw error;
+  }
+};
+
+// !--------------[ Category ]---------------
+
+/**
+ * Заполнить список категорий
+ * @param {*} state
+ * @param {{}[]} payload
+ */
+export const SetCategoriesTotal = (state, payload) => {
+  try {
+    state.GetCategoriesTotal = {
+      items: [],
+      total: 0,
+      page: 0,
+      pageSize: 20,
+      pages: 0
+    };
+
+    state.GetCategoriesTotal.items = payload.items;
+    state.GetCategoriesTotal.total = payload.total;
+    state.GetCategoriesTotal.page = payload.page;
+    state.GetCategoriesTotal.pageSize = payload.pageSize;
+    state.GetCategoriesTotal.pages = payload.pages;
+
+  } catch (error) {
+    console.log(`[Mutation/SetCategoriesTotal] - ${error}`);
+    throw error;
+  }
+};
+
+/**
+ * Удалить категорию из массива
+ * @param {*} state
+ */
+export const DeleteCategoriesTotal = (state, payload) => {
+  try {
+    if (payload.index < 0 || payload.index >= state.GetCategoriesTotal.items.length) {
+      console.log(`[Mutation/DeleteCategoriesTotal] - index < 0`);
+      throw 'Ошибка! Неверный индекс';
+    }
+    //const title = state.GetCategoriesTotal.items[payload.index];
+    state.GetCategoriesTotal.items.splice(payload.index, 1);
+    state.GetCategoriesTotal.total -= 1;
+  } catch (error) {
+    console.log(`[Mutation/DeleteCategoriesTotal] - ${error}`);
+    throw error;
+  }
+};
+
+/**
+ * Обновить наименование категории в массиве
+ * @param {*} state
+ */
+export const UpdateCategoriesTotal = (state, payload) => {
+  try {
+    if (payload.index < 0 || payload.index >= state.GetCategoriesTotal.items.length) {
+      console.log(`[Mutation/UpdateCategoriesTotal] - index < 0 || > len`);
+      throw 'Ошибка! Неверный индекс';
+    }
+    state.GetCategoriesTotal.items[payload.index] = {
+      title: payload.text,
+      id: payload.id
+    };
+  } catch (error) {
+    console.log(`[Mutation/UpdateCategoriesTotal] - ${error}`);
     throw error;
   }
 };

@@ -58,6 +58,10 @@ const axiosInstance = axios.create({
  * * GetSearchUser() User search
  * !--------------[ Others ]------------------
  * * CheckUserIsLoggin() User authorization check
+ * !--------------[ Category ]------------------
+ * * AddCategory() add a Category for document
+ * * UpdateCategory() Update a Category
+ * * DeleteCategory() delete a Category
  */
 
 export async function Default() {
@@ -514,7 +518,7 @@ export async function GetDocument(_data, check) {
     let data = {};
     data.id = _data.id;
     if (_data.date !== null && _data.date !== undefined && _data.date.length > 2) data.date = _data.date;
-    if(_data.type === 'true') data.source = 'true';
+    if (_data.type === 'true') data.source = 'true';
     //-------------------
     const response = await axiosInstance({
       method: "GET",
@@ -660,9 +664,11 @@ export async function GetNewsDocument() {
  * Получить категории
  * @async
  * @version 0.0.0.1
+ * @param {number} _page The number of page
+ * @param {boolean} _total The flag of get all Categories or parts
  * @returns {string[]}
  */
-export async function GetCategories() {
+export async function GetCategories(_page, _total) {
   try {
     const auth = {
       Authorization: `Bearer ${localStorage.getItem("jwt")}`
@@ -671,6 +677,11 @@ export async function GetCategories() {
     const response = await axiosInstance({
       method: "GET",
       url: "document/categories",
+      params: {
+        pageSize: "20",
+        page: _page,
+        total: _total,
+      },
       headers: auth
     });
     //-------------------
@@ -1146,5 +1157,81 @@ export function CheckUserIsLoggin() {
   } catch (error) {
     console.log(`[CheckUserIsLoggin] - ${error}`);
     return false;
+  }
+}
+
+// !--------------[ Category ]------------------
+
+/**
+ * Add a Category for the documents
+ * @returns {void}
+ */
+export async function AddCategory(text) {
+  try {
+    const auth = {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    };
+    const response = await axiosInstance({
+      method: "POST",
+      url: "category",
+      data: {
+        title: text,
+      },
+      headers: auth
+    });
+    return response.data;
+  } catch (error) {
+    console.log(`[API/AddCategory] - ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Update a Category
+ * @returns {void}
+ */
+export async function UpdateCategory(_id, _title) {
+  try {
+    const auth = {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    };
+    const response = await axiosInstance({
+      method: "PUT",
+      url: "category",
+      data: {
+        id: _id,
+        title: _title,
+      },
+      headers: auth
+    });
+    return response.data;
+  } catch (error) {
+    console.log(`[API/UpdateCategory] - ${error}`);
+    throw error;
+  }
+}
+
+/**
+ * Delete a Category
+ * @param {Number} _id The id of the category
+ * @returns {void}
+ */
+export async function DeleteCategory(_id) {
+  try {
+    const auth = {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    };
+    const response = await axiosInstance({
+      method: "DELETE",
+      url: "category",
+      params: {
+        id: _id,
+      },
+      headers: auth
+    });
+    return response.data;
+  } catch (error) {
+    console.log(`[API/DeleteCategory] - ${error}`);
+    throw error;
   }
 }

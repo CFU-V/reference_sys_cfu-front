@@ -148,7 +148,7 @@ export default {
           this.$refs.modal_delete.hide();
         });
       } catch (error) {
-        this.RespText = "Ошибка при удалении документа!";
+        this.RespText = "Ошибка при удалении сообщения!";
         this.success = "alert-danger";
       }
       this.IsLoading = false;

@@ -19,6 +19,11 @@
 // !--------------[ Message ]---------------
 // !--------------[ Notifications ]---------------
 // * GetCountAlert Получить кол-во непрочитанных сообщений
+// !--------------[ Category ]---------------
+// * GetCategoriesTotal Получить массив категорий
+
+
+
 
 
 
@@ -135,4 +140,13 @@ export const GetLogs = state => {
  */
 export const GetCountAlert = state => {
   return state.CountOfAlert;
+};
+
+// !--------------[ Category ]---------------
+
+/**
+ * Получить массив категорий
+ */
+export const GetCategoriesTotal = state => {
+  return state.GetCategoriesTotal;
 };

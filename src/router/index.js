@@ -15,6 +15,7 @@ import _Search from "@/pages/result_of_search";
 import Document_view from "@/pages/document_view";
 import Document_load from "@/pages/document_load";
 import Logs from "@/pages/view_logs";
+import Document_types from "@/pages/document_types";
 
 Vue.use(Router);
 
@@ -83,6 +84,15 @@ const router = new Router({
           meta: {
             requiresAuth: true,
             title: "Управление документами | Личный кабинет"
+          }
+        },
+        {
+          path: "document-types/:page?",
+          name: "Document-types",
+          component: Document_types,
+          meta: {
+            requiresAuth: true,
+            title: "Управление категориями | Личный кабинет"
           }
         },
         {

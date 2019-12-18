@@ -107,15 +107,14 @@
               </label>
             </th>
             <td>
-              <input
+              <textarea
                 required
                 class="regular-text"
                 type="text"
                 id="DocLoad_Info"
                 v-model="doc.info"
                 placeholder="Информация о документе"
-                autocomplete="off"
-              />
+              ></textarea>
             </td>
           </tr>
           <tr>
@@ -139,10 +138,21 @@
           </tr>
           <tr>
             <th>
-              <label for="DocLoad_View">Видимость (видимый/невидимый)</label>
+              <label for="DocLoad_Date">
+                Введите дату регистрации документа
+                <span style="color:red">*</span>
+              </label>
             </th>
             <td>
-              <input type="checkbox" id="DocLoad_View" v-model="doc.visibility" />
+              <input
+                  required
+                  class="regular-text"
+                  type="date"
+                  id="DocLoad_Date"
+                  placeholder="2019-12-04"
+                  autocomplete="off"
+                  v-model="doc.date"
+                />
             </td>
           </tr>
           <tr>
@@ -168,27 +178,14 @@
               </select>
             </td>
           </tr>
-
           <tr>
             <th>
-              <label for="DocLoad_Date">
-                Введите дату регистрации документа
-                <span style="color:red">*</span>
-              </label>
+              <label for="DocLoad_View">Видимость (видимый/невидимый)</label>
             </th>
             <td>
-              <input
-                  required
-                  class="regular-text"
-                  type="date"
-                  id="DocLoad_Date"
-                  placeholder="2019-12-04"
-                  autocomplete="off"
-                  v-model="doc.date"
-                />
+              <input type="checkbox" id="DocLoad_View" v-model="doc.visibility" />
             </td>
           </tr>
-
           <tr>
             <th>
               <label for="DocLoad_Renew">Обновляемость</label>

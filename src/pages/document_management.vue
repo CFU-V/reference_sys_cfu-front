@@ -612,6 +612,10 @@ export default {
         text: _text
       });
     },
+    GetDateToUTC(_date) {
+      const DateToUTC = new Date(mnt(_date).format("YYYY.MM.DD"));
+      return (Date.UTC(LocalDateToUTC.getFullYear(),LocalDateToUTC.getMonth()+1,LocalDateToUTC.getDate())).toString();
+    },
     GetAdvanceSearch() {
       try {
         this.DataSearch.data = [];
@@ -633,20 +637,12 @@ export default {
           });
         if (this.AdvanceDataSearch.dateAdd != "")
           this.DataSearch.data.push({
-            query: new Date(
-              mnt(this.AdvanceDataSearch.dateAdd).format("YYYY.MM.DD")
-            )
-              .getTime()
-              .toFixed(0),
+            query: GetDateToUTC(this.AdvanceDataSearch.dateAdd),
             field: "createdAt"
           });
         if (this.AdvanceDataSearch.dateReg != "")
           this.DataSearch.data.push({
-            query: new Date(
-              mnt(this.AdvanceDataSearch.dateReg).format("YYYY.MM.DD")
-            )
-              .getTime()
-              .toFixed(0),
+            query: GetDateToUTC(this.AdvanceDataSearch.dateReg),
             field: "registeredAt"
           });
         if (

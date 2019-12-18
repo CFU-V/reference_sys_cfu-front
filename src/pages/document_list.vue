@@ -12,7 +12,7 @@
       @IsChanged="OnClickSwitchButton"
     ></switch-toggle>
     <transition name="Animation_SwitchSimpleSearch">
-      <form class="form-inline search-box" v-show="(ViewAdvanceSearch === false)">
+      <form class="form-inline search-box" v-show="ViewAdvanceSearch === false">
         <div class="input-group">
           <input
             type="search"
@@ -22,7 +22,13 @@
             v-model="SimpleSearchText"
           />
         </div>
-        <button type="submit" class="btn btn-success" @click.prevent="GetSimpleSearch">Поиск</button>
+        <button
+          type="submit"
+          class="btn btn-success"
+          @click.prevent="GetSimpleSearch"
+        >
+          Поиск
+        </button>
       </form>
     </transition>
     <transition name="Animation_SwitchAdvanceSearch">
@@ -59,7 +65,9 @@
             </tr>
             <tr>
               <th>
-                <label for="number-of-document">Номер (приказа/документа и тд)</label>
+                <label for="number-of-document"
+                  >Номер (приказа/документа и тд)</label
+                >
               </th>
               <td>
                 <input
@@ -107,13 +115,16 @@
                   id="category-of-document"
                   v-model="AdvanceDataSearch.category"
                 >
-                  <option value disabled>Фильтр по классификации документа</option>
+                  <option value disabled
+                    >Фильтр по классификации документа</option
+                  >
                   <option value="Все">Все</option>
                   <option
                     v-for="(value, index) in GetDocCategory"
                     :key="index"
                     :value="value"
-                  >{{value}}</option>
+                    >{{ value }}</option
+                  >
                 </select>
               </td>
             </tr>
@@ -136,7 +147,13 @@
             </tr>
           </tbody>
         </table>
-        <button class="btn btn-success" @click.prevent="GetAdvanceSearch" type="submit">Поиск</button>
+        <button
+          class="btn btn-success"
+          @click.prevent="GetAdvanceSearch"
+          type="submit"
+        >
+          Поиск
+        </button>
       </form>
     </transition>
     <button
@@ -144,7 +161,9 @@
       class="btn btn-outline-primary"
       style="margin-top: 50px"
       @click="GetViewAllDoc(PageNum)"
-    >Показать все документы</button>
+    >
+      Показать все документы
+    </button>
     <p class="table_caption">Таблица документов</p>
     <div class="OverflowY_scroll">
       <table class="table_blur">
@@ -163,41 +182,72 @@
         <transition-group name="Animation_ViewItems" tag="tbody">
           <tr v-if="IsLoadingItems" :key="1">
             <td colspan="8">
-              <loadingsmall :IsLoading="IsLoadingItems" :center="true" style="width:100%"></loadingsmall>
+              <loadingsmall
+                :IsLoading="IsLoadingItems"
+                :center="true"
+                style="width:100%"
+              ></loadingsmall>
             </td>
           </tr>
-          <tr v-else-if="GetDocumentList.items.length <= 0 && IsLoadingItems === false" :key="2">
-            <td colspan="8" style="text-align: center;">Документов не найдено</td>
+          <tr
+            v-else-if="
+              GetDocumentList.items.length <= 0 && IsLoadingItems === false
+            "
+            :key="2"
+          >
+            <td colspan="8" style="text-align: center;">
+              Документов не найдено
+            </td>
           </tr>
-          <tr v-else v-for="(value, index) in GetDocumentList.items" :key="index + 2">
+          <tr
+            v-else
+            v-for="(value, index) in GetDocumentList.items"
+            :key="index + 2"
+          >
             <td>
               <img
-                v-show="value.consultant_link !== null && value.consultant_link !== ''"
+                v-show="
+                  value.consultant_link !== null && value.consultant_link !== ''
+                "
                 src="../assets/img/KSPlust-icon.png"
                 alt
               />
-              <router-link :to="'/docview/' + value['id']">{{ value['title'] }}</router-link>
+              <router-link :to="'/docview/' + value['id']">{{
+                value["title"]
+              }}</router-link>
             </td>
-            <td>{{ value['active'] === true ? 'Активный' : 'Неактивный' }}</td>
-            <td>{{ value['visibility'] === true ? 'Да' : 'Нет' }}</td>
-            <td>{{ value['number'] }}</td>
-            <td>{{ value['renew'] === true ? 'Да' : 'Нет' }}</td>
-            <td>{{ GetDocCategory[value['categoryId']-1] }}</td>
-            <td>{{ IsSearch ? convert_unix(value['createdAt']) : convert(value['createdAt']) }}</td>
+            <td>{{ value["active"] === true ? "Активный" : "Неактивный" }}</td>
+            <td>{{ value["visibility"] === true ? "Да" : "Нет" }}</td>
+            <td>{{ value["number"] }}</td>
+            <td>{{ value["renew"] === true ? "Да" : "Нет" }}</td>
+            <td>{{ GetDocCategory[value["categoryId"] - 1] }}</td>
+            <td>
+              {{
+                IsSearch
+                  ? convert_unix(value["createdAt"])
+                  : convert(value["createdAt"])
+              }}
+            </td>
             <td>
               <button
-                :disabled="value.consultant_link !== null && value.consultant_link !== ''"
+                :disabled="
+                  value.consultant_link !== null && value.consultant_link !== ''
+                "
                 class="btn btn-success"
-                @click="ShowModalWindow(value['title'],value['id'], index)"
-              >Свойства</button>
+                @click="ShowModalWindow(value['title'], value['id'], index)"
+              >
+                Свойства
+              </button>
             </td>
           </tr>
         </transition-group>
+
         <tfoot>
           <tr>
-            <th
-              colspan="8"
-            >Показано {{ GetDocumentList.items.length }} из {{ GetDocumentList.total }} документов</th>
+            <th colspan="8">
+              Показано {{ GetDocumentList.items.length }} из
+              {{ GetDocumentList.total }} документов
+            </th>
           </tr>
         </tfoot>
       </table>
@@ -223,10 +273,21 @@
         <p>Название: {{ Property.title }}</p>
         <p>Тема: {{ Property.subject }}</p>
         <p>Теги: {{ Property.keywords }}</p>
-        <p>Информация: {{ Property.index >= 0 ? ObjectHasKey(GetDocumentList.items[Property.index],'info') ? GetDocumentList.items[Property.index].info : '' : '' }}</p>
+        <p>
+          Информация:
+          {{
+            Property.index >= 0
+              ? ObjectHasKey(GetDocumentList.items[Property.index], "info")
+                ? GetDocumentList.items[Property.index].info
+                : ""
+              : ""
+          }}
+        </p>
       </template>
       <template slot="modal-footer" slot-scope="{ cancel }">
-        <b-button size="md" variant="danger" @click="cancel()">Закрыть</b-button>
+        <b-button size="md" variant="danger" @click="cancel()"
+          >Закрыть</b-button
+        >
       </template>
     </b-modal>
     <!-- /Modal Window -->
@@ -295,6 +356,14 @@ export default {
         text: _text
       });
     },
+    GetDateToUTC(_date) {
+      const DateToUTC = new Date(mnt(_date).format("YYYY.MM.DD"));
+      return Date.UTC(
+        LocalDateToUTC.getFullYear(),
+        LocalDateToUTC.getMonth() + 1,
+        LocalDateToUTC.getDate()
+      ).toString();
+    },
     GetAdvanceSearch() {
       try {
         this.DataSearch.data = [];
@@ -316,20 +385,12 @@ export default {
           });
         if (this.AdvanceDataSearch.dateAdd != "")
           this.DataSearch.data.push({
-            query: new Date(
-              mnt(this.AdvanceDataSearch.dateAdd).format("YYYY.MM.DD")
-            )
-              .getTime()
-              .toFixed(0),
+            query: GetDateToUTC(this.AdvanceDataSearch.dateAdd),
             field: "createdAt"
           });
         if (this.AdvanceDataSearch.dateReg != "")
           this.DataSearch.data.push({
-            query: new Date(
-              mnt(this.AdvanceDataSearch.dateReg).format("YYYY.MM.DD")
-            )
-              .getTime()
-              .toFixed(0),
+            query: GetDateToUTC(this.AdvanceDataSearch.dateReg),
             field: "registeredAt"
           });
         if (

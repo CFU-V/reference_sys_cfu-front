@@ -2,7 +2,9 @@
   <div id="TheBodyTemplate">
     <div id="container">
       <div id="top-menu">
-        <h1 @click="GoHome" class="top-menu-title">Справочно-правовая система КФУ</h1>
+        <h1 @click="GoHome" class="top-menu-title">
+          Справочно-правовая система КФУ
+        </h1>
         <ul class="right-side">
           <li class="right-side">
             <button class="top-menu-item exit" @click="OnClickExit"></button>
@@ -11,14 +13,22 @@
             <router-link class="top-menu-item home" to="/"></router-link>
           </li>
           <li class="right-side">
-            <div v-show="Aletrs > 0" class="notifications">{{Aletrs}}</div>
-            <router-link class="top-menu-item bell" to="/console/messages/1"></router-link>
+            <div v-show="Aletrs > 0" class="notifications">{{ Aletrs }}</div>
+            <router-link
+              class="top-menu-item bell"
+              to="/console/messages/1"
+            ></router-link>
           </li>
           <li class="right-side">
-            <router-link class="top-menu-item bookmark" to="/console/bookmark/1"></router-link>
+            <router-link
+              class="top-menu-item bookmark"
+              to="/console/bookmark/1"
+            ></router-link>
           </li>
           <li class="right-side">
-            <router-link class="top-menu-item avatar" to="/console/account/">{{ MyName }}</router-link>
+            <router-link class="top-menu-item avatar" to="/console/account/">{{
+              MyName
+            }}</router-link>
           </li>
         </ul>
       </div>
@@ -26,32 +36,45 @@
       <div id="left-menu-container">
         <ul id="left-menu">
           <li>
-            <p class="left-menu-item left-menu-name left-menu-title">Личный кабинет</p>
+            <p class="left-menu-item left-menu-name left-menu-title">
+              Личный кабинет
+            </p>
           </li>
           <li>
             <router-link
               class="left-menu-item left-menu-name"
               to="/console/document-list/1"
-            >Список документов</router-link>
+              >Список документов</router-link
+            >
           </li>
           <li v-if="WhoIs === 'admin' || WhoIs === 'manager'">
             <router-link
               class="left-menu-item left-menu-name"
               to="/console/document-management/1"
-            >Управление документами</router-link>
+              >Управление документами</router-link
+            >
+          </li>
+          <li v-if="WhoIs === 'admin' || WhoIs === 'manager'">
+            <router-link
+              class="left-menu-item left-menu-name"
+              to="/console/document-types/1"
+              >Управление категориями</router-link
+            >
           </li>
           <li v-if="WhoIs === 'admin' || WhoIs === 'manager'">
             <router-link
               class="left-menu-item left-menu-name"
               to="/console/document-load/"
-            >Добавить документ</router-link>
+              >Добавить документ</router-link
+            >
           </li>
           <li v-if="WhoIs === 'admin'">
             <router-link
               disabled
               class="left-menu-item left-menu-name"
               to="/console/logs/1"
-            >Журнал событий</router-link>
+              >Журнал событий</router-link
+            >
           </li>
           <!-- <li>
             <router-link class="left-menu-item left-menu-name" to="#">Управление БД</router-link>
@@ -60,16 +83,22 @@
             <router-link
               class="left-menu-item left-menu-name"
               to="/console/add-user/"
-            >Добавить пользователя</router-link>
+              >Добавить пользователя</router-link
+            >
           </li>
           <li v-if="WhoIs === 'admin'">
             <router-link
               class="left-menu-item left-menu-name"
               to="/console/user-list/1"
-            >Управление пользователями</router-link>
+              >Управление пользователями</router-link
+            >
           </li>
           <li>
-            <router-link class="left-menu-item left-menu-name" to="/console/account/">Ваш профиль</router-link>
+            <router-link
+              class="left-menu-item left-menu-name"
+              to="/console/account/"
+              >Ваш профиль</router-link
+            >
           </li>
         </ul>
       </div>
@@ -141,7 +170,8 @@ export default {
   min-width: 800px;
 }
 
-a, li {
+a,
+li {
   text-decoration: none;
   list-style: none;
 }
