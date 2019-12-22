@@ -219,6 +219,12 @@ export const SetDocList = (state, payload) => {
       state.TheDocSearchList.page = payload.page;
       state.TheDocSearchList.pageSize = payload.pageSize;
       state.TheDocSearchList.pages = payload.pages;
+    } else if (payload.typeState.toLowerCase().trim() === 'compare') {
+      state.TheDocCompareList.items = payload.items;
+      state.TheDocCompareList.total = payload.total;
+      state.TheDocCompareList.page = payload.page;
+      state.TheDocCompareList.pageSize = payload.pageSize;
+      state.TheDocCompareList.pages = payload.pages;
     } else {
       console.log(`[Mutation/SetDocList] - Unknown type state`);
       throw 'Unknown type state';
@@ -253,8 +259,14 @@ export const ClearDocList = (state, payload) => {
       state.TheDocSearchList.page = 0;
       state.TheDocSearchList.pageSize = 0;
       state.TheDocSearchList.pages = 0;
+    } else if (payload.typeState.toLowerCase().trim() === 'compare') {
+      state.TheDocCompareList.items = [];
+      state.TheDocCompareList.total = 0;
+      state.TheDocCompareList.page = 0;
+      state.TheDocCompareList.pageSize = 0;
+      state.TheDocCompareList.pages = 0;
     } else {
-      console.log(`[Mutation/SetDocList] - Unknown type state`);
+      console.log(`[Mutation/ClearDocList] - Unknown type state`);
       throw 'Unknown type state';
     }
   } catch (error) {
@@ -281,8 +293,12 @@ export const DeleteDocListItem = (state, payload) => {
       state.TheDocSearchList.items.splice(payload.index, 1);
       state.TheDocSearchList.total -= 1;
       if (state.TheDocSearchList.total < 0) state.TheDocSimpleList.total = 0;
-    } else {
-      console.log(`[Mutation/SetDocList] - Unknown type state`);
+    } else if (payload.typeState.toLowerCase().trim() === 'compare') {
+      state.TheDocCompareList.items.splice(payload.index, 1);
+      state.TheDocCompareList.total -= 1;
+      if (state.TheDocCompareList.total < 0) state.TheDocSimpleList.total = 0;
+    }else {
+      console.log(`[Mutation/DeleteDocListItem] - Unknown type state`);
       throw 'Unknown type state';
     }
   } catch (error) {

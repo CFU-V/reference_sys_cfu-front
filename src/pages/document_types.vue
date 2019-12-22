@@ -74,7 +74,7 @@
             <td>{{ value.title }}</td>
             <td>
               <button
-                style="width:30%"
+                style="min-width:130px"
                 class="btn btn-outline-success"
                 @click="ShowMWParam(value.title, value.id, index)"
               >

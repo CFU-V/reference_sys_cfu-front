@@ -21,7 +21,8 @@
 // * GetCountAlert Получить кол-во непрочитанных сообщений
 // !--------------[ Category ]---------------
 // * GetCategoriesTotal Получить массив категорий
-
+// !--------------[ Compare ]---------------
+// * GetDocCompareList() get array of object of the compare doc list
 
 
 
@@ -149,4 +150,14 @@ export const GetCountAlert = state => {
  */
 export const GetCategoriesTotal = state => {
   return state.GetCategoriesTotal;
+};
+
+// !--------------[ Compare ]---------------
+
+/**
+ * Get doc compare list
+ * @param {*} state
+ */
+export const GetDocCompareList = state => {
+  return state.TheDocCompareList;
 };

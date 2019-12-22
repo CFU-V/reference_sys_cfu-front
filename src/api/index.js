@@ -62,6 +62,8 @@ const axiosInstance = axios.create({
  * * AddCategory() add a Category for document
  * * UpdateCategory() Update a Category
  * * DeleteCategory() delete a Category
+ * !--------------[ Compare ]------------------
+ * * DocCompare() compare
  */
 
 export async function Default() {
@@ -1232,6 +1234,38 @@ export async function DeleteCategory(_id) {
     return response.data;
   } catch (error) {
     console.log(`[API/DeleteCategory] - ${error}`);
+    throw error;
+  }
+}
+
+// !--------------[ Compare ]------------------
+// * DocCompare() compare
+
+/**
+ * compare doc
+ * @param {Number} _sourceId
+ * @param {Number} _compareId
+ * @param {Number} _page
+ * @returns {{}}
+ */
+export async function DocCompare(_sourceId, _compareId, _page) {
+  try {
+    const auth = {
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    };
+    const response = await axiosInstance({
+      method: "POST",
+      url: "document/compare",
+      data: {
+        sourceId: _sourceId,
+        compareId: _compareId,
+        page: _page,
+      },
+      headers: auth
+    });
+    return response.data;
+  } catch (error) {
+    console.log(`[API/DocCompare] - ${error}`);
     throw error;
   }
 }

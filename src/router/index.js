@@ -16,6 +16,8 @@ import Document_view from "@/pages/document_view";
 import Document_load from "@/pages/document_load";
 import Logs from "@/pages/view_logs";
 import Document_types from "@/pages/document_types";
+import Document_compare from "@/pages/document_compare";
+import Document_view_compare from "@/pages/document_view_compare";
 
 Vue.use(Router);
 
@@ -93,6 +95,24 @@ const router = new Router({
           meta: {
             requiresAuth: true,
             title: "Управление категориями | Личный кабинет"
+          }
+        },
+        {
+          path: "document-compare/:page?",
+          name: "Document-compare",
+          component: Document_compare,
+          meta: {
+            requiresAuth: true,
+            title: "Сравнить документы | Личный кабинет"
+          }
+        },
+        {
+          path: "document-view-compare/",
+          name: "Document-view-compare",
+          component: Document_view_compare,
+          meta: {
+            requiresAuth: true,
+            title: "(Просмотр) Сравнить документы | Личный кабинет"
           }
         },
         {

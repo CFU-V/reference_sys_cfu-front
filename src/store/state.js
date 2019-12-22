@@ -75,4 +75,11 @@ export default {
     pageSize: 20,
     pages: 0
   },
+  TheDocCompareList: {
+    items: [],
+    total: 0,
+    page: 0,
+    pageSize: 20,
+    pages: 0
+  },
 };

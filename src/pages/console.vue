@@ -64,6 +64,13 @@
           <li v-if="WhoIs === 'admin' || WhoIs === 'manager'">
             <router-link
               class="left-menu-item left-menu-name"
+              to="/console/document-compare/1"
+              >Сравнить документы</router-link
+            >
+          </li>
+          <li v-if="WhoIs === 'admin' || WhoIs === 'manager'">
+            <router-link
+              class="left-menu-item left-menu-name"
               to="/console/document-load/"
               >Добавить документ</router-link
             >
